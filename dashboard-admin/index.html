@@ -507,6 +507,26 @@
       text-transform: uppercase; letter-spacing: 0.5px;
       display: block;
     }
+    .jb-hari-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+    .jb-tab { padding:7px 18px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); transition:all 0.15s; font-family:"Plus Jakarta Sans",sans-serif; }
+    .jb-tab.aktif { background:#E07020; border-color:#B85510; color:white; }
+    .jb-tabel { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:14px; }
+    .jb-tabel th { padding:9px 12px; text-align:left; font-size:11px; font-weight:700; color:var(--abu); background:var(--abu-bg); border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:0.5px; }
+    .jb-tabel td { padding:7px 8px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
+    .jb-tabel tr:last-child td { border-bottom:none; }
+    .jb-tabel tr.jenis-jeda td { background:#FFFBF0; }
+    .jb-tabel input[type=time] { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; font-family:"DM Mono",monospace; background:var(--abu-bg); color:var(--teks); width:94px; }
+    .jb-tabel input[type=text] { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; background:var(--abu-bg); color:var(--teks); width:180px; }
+    .jb-tabel select { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; background:var(--abu-bg); color:var(--teks); }
+    .jb-badge-kbm { background:#E8F5E9; color:#2E7D32; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+    .jb-badge-jeda { background:#FFF8E1; color:#F57F17; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
+    .jb-preview { display:flex; flex-wrap:wrap; gap:6px; padding:14px; background:var(--abu-bg); border-radius:var(--radius); }
+    .jb-slot-kbm { padding:8px 12px; background:var(--putih); border:1px solid var(--border); border-radius:9px; text-align:center; min-width:64px; }
+    .jb-slot-jeda { padding:6px 12px; background:#FFF8E1; border:1px solid #FFE082; border-radius:9px; text-align:center; font-size:11px; color:#F57F17; font-weight:600; }
+    .jb-slot-num { font-size:17px; font-weight:700; color:var(--teks); line-height:1; }
+    .jb-slot-time { font-size:10px; color:var(--abu); margin-top:3px; font-family:"DM Mono",monospace; }
+    .jb-info { background:#E3EEF8; border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:#1A3A5C; margin-bottom:14px; display:flex; gap:8px; line-height:1.6; }
+    .jb-salin-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main { margin-left: 0; }
@@ -574,6 +594,10 @@
     </button>
     <button class="nav-item" onclick="gantiPage('jadwal', this)">
       <span class="nav-ikon">🗓</span> Jadwal Pelajaran
+    </button>
+    <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
+    <button class="nav-item" onclick="gantiPage('jambaku', this)">
+      <span class="nav-ikon">⏰</span> Jam Baku
     </button>
   </nav>
 
@@ -826,6 +850,55 @@
     </div>
   </div>
 
+  <!-- PAGE: JAM BAKU -->
+  <div class="page" id="page-jambaku">
+    <div class="jb-info">
+      <span style="font-size:16px;flex-shrink:0">ℹ️</span>
+      <div>Setting jam baku menentukan slot waktu per hari yang dipakai di form jadwal. Setiap hari bisa berbeda. Jenis <strong>KBM</strong> = sesi mengajar (diberi nomor urut), <strong>Jeda</strong> = istirahat/upacara (tidak diberi nomor).</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">⏰ Pengaturan Jam Baku per Hari</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="tambahSlotKBM()">+ Tambah KBM</button>
+        <button class="btn-ekspor" style="background:#F57F17;color:white;" onclick="tambahSlotJeda()">+ Tambah Jeda</button>
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="simpanJamBaku()">💾 Simpan Hari Ini</button>
+      </div>
+    </div>
+
+    <div class="jb-hari-tabs" id="jb-tabs"></div>
+
+    <div class="jb-salin-row">
+      <span style="font-size:12px;color:var(--abu);">Salin jam dari hari:</span>
+      <select class="filter-select" id="jb-salin-dari" style="font-size:12px;padding:5px 10px;">
+        <option value="">Pilih hari sumber</option>
+        <option>Senin</option><option>Selasa</option><option>Rabu</option>
+        <option>Kamis</option><option>Jumat</option><option>Sabtu</option>
+      </select>
+      <button class="btn-ekspor" style="background:var(--abu-bg);color:var(--teks);border:1px solid var(--border);" onclick="salinJamDari()">Salin →</button>
+      <span style="font-size:11px;color:var(--abu);">ke hari aktif</span>
+    </div>
+
+    <div class="tabel-card" style="margin-bottom:16px;">
+      <table class="jb-tabel">
+        <thead>
+          <tr>
+            <th style="width:40px">No</th>
+            <th style="width:100px">Jam Mulai</th>
+            <th style="width:100px">Jam Selesai</th>
+            <th style="width:80px">Jenis</th>
+            <th>Keterangan</th>
+            <th style="width:32px"></th>
+          </tr>
+        </thead>
+        <tbody id="jb-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-judul" style="margin-bottom:10px;">👁 Pratinjau slot jam (seperti di form jadwal guru)</div>
+    <div class="jb-preview" id="jb-preview"></div>
+  </div>
+
 </div><!-- .main -->
 
 <div class="toast" id="toast"></div>
@@ -903,6 +976,7 @@
     if (page === 'guru')     renderGuru();
     if (page === 'jadwal')   renderJadwal();
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
+    if (page === 'jambaku')  { if(!jbSudahMuat) initJamBaku(); else { jbRenderTabel(); jbRenderPreview(); } }
   };
 
   // ── INIT ──
@@ -1232,6 +1306,223 @@
   }
 
 
+
+
+  // ══════════════════════════════════════
+  // JAM BAKU — Data & State
+  // ══════════════════════════════════════
+  const hariList = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+  // Template default jam baku
+  const templateSenin = [
+    { jenis:'Jeda',  mulai:'07:15', selesai:'08:15', ket:'Upacara Bendera' },
+    { jenis:'KBM',   mulai:'08:15', selesai:'08:55', ket:'' },
+    { jenis:'KBM',   mulai:'08:55', selesai:'09:35', ket:'' },
+    { jenis:'KBM',   mulai:'09:35', selesai:'10:15', ket:'' },
+    { jenis:'Jeda',  mulai:'10:15', selesai:'10:45', ket:'Istirahat Pertama' },
+    { jenis:'KBM',   mulai:'10:45', selesai:'11:25', ket:'' },
+    { jenis:'KBM',   mulai:'11:25', selesai:'12:05', ket:'' },
+    { jenis:'Jeda',  mulai:'12:05', selesai:'12:45', ket:'Istirahat Sholat & Makan' },
+    { jenis:'KBM',   mulai:'12:45', selesai:'13:25', ket:'' },
+    { jenis:'KBM',   mulai:'13:25', selesai:'14:05', ket:'' },
+    { jenis:'KBM',   mulai:'14:05', selesai:'14:45', ket:'' },
+  ];
+
+  const templateBiasa = [
+    { jenis:'KBM',   mulai:'07:15', selesai:'07:55', ket:'' },
+    { jenis:'KBM',   mulai:'07:55', selesai:'08:35', ket:'' },
+    { jenis:'KBM',   mulai:'08:35', selesai:'09:15', ket:'' },
+    { jenis:'Jeda',  mulai:'09:15', selesai:'09:30', ket:'Istirahat' },
+    { jenis:'KBM',   mulai:'09:30', selesai:'10:10', ket:'' },
+    { jenis:'KBM',   mulai:'10:10', selesai:'10:50', ket:'' },
+    { jenis:'KBM',   mulai:'10:50', selesai:'11:30', ket:'' },
+    { jenis:'Jeda',  mulai:'11:30', selesai:'12:00', ket:'Istirahat Sholat' },
+    { jenis:'KBM',   mulai:'12:00', selesai:'12:40', ket:'' },
+    { jenis:'KBM',   mulai:'12:40', selesai:'13:20', ket:'' },
+  ];
+
+  const templateJumat = [
+    { jenis:'KBM',   mulai:'07:15', selesai:'07:55', ket:'' },
+    { jenis:'KBM',   mulai:'07:55', selesai:'08:35', ket:'' },
+    { jenis:'KBM',   mulai:'08:35', selesai:'09:15', ket:'' },
+    { jenis:'Jeda',  mulai:'09:15', selesai:'09:30', ket:'Istirahat' },
+    { jenis:'KBM',   mulai:'09:30', selesai:'10:10', ket:'' },
+    { jenis:'KBM',   mulai:'10:10', selesai:'10:50', ket:'' },
+    { jenis:'Jeda',  mulai:'10:50', selesai:'13:00', ket:'Istirahat Sholat Jumat' },
+    { jenis:'KBM',   mulai:'13:00', selesai:'13:40', ket:'' },
+    { jenis:'KBM',   mulai:'13:40', selesai:'14:20', ket:'' },
+  ];
+
+  // State lokal jam baku per hari
+  let jbData = {
+    Senin:  JSON.parse(JSON.stringify(templateSenin)),
+    Selasa: JSON.parse(JSON.stringify(templateBiasa)),
+    Rabu:   JSON.parse(JSON.stringify(templateBiasa)),
+    Kamis:  JSON.parse(JSON.stringify(templateBiasa)),
+    Jumat:  JSON.parse(JSON.stringify(templateJumat)),
+    Sabtu:  JSON.parse(JSON.stringify(templateBiasa)),
+  };
+
+  let jbHariAktif = 'Senin';
+  let jbSudahMuat = false;
+
+  // ── INIT JAM BAKU ──
+  async function initJamBaku() {
+    // Buat tabs
+    const tabsEl = document.getElementById('jb-tabs');
+    tabsEl.innerHTML = hariList.map(h =>
+      `<button class="jb-tab ${h==='Senin'?'aktif':''}" onclick="jbGantiHari('${h}',this)">${h}</button>`
+    ).join('');
+
+    // Muat dari Firestore
+    try {
+      const snap = await getDocs(collection(db, 'Jam_Baku'));
+      if (!snap.empty) {
+        // Reset dulu
+        hariList.forEach(h => jbData[h] = []);
+        snap.docs.forEach(d => {
+          const dd = d.data();
+          if (!jbData[dd.hari]) jbData[dd.hari] = [];
+          jbData[dd.hari].push({ id: d.id, jenis: dd.jenis, mulai: dd.jam_mulai, selesai: dd.jam_selesai, ket: dd.keterangan||'' });
+        });
+        // Sort per hari berdasarkan jam mulai
+        hariList.forEach(h => {
+          jbData[h].sort((a,b) => a.mulai.localeCompare(b.mulai));
+        });
+      }
+    } catch(e) {
+      console.log('Jam_Baku belum ada, pakai template default');
+    }
+    jbSudahMuat = true;
+    jbRenderTabel();
+    jbRenderPreview();
+  }
+
+  window.jbGantiHari = function(hari, el) {
+    jbHariAktif = hari;
+    document.querySelectorAll('.jb-tab').forEach(t => t.classList.remove('aktif'));
+    el.classList.add('aktif');
+    jbRenderTabel();
+    jbRenderPreview();
+  };
+
+  function jbRenderTabel() {
+    const data = jbData[jbHariAktif] || [];
+    const tbody = document.getElementById('jb-tbody');
+    let kbmKe = 0;
+    tbody.innerHTML = data.map((slot, i) => {
+      if (slot.jenis === 'KBM') kbmKe++;
+      const no = slot.jenis === 'KBM' ? `<strong>${kbmKe}</strong>` : '<span style="color:var(--abu)">—</span>';
+      return `<tr class="${slot.jenis==='Jeda'?'jenis-jeda':''}">
+        <td style="text-align:center">${no}</td>
+        <td><input type="time" value="${slot.mulai}" onchange="jbData['${jbHariAktif}'][${i}].mulai=this.value;jbRenderPreview()"></td>
+        <td><input type="time" value="${slot.selesai}" onchange="jbData['${jbHariAktif}'][${i}].selesai=this.value;jbRenderPreview()"></td>
+        <td>
+          <select onchange="jbData['${jbHariAktif}'][${i}].jenis=this.value;jbRenderTabel();jbRenderPreview()">
+            <option ${slot.jenis==='KBM'?'selected':''}>KBM</option>
+            <option ${slot.jenis==='Jeda'?'selected':''}>Jeda</option>
+          </select>
+        </td>
+        <td><input type="text" value="${slot.ket}" placeholder="${slot.jenis==='KBM'?'(opsional)':'Contoh: Istirahat'}" onchange="jbData['${jbHariAktif}'][${i}].ket=this.value" style="width:100%"></td>
+        <td>
+          <button onclick="jbHapusBaris(${i})" style="background:none;border:none;cursor:pointer;color:var(--merah);font-size:16px;padding:2px 4px;" title="Hapus baris ini">✕</button>
+        </td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--abu)">Belum ada slot jam. Klik "+ Tambah KBM" atau "+ Tambah Jeda"</td></tr>`;
+  }
+
+  function jbRenderPreview() {
+    const data = jbData[jbHariAktif] || [];
+    const prev = document.getElementById('jb-preview');
+    let kbmKe = 0;
+    prev.innerHTML = data.map(slot => {
+      if (slot.jenis === 'Jeda') {
+        return `<div class="jb-slot-jeda">${slot.ket||'Jeda'}<br><span style="font-size:10px;font-family:DM Mono,monospace">${slot.mulai}–${slot.selesai}</span></div>`;
+      } else {
+        kbmKe++;
+        return `<div class="jb-slot-kbm">
+          <div class="jb-slot-num">${kbmKe}</div>
+          <div class="jb-slot-time">${slot.mulai}–${slot.selesai}</div>
+        </div>`;
+      }
+    }).join('') || '<div style="font-size:12px;color:var(--abu);padding:8px">Belum ada slot</div>';
+  }
+
+  window.tambahSlotKBM = function() {
+    const data = jbData[jbHariAktif];
+    const last = data[data.length-1];
+    data.push({ jenis:'KBM', mulai: last?.selesai||'07:00', selesai: last?.selesai||'07:45', ket:'' });
+    jbRenderTabel(); jbRenderPreview();
+  };
+
+  window.tambahSlotJeda = function() {
+    const data = jbData[jbHariAktif];
+    const last = data[data.length-1];
+    data.push({ jenis:'Jeda', mulai: last?.selesai||'09:15', selesai: last?.selesai||'09:30', ket:'Istirahat' });
+    jbRenderTabel(); jbRenderPreview();
+  };
+
+  window.jbHapusBaris = function(i) {
+    jbData[jbHariAktif].splice(i,1);
+    jbRenderTabel(); jbRenderPreview();
+  };
+
+  window.salinJamDari = function() {
+    const dari = document.getElementById('jb-salin-dari').value;
+    if (!dari) { tampilToast('⚠ Pilih hari sumber dulu!'); return; }
+    if (dari === jbHariAktif) { tampilToast('⚠ Pilih hari yang berbeda!'); return; }
+    jbData[jbHariAktif] = JSON.parse(JSON.stringify(jbData[dari]));
+    jbRenderTabel(); jbRenderPreview();
+    tampilToast(`✅ Jam ${dari} berhasil disalin ke ${jbHariAktif}`);
+  };
+
+  // ── SIMPAN JAM BAKU KE FIRESTORE ──
+  window.simpanJamBaku = async function() {
+    const data = jbData[jbHariAktif];
+    if (!data.length) { tampilToast('⚠ Belum ada slot jam untuk disimpan!'); return; }
+
+    tampilToast('⏳ Menyimpan...');
+
+    try {
+      const { addDoc, deleteDoc, doc, query: fsQuery, where: fsWhere } = 
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+      // Hapus dulu semua slot hari ini di Firestore
+      const snapLama = await getDocs(fsQuery(
+        collection(db, 'Jam_Baku'),
+        fsWhere('hari', '==', jbHariAktif)
+      ));
+      for (const d of snapLama.docs) {
+        await deleteDoc(doc(db, 'Jam_Baku', d.id));
+      }
+
+      // Simpan slot baru dengan urutan
+      for (let i = 0; i < data.length; i++) {
+        const slot = data[i];
+        await addDoc(collection(db, 'Jam_Baku'), {
+          hari:        jbHariAktif,
+          urutan:      i + 1,
+          jenis:       slot.jenis,
+          jam_mulai:   slot.mulai,
+          jam_selesai: slot.selesai,
+          keterangan:  slot.ket || '',
+        });
+      }
+
+      tampilToast(`✅ Jam baku ${jbHariAktif} (${data.length} slot) berhasil disimpan!`);
+    } catch(e) {
+      tampilToast('❌ Gagal menyimpan: ' + e.message);
+    }
+  };
+
+  // ── SIMPAN SEMUA HARI SEKALIGUS ──
+  window.simpanSemuaJamBaku = async function() {
+    for (const hari of hariList) {
+      jbHariAktif = hari;
+      await simpanJamBaku();
+    }
+    tampilToast('✅ Semua jam baku (6 hari) berhasil disimpan!');
+  };
 
   // ══════════════════════════════════════
   // IMPORT EXCEL — DATA GURU
@@ -1715,6 +2006,9 @@
 
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
+  window.initJamBaku = initJamBaku;
+  window.jbRenderTabel = jbRenderTabel;
+  window.jbRenderPreview = jbRenderPreview;
   window.logout      = logout;
   window.gantiPage   = gantiPage;
   window.eksporExcel = eksporExcel;
