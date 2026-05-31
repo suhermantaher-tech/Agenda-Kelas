@@ -1077,49 +1077,78 @@
     const listEl = document.getElementById('jadwal-list');
     listEl.innerHTML = '';
     try {
+      // Muat jam baku hari ini untuk urutan tampilan
+      const jbSnap = await getDocs(query(
+        collection(db, 'Jam_Baku'),
+        where('hari', '==', hariIni)
+      ));
+      const jamBaku = jbSnap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => a.urutan - b.urutan)
+        .filter(j => j.jenis === 'KBM');
+
+      // Muat roster guru ini hari ini dari Jadwal_Pelajaran (struktur baru)
       const snap = await getDocs(query(
-        collection(db,'Jadwal_Pelajaran'),
-        where('id_guru','==',guruAktif.id),
-        where('hari','==',hariIni)
+        collection(db, 'Jadwal_Pelajaran'),
+        where('id_guru', '==', guruAktif.id),
+        where('hari', '==', hariIni)
       ));
 
       if (snap.empty) {
         listEl.innerHTML = `<div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal mengajar hari ini.</p></div>`;
         document.getElementById('status-nilai').textContent = 'Tidak ada jadwal';
         document.getElementById('status-dot').textContent = '🏖️';
+        document.getElementById('status-dot').className = 'status-dot belum';
         tampilLoading(false); return;
       }
 
+      // Cek agenda yang sudah diisi hari ini
       const snapAgenda = await getDocs(query(
-        collection(db,'Agenda_Harian'),
-        where('id_guru','==',guruAktif.id),
-        where('tanggal','==',tanggalStr(sekarang))
+        collection(db, 'Agenda_Harian'),
+        where('id_guru', '==', guruAktif.id),
+        where('tanggal', '==', tanggalStr(sekarang))
       ));
       const sudahIsi = new Set(snapAgenda.docs.map(d => d.data().id_jadwal));
 
-      let total = snap.docs.length, isi = 0;
-      snap.docs
-        .sort((a,b) => (a.data().jam_ke||0)-(b.data().jam_ke||0))
-        .forEach(docSnap => {
-          const j = docSnap.data();
-          const sudah = sudahIsi.has(docSnap.id);
-          if (sudah) isi++;
-          const el = document.createElement('div');
-          el.className = `jadwal-item${sudah?' sudah-isi':''}`;
-          el.onclick = () => { if(!sudah) pilihJadwal(docSnap.id, j); };
-          el.innerHTML = `
-            <div class="jam-badge">
-              <div class="jam-label">Jam</div>
-              <div class="jam-angka">${j.jam_ke||'?'}</div>
+      // Urutkan berdasarkan slot_urutan dari jam baku
+      const jadwalDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+      jadwalDocs.sort((a, b) => (a.slot_urutan || a.jam_ke || 0) - (b.slot_urutan || b.jam_ke || 0));
+
+      let total = jadwalDocs.length, isi = 0;
+
+      jadwalDocs.forEach(j => {
+        const sudah = sudahIsi.has(j.docId);
+        if (sudah) isi++;
+
+        // Ambil info jam dari jam baku
+        const slotJam = jamBaku.find(jb => jb.urutan === j.slot_urutan);
+        const jamMulai   = slotJam?.jam_mulai  || j.jam_mulai  || '';
+        const jamSelesai  = slotJam?.jam_selesai || j.jam_selesai || '';
+
+        // Hitung jam ke (urutan KBM saja)
+        const jamKe = jamBaku.findIndex(jb => jb.urutan === j.slot_urutan) + 1 || j.slot_urutan || '?';
+
+        const namaMapel = j.nama_mapel || j.mata_pelajaran || j.mapel || '—';
+        const namaKelas = j.nama_kelas || j.kelas || '—';
+
+        const el = document.createElement('div');
+        el.className = `jadwal-item${sudah ? ' sudah-isi' : ''}`;
+        el.onclick = () => { if (!sudah) pilihJadwal(j.docId, j, jamMulai, jamSelesai, jamKe); };
+        el.innerHTML = `
+          <div class="jam-badge">
+            <div class="jam-label">Jam</div>
+            <div class="jam-angka">${jamKe}</div>
+          </div>
+          <div class="jadwal-tengah">
+            <div class="jadwal-mapel">${namaMapel}</div>
+            <div class="jadwal-kelas">${namaKelas} · ${jamMulai} – ${jamSelesai}
+              ${j.durasi_jp > 1 ? ` · <strong>${j.durasi_jp}JP</strong>` : ''}
             </div>
-            <div class="jadwal-tengah">
-              <div class="jadwal-mapel">${j.mata_pelajaran||j.mapel||'—'}</div>
-              <div class="jadwal-kelas">${j.kelas} · ${j.jam_mulai||''} – ${j.jam_selesai||''}</div>
-            </div>
-            <span class="jadwal-badge ${sudah?'sudah':'belum'}">${sudah?'✓ Terisi':'Belum'}</span>
-          `;
-          listEl.appendChild(el);
-        });
+          </div>
+          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : 'Belum'}</span>
+        `;
+        listEl.appendChild(el);
+      });
 
       const sisa = total - isi;
       document.getElementById('status-nilai').textContent =
@@ -1128,17 +1157,20 @@
           : `${isi} dari ${total} terisi · ${sisa} belum`;
       const dot = document.getElementById('status-dot');
       dot.textContent = isi === total ? '✅' : '📋';
-      dot.className = `status-dot ${isi===total?'sudah':'belum'}`;
+      dot.className = `status-dot ${isi === total ? 'sudah' : 'belum'}`;
+
     } catch(e) {
       listEl.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat jadwal.<br><small>${e.message}</small></p></div>`;
     }
     tampilLoading(false);
   }
 
-  window.pilihJadwal = function(id, data) {
+  window.pilihJadwal = function(id, data, jamMulai, jamSelesai, jamKe) {
     jadwalDipilih = { id, ...data };
+    const namaMapel = data.nama_mapel || data.mata_pelajaran || data.mapel || '—';
+    const namaKelas = data.nama_kelas || data.kelas || '—';
     document.getElementById('form-judul-teks').textContent =
-      `${data.mata_pelajaran||data.mapel} — ${data.kelas}`;
+      `${namaMapel} — ${namaKelas} (Jam ${jamKe} · ${jamMulai}–${jamSelesai})`;
     ['materi','submateri','catatan'].forEach(f => document.getElementById('inp-'+f).value = '');
     ['metode','media'].forEach(f => document.getElementById('inp-'+f).value = '');
     ['hadir','alfa','izin','sakit'].forEach(f => document.getElementById('inp-'+f).value = '0');
@@ -1158,21 +1190,28 @@
     document.getElementById('btn-simpan').disabled = true;
     try {
       await addDoc(collection(db,'Agenda_Harian'), {
-        id_guru:       guruAktif.id,
-        id_jadwal:     jadwalDipilih.id,
-        tanggal:       tanggalStr(sekarang),
+        id_guru:        guruAktif.id,
+        id_jadwal:      jadwalDipilih.id,
+        id_rombel:      jadwalDipilih.id_rombel || '',
+        tanggal:        tanggalStr(sekarang),
         timestamp_input: new Date().toISOString(),
-        kelas:         jadwalDipilih.kelas,
-        mapel:         jadwalDipilih.mata_pelajaran||jadwalDipilih.mapel,
-        materi_pokok:  materi,
-        sub_materi:    document.getElementById('inp-submateri').value.trim(),
-        metode, media_ajar: media,
-        jumlah_hadir:  parseInt(document.getElementById('inp-hadir').value)||0,
-        jumlah_alfa:   parseInt(document.getElementById('inp-alfa').value)||0,
-        jumlah_izin:   parseInt(document.getElementById('inp-izin').value)||0,
-        jumlah_sakit:  parseInt(document.getElementById('inp-sakit').value)||0,
-        catatan:       document.getElementById('inp-catatan').value.trim(),
-        status_hadir:  'hadir'
+        hari:           hariIni,
+        slot_urutan:    jadwalDipilih.slot_urutan || 0,
+        kelas:          jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '',
+        mapel:          jadwalDipilih.nama_mapel || jadwalDipilih.mata_pelajaran || jadwalDipilih.mapel || '',
+        kode_mapel:     jadwalDipilih.kode_mapel || '',
+        materi_pokok:   materi,
+        sub_materi:     document.getElementById('inp-submateri').value.trim(),
+        metode,
+        media_ajar:     media,
+        jumlah_hadir:   parseInt(document.getElementById('inp-hadir').value)||0,
+        jumlah_alfa:    parseInt(document.getElementById('inp-alfa').value)||0,
+        jumlah_izin:    parseInt(document.getElementById('inp-izin').value)||0,
+        jumlah_sakit:   parseInt(document.getElementById('inp-sakit').value)||0,
+        catatan:        document.getElementById('inp-catatan').value.trim(),
+        status_hadir:   'hadir',
+        semester:       jadwalDipilih.semester || '',
+        tahun_ajaran:   jadwalDipilih.tahun_ajaran || '',
       });
       tampilToast('✅ Agenda berhasil disimpan!');
       tutupForm();

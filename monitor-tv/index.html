@@ -517,36 +517,45 @@
 
     // Urutkan: belum dulu, lalu sudah
     jadwalList.sort((a,b) => {
-      const aSudah = sudahIsiSet.has(a.id);
-      const bSudah = sudahIsiSet.has(b.id);
+      const aSudah = a.data._terisiSlot === a.data._totalSlot;
+      const bSudah = b.data._terisiSlot === b.data._totalSlot;
       if (aSudah !== bSudah) return aSudah ? 1 : -1;
       return (a.data.kelas||'').localeCompare(b.data.kelas||'');
     });
 
     let jmlSudah = 0;
     jadwalList.forEach(({id, data}) => {
-      const sudah = sudahIsiSet.has(id);
-      if (sudah) jmlSudah++;
+      const totalSlot  = data._totalSlot  || 1;
+      const terisiSlot = data._terisiSlot || 0;
+      const sudahSemua = terisiSlot === totalSlot;
+      if (sudahSemua) jmlSudah++;
 
       const namaGuru = cacheGuru[data.id_guru] || '—';
-      const mapel = data.mata_pelajaran || data.mapel || '—';
-      const kelas = data.kelas || '—';
-      const jamInfo = data.jam_mulai && data.jam_selesai ? `${data.jam_mulai}–${data.jam_selesai}` : `Jam ${data.jam_ke||'?'}`;
+      const kelas    = data.kelas || '—';
+      const pct      = Math.round(terisiSlot / totalSlot * 100);
+
+      // Bar progress per kelas
+      const progressBar = `
+        <div style="height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin-top:6px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${sudahSemua?'#81C784':'#FFB74D'};border-radius:2px;transition:width 0.5s;"></div>
+        </div>`;
 
       const kartu = document.createElement('div');
-      kartu.className = `kartu-kelas ${sudah ? 'sudah' : 'belum'}`;
+      kartu.className = `kartu-kelas ${sudahSemua ? 'sudah' : 'belum'}`;
       kartu.innerHTML = `
-        <div class="ikon-status">${sudah ? '✅' : '🔴'}</div>
+        <div class="ikon-status">${sudahSemua ? '✅' : '🔴'}</div>
         <div>
           <div class="kelas-nama">${kelas}</div>
-          <div class="kelas-mapel">${mapel}</div>
-          <div class="kelas-guru">👤 ${namaGuru}</div>
+          <div class="kelas-mapel">👤 ${namaGuru}</div>
+          <div class="kelas-guru" style="margin-top:3px;font-size:10px;opacity:0.7;">
+            ${terisiSlot}/${totalSlot} sesi terisi
+          </div>
+          ${progressBar}
         </div>
         <div class="kelas-bottom">
-          <span class="status-badge ${sudah ? 'sudah' : 'belum'}">
-            ${sudah ? '✓ Sudah Diisi' : '⚠ Belum Diisi'}
+          <span class="status-badge ${sudahSemua ? 'sudah' : 'belum'}">
+            ${sudahSemua ? '✓ Lengkap' : terisiSlot > 0 ? `${pct}% terisi` : '⚠ Belum Diisi'}
           </span>
-          <span class="jam-info">${jamInfo}</span>
         </div>
       `;
       grid.appendChild(kartu);
@@ -568,12 +577,12 @@
 
   function updateTicker(sudah, total, jadwalList, sudahIsiSet) {
     const belumList = jadwalList
-      .filter(({id}) => !sudahIsiSet.has(id))
-      .map(({data}) => `${data.kelas} (${data.mata_pelajaran||data.mapel})`);
+      .filter(({data}) => data._terisiSlot < data._totalSlot)
+      .map(({data}) => data.kelas);
 
-    let teks = `📊 Rekap Hari ${hariIni}: ${sudah} dari ${total} kelas sudah mengisi agenda`;
+    let teks = `📊 Rekap Hari ${hariIni}: ${sudah} dari ${total} kelas sudah lengkap`;
     if (belumList.length > 0) {
-      teks += ` · ⚠ Belum terisi: ${belumList.join(' · ')}`;
+      teks += ` · ⚠ Belum lengkap: ${belumList.join(' · ')}`;
     } else if (total > 0) {
       teks += ' · ✅ Semua kelas sudah mengisi agenda hari ini!';
     }
@@ -585,22 +594,65 @@
   async function init() {
     await muatDataGuru();
 
-    // Ambil semua jadwal hari ini
+    // Ambil roster hari ini (semua kelas)
     const qJadwal = query(
       collection(db, 'Jadwal_Pelajaran'),
       where('hari', '==', hariIni)
     );
     const snapJadwal = await getDocs(qJadwal);
-    const jadwalList = snapJadwal.docs.map(d => ({ id: d.id, data: d.data() }));
 
-    // Real-time listener untuk Agenda_Harian hari ini
+    // Kelompokkan per rombel — ambil slot unik per kelas
+    // Setiap kelas muncul sekali di grid (bukan per slot)
+    const rombelMap = {}; // rombelId → { namaKelas, slots: [...] }
+    snapJadwal.docs.forEach(d => {
+      const dd = d.data();
+      const rid = dd.id_rombel || dd.kelas || dd.nama_kelas;
+      if (!rombelMap[rid]) {
+        rombelMap[rid] = {
+          id: rid,
+          namaKelas: dd.nama_kelas || dd.kelas || rid,
+          slots: []
+        };
+      }
+      rombelMap[rid].slots.push({ docId: d.id, ...dd });
+    });
+
+    const rombelList = Object.values(rombelMap)
+      .sort((a,b) => a.namaKelas.localeCompare(b.namaKelas));
+
+    // Real-time listener Agenda_Harian hari ini
     const qAgenda = query(
       collection(db, 'Agenda_Harian'),
       where('tanggal', '==', tanggalStr)
     );
 
     onSnapshot(qAgenda, (snap) => {
+      // Agenda dicocokkan via id_jadwal (docId dari Jadwal_Pelajaran)
       const sudahIsiSet = new Set(snap.docs.map(d => d.data().id_jadwal));
+
+      // Untuk setiap rombel, cek berapa slot sudah terisi
+      const jadwalList = rombelList.map(r => {
+        const totalSlot  = r.slots.length;
+        const terisiSlot = r.slots.filter(s => sudahIsiSet.has(s.docId)).length;
+        // Ambil mapel pertama yang belum terisi atau yang sudah terisi
+        const slotAktif  = r.slots.find(s => !sudahIsiSet.has(s.docId)) || r.slots[0];
+        return {
+          id:        r.id,
+          data: {
+            kelas:         r.namaKelas,
+            id_guru:       slotAktif?.id_guru || '',
+            mata_pelajaran: slotAktif?.nama_mapel || slotAktif?.mata_pelajaran || '',
+            jam_ke:        slotAktif?.slot_urutan || '',
+            jam_mulai:     slotAktif?.jam_mulai || '',
+            jam_selesai:   slotAktif?.jam_selesai || '',
+            _totalSlot:    totalSlot,
+            _terisiSlot:   terisiSlot,
+            _semua:        sudahIsiSet,
+            _slots:        r.slots,
+          }
+        };
+      });
+
       renderGrid(jadwalList, sudahIsiSet);
       document.getElementById('loading').style.display = 'none';
     }, (err) => {
