@@ -774,8 +774,6 @@
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const sekarang  = new Date();
 
-  // expose globals
-  Object.assign(window, { loginAdmin, logout, gantiPage, eksporExcel, eksporPDF });
 
   // ── AUTH ──
   onAuthStateChanged(auth, user => {
@@ -1142,6 +1140,12 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('tampil'), 3000);
   }
+  // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
+  window.loginAdmin  = loginAdmin;
+  window.logout      = logout;
+  window.gantiPage   = gantiPage;
+  window.eksporExcel = eksporExcel;
+  window.eksporPDF   = eksporPDF;
 </script>
 </body>
 </html>
