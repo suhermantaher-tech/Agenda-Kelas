@@ -2115,35 +2115,56 @@
             [], 'error'); return;
         }
 
-        // Buat map nama → id dan kode → id
-        const namaToId = {}, kodeToId = {};
+        // Buat map nama → id (berbagai variasi) dan kode → id
+        const namaToId = {}, kodeToId = {}, idGuruList = {};
         Object.entries(cacheGuru).forEach(([id,g]) => {
-          namaToId[(g.nama_lengkap||'').toLowerCase()] = id;
+          const namaLengkap = (g.nama_lengkap||'').toLowerCase().trim();
+          namaToId[namaLengkap] = id;
+          // Juga simpan nama tanpa gelar (sebelum koma)
+          const namaPokok = namaLengkap.split(',')[0].trim();
+          if (!namaToId[namaPokok]) namaToId[namaPokok] = id;
+          // Nama tanpa spasi ekstra
+          namaToId[namaLengkap.replace(/\s+/g,' ')] = id;
           if (g.kode_guru) kodeToId[g.kode_guru.toUpperCase()] = id;
+          idGuruList[id] = true;
         });
 
         let berhasil = 0, gagal = [];
 
         for (const row of rows) {
-          const nama  = String(row['Nama Lengkap']||'').trim();
-          const kode  = String(row['Kode Guru']||'').trim().toUpperCase();
+          const nama    = String(row['Nama Lengkap']||'').trim();
+          const kode    = String(row['Kode Guru']||'').trim().toUpperCase();
           const mapelRaw = String(row['Bidang Studi']||'').trim();
           const maxJam   = parseInt(row['Maks JP Minggu']||0) || null;
+          const idLangsung = String(row['ID Dokumen']||'').trim();
 
-          // Cari ID guru
-          let guruId = kode ? kodeToId[kode] : null;
-          if (!guruId && nama) guruId = namaToId[nama.toLowerCase()];
-          if (!guruId) { gagal.push(`"${nama||kode}": guru tidak ditemukan`); continue; }
+          // Cari ID guru — 4 cara: ID langsung, kode lama, nama lengkap, nama pokok
+          let guruId = null;
+          if (idLangsung && idGuruList[idLangsung]) guruId = idLangsung;
+          if (!guruId && kode) guruId = kodeToId[kode] || null;
+          if (!guruId && nama) {
+            guruId = namaToId[nama.toLowerCase().trim()]
+              || namaToId[nama.toLowerCase().split(',')[0].trim()]
+              || null;
+          }
+          // Fuzzy: cari nama yang mengandung kata kunci
+          if (!guruId && nama) {
+            const kataKunci = nama.toLowerCase().split(',')[0].trim().split(' ')[0];
+            const match = Object.entries(cacheGuru).find(([,g]) =>
+              (g.nama_lengkap||'').toLowerCase().includes(kataKunci)
+            );
+            if (match) guruId = match[0];
+          }
+          if (!guruId) { gagal.push('"' + (nama||kode) + '": guru tidak ditemukan di sistem'); continue; }
 
-          // Bangun update object
+          // Bangun update object — selalu update kode_guru kalau ada di Excel
           const update = {};
-          if (kode && !kodeToId[kode]) update.kode_guru = kode;
-          else if (kode) update.kode_guru = kode;
+          if (kode) update.kode_guru = kode;
           if (mapelRaw) {
             update.bidang_studi = mapelRaw.split(',').map(s => s.trim()).filter(s => s);
           }
           if (maxJam) update.max_jam_minggu = maxJam;
-          if (!Object.keys(update).length) { gagal.push(`"${nama}": tidak ada data baru`); continue; }
+          if (!Object.keys(update).length) { gagal.push('"' + nama + '": tidak ada data baru di baris ini'); continue; }
 
           try {
             const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
