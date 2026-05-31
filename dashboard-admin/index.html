@@ -1399,6 +1399,7 @@
   }
 
   window.jbGantiHari = function(hari, el) {
+    jbSimpanDariDOM(); // simpan dulu sebelum pindah hari
     jbHariAktif = hari;
     document.querySelectorAll('.jb-tab').forEach(t => t.classList.remove('aktif'));
     el.classList.add('aktif');
@@ -1407,28 +1408,70 @@
   };
 
   function jbRenderTabel() {
-    const data = jbData[jbHariAktif] || [];
+    const hari = jbHariAktif;
+    const data = jbData[hari] || [];
     const tbody = document.getElementById('jb-tbody');
     let kbmKe = 0;
     tbody.innerHTML = data.map((slot, i) => {
       if (slot.jenis === 'KBM') kbmKe++;
       const no = slot.jenis === 'KBM' ? `<strong>${kbmKe}</strong>` : '<span style="color:var(--abu)">—</span>';
-      return `<tr class="${slot.jenis==='Jeda'?'jenis-jeda':''}">
+      return `<tr class="${slot.jenis==='Jeda'?'jenis-jeda':''}" data-idx="${i}">
         <td style="text-align:center">${no}</td>
-        <td><input type="time" value="${slot.mulai}" onchange="jbData['${jbHariAktif}'][${i}].mulai=this.value;jbRenderPreview()"></td>
-        <td><input type="time" value="${slot.selesai}" onchange="jbData['${jbHariAktif}'][${i}].selesai=this.value;jbRenderPreview()"></td>
+        <td><input type="time" value="${slot.mulai}" class="jb-input-mulai" data-idx="${i}" onblur="jbUpdateField(this,'mulai')" onchange="jbUpdateField(this,'mulai')"></td>
+        <td><input type="time" value="${slot.selesai}" class="jb-input-selesai" data-idx="${i}" onblur="jbUpdateField(this,'selesai')" onchange="jbUpdateField(this,'selesai')"></td>
         <td>
-          <select onchange="jbData['${jbHariAktif}'][${i}].jenis=this.value;jbRenderTabel();jbRenderPreview()">
+          <select class="jb-sel-jenis" data-idx="${i}" onchange="jbUpdateJenis(this)">
             <option ${slot.jenis==='KBM'?'selected':''}>KBM</option>
             <option ${slot.jenis==='Jeda'?'selected':''}>Jeda</option>
           </select>
         </td>
-        <td><input type="text" value="${slot.ket}" placeholder="${slot.jenis==='KBM'?'(opsional)':'Contoh: Istirahat'}" onchange="jbData['${jbHariAktif}'][${i}].ket=this.value" style="width:100%"></td>
+        <td><input type="text" value="${slot.ket||''}" placeholder="${slot.jenis==='KBM'?'(opsional)':'Contoh: Istirahat'}" class="jb-input-ket" data-idx="${i}" onblur="jbUpdateField(this,'ket')" onchange="jbUpdateField(this,'ket')" style="width:100%"></td>
         <td>
           <button onclick="jbHapusBaris(${i})" style="background:none;border:none;cursor:pointer;color:var(--merah);font-size:16px;padding:2px 4px;" title="Hapus baris ini">✕</button>
         </td>
       </tr>`;
     }).join('') || `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--abu)">Belum ada slot jam. Klik "+ Tambah KBM" atau "+ Tambah Jeda"</td></tr>`;
+  }
+
+  // Update field tanpa re-render tabel
+  window.jbUpdateField = function(el, field) {
+    const idx = parseInt(el.dataset.idx);
+    const hari = jbHariAktif;
+    if (!jbData[hari] || !jbData[hari][idx]) return;
+    const val = el.value;
+    if (field === 'mulai')   jbData[hari][idx].mulai   = val;
+    if (field === 'selesai') jbData[hari][idx].selesai = val;
+    if (field === 'ket')     jbData[hari][idx].ket     = val;
+    jbRenderPreview();
+  };
+
+  // Update jenis slot — perlu re-render karena nomor urut & warna baris berubah
+  window.jbUpdateJenis = function(el) {
+    const idx  = parseInt(el.dataset.idx);
+    const hari = jbHariAktif;
+    if (!jbData[hari] || !jbData[hari][idx]) return;
+    // Simpan semua nilai dari DOM sebelum re-render
+    jbSimpanDariDOM();
+    jbData[hari][idx].jenis = el.value;
+    jbRenderTabel();
+    jbRenderPreview();
+  };
+
+  // Baca semua nilai dari DOM ke array data sebelum re-render
+  function jbSimpanDariDOM() {
+    const hari = jbHariAktif;
+    document.querySelectorAll('#jb-tbody .jb-input-mulai').forEach(el => {
+      const idx = parseInt(el.dataset.idx);
+      if (jbData[hari][idx]) jbData[hari][idx].mulai = el.value;
+    });
+    document.querySelectorAll('#jb-tbody .jb-input-selesai').forEach(el => {
+      const idx = parseInt(el.dataset.idx);
+      if (jbData[hari][idx]) jbData[hari][idx].selesai = el.value;
+    });
+    document.querySelectorAll('#jb-tbody .jb-input-ket').forEach(el => {
+      const idx = parseInt(el.dataset.idx);
+      if (jbData[hari][idx]) jbData[hari][idx].ket = el.value;
+    });
   }
 
   function jbRenderPreview() {
@@ -1449,20 +1492,31 @@
   }
 
   window.tambahSlotKBM = function() {
+    jbSimpanDariDOM();
     const data = jbData[jbHariAktif];
     const last = data[data.length-1];
-    data.push({ jenis:'KBM', mulai: last?.selesai||'07:00', selesai: last?.selesai||'07:45', ket:'' });
+    const mulai   = last?.selesai || '07:00';
+    const [h,m]   = mulai.split(':').map(Number);
+    const total   = h*60 + m + 40;
+    const selesai = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+    data.push({ jenis:'KBM', mulai, selesai, ket:'' });
     jbRenderTabel(); jbRenderPreview();
   };
 
   window.tambahSlotJeda = function() {
+    jbSimpanDariDOM();
     const data = jbData[jbHariAktif];
     const last = data[data.length-1];
-    data.push({ jenis:'Jeda', mulai: last?.selesai||'09:15', selesai: last?.selesai||'09:30', ket:'Istirahat' });
+    const mulai   = last?.selesai || '09:15';
+    const [h,m]   = mulai.split(':').map(Number);
+    const total   = h*60 + m + 15;
+    const selesai = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+    data.push({ jenis:'Jeda', mulai, selesai, ket:'Istirahat' });
     jbRenderTabel(); jbRenderPreview();
   };
 
   window.jbHapusBaris = function(i) {
+    jbSimpanDariDOM();
     jbData[jbHariAktif].splice(i,1);
     jbRenderTabel(); jbRenderPreview();
   };
@@ -1471,13 +1525,15 @@
     const dari = document.getElementById('jb-salin-dari').value;
     if (!dari) { tampilToast('⚠ Pilih hari sumber dulu!'); return; }
     if (dari === jbHariAktif) { tampilToast('⚠ Pilih hari yang berbeda!'); return; }
+    jbSimpanDariDOM();
     jbData[jbHariAktif] = JSON.parse(JSON.stringify(jbData[dari]));
     jbRenderTabel(); jbRenderPreview();
-    tampilToast(`✅ Jam ${dari} berhasil disalin ke ${jbHariAktif}`);
+    tampilToast('✅ Jam ' + dari + ' berhasil disalin ke ' + jbHariAktif);
   };
 
   // ── SIMPAN JAM BAKU KE FIRESTORE ──
   window.simpanJamBaku = async function() {
+    jbSimpanDariDOM(); // baca nilai terkini dari input sebelum simpan
     const data = jbData[jbHariAktif];
     if (!data.length) { tampilToast('⚠ Belum ada slot jam untuk disimpan!'); return; }
 
