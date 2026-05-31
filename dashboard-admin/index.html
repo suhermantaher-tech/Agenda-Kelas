@@ -514,6 +514,20 @@
     .guru-kode { display:inline-block; font-family:"DM Mono",monospace; font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:1px 7px; border-radius:6px; margin-bottom:3px; }
     .guru-mapel-list { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
     .guru-mapel-tag { font-size:10px; padding:1px 7px; background:var(--biru-muda); color:var(--biru-tua); border-radius:10px; font-weight:500; }
+    .mapel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
+    .mapel-card { background:var(--putih); border:1.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+    .mapel-kode { font-family:"DM Mono",monospace; font-size:13px; font-weight:700; background:var(--biru-tua); color:white; padding:2px 10px; border-radius:6px; display:inline-block; margin-bottom:6px; }
+    .mapel-nama { font-size:14px; font-weight:700; color:var(--teks); margin-bottom:4px; }
+    .mapel-info { font-size:11px; color:var(--abu); line-height:1.7; }
+    .mapel-guru-tag { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; background:var(--oranye-terang); color:var(--oranye-gelap); padding:2px 8px; border-radius:10px; margin-top:4px; }
+    .fase-badge { display:inline-block; font-size:10px; font-weight:700; padding:1px 7px; border-radius:8px; margin-left:6px; }
+    .fase-e { background:#E8F5E9; color:#2E7D32; }
+    .fase-f { background:#E3EEF8; color:#1A3A5C; }
+    .rombel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
+    .rombel-card { background:var(--putih); border:1.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+    .rombel-nama { font-size:16px; font-weight:800; color:var(--teks); }
+    .rombel-info { font-size:12px; color:var(--abu); margin-top:3px; line-height:1.6; }
+    .rombel-mapel-count { font-size:11px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; margin-top:6px; display:inline-block; }
     .kal-card { background:var(--putih); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px; }
     .kal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
     .kal-field { display:flex; flex-direction:column; gap:4px; }
@@ -615,6 +629,13 @@
     </button>
     <button class="nav-item" onclick="gantiPage('jadwal', this)">
       <span class="nav-ikon">🗓</span> Jadwal Pelajaran
+    </button>
+    <div class="nav-label" style="margin-top:8px;">Roster</div>
+    <button class="nav-item" onclick="gantiPage('mapel', this)">
+      <span class="nav-ikon">📚</span> Mata Pelajaran
+    </button>
+    <button class="nav-item" onclick="gantiPage('rombel', this)">
+      <span class="nav-ikon">🏫</span> Rombel / Kelas
     </button>
     <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('jambaku', this)">
@@ -889,6 +910,153 @@
     </div>
   </div>
 
+  <!-- PAGE: MATA PELAJARAN -->
+  <div class="page" id="page-mapel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">📚 Daftar Mata Pelajaran</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor btn-excel" onclick="eksporMapelExcel()">📊 Unduh Excel</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-mapel-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-mapel-file" accept=".xlsx,.xls" style="display:none" onchange="importMapelExcel(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatMapel()">📋 Info Format</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormMapel(null)">+ Tambah Mapel</button>
+      </div>
+    </div>
+
+    <!-- FORM TAMBAH/EDIT MAPEL -->
+    <div id="form-mapel-wrap" style="display:none;margin-bottom:16px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-mapel-judul" style="margin-bottom:14px;">➕ Tambah Mata Pelajaran</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label class="form-lbl">Kode Mapel * <span style="font-weight:400;color:var(--abu)">(unik, maks 6 huruf)</span></label>
+            <input type="text" class="filter-input" id="fm-kode" placeholder="MTK" maxlength="6" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:16px;letter-spacing:2px;text-transform:uppercase">
+          </div>
+          <div>
+            <label class="form-lbl">Nama Mata Pelajaran *</label>
+            <input type="text" class="filter-input" id="fm-nama" placeholder="Matematika" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Nama Singkat</label>
+            <input type="text" class="filter-input" id="fm-singkat" placeholder="Matematika" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Fase *</label>
+            <select class="filter-select" id="fm-fase" style="width:100%;margin-top:4px">
+              <option value="">Pilih fase</option>
+              <option value="E">Fase E (Kelas X)</option>
+              <option value="F">Fase F (Kelas XI-XII)</option>
+              <option value="EF">Fase E & F</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-lbl">JP per Minggu *</label>
+            <input type="number" class="filter-input" id="fm-jp" placeholder="3" min="1" max="10" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Kelompok Mapel</label>
+            <select class="filter-select" id="fm-kelompok" style="width:100%;margin-top:4px">
+              <option value="">Pilih kelompok</option>
+              <option>Umum A</option>
+              <option>Umum B</option>
+              <option>Peminatan IPA</option>
+              <option>Peminatan IPS</option>
+              <option>Peminatan Bahasa</option>
+              <option>Lintas Minat</option>
+              <option>Muatan Lokal</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label class="form-lbl">Guru Pengampu (bisa lebih dari satu)</label>
+          <select class="filter-select" id="fm-guru-sel" style="margin-top:4px;margin-right:6px" onchange="fmTambahGuru()">
+            <option value="">— Pilih guru —</option>
+          </select>
+          <div id="fm-guru-list" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;min-height:28px;"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanMapel()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:var(--abu-bg);color:var(--teks);border:1px solid var(--border);" onclick="tutupFormMapel()">Batal</button>
+        </div>
+        <div id="mapel-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- FILTER -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <select class="filter-select" id="filter-mapel-fase" onchange="filterMapel()">
+        <option value="">Semua Fase</option>
+        <option value="E">Fase E</option>
+        <option value="F">Fase F</option>
+        <option value="EF">Fase E & F</option>
+      </select>
+      <input type="text" class="filter-input" id="filter-mapel-cari" placeholder="Cari mapel..." oninput="filterMapel()" style="flex:1;max-width:260px">
+    </div>
+
+    <div class="mapel-grid" id="mapel-grid">
+      <div class="loading-inline">Memuat data mapel...</div>
+    </div>
+  </div>
+
+  <!-- PAGE: ROMBEL -->
+  <div class="page" id="page-rombel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">🏫 Rombongan Belajar (Kelas)</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormRombel(null)">+ Tambah Kelas</button>
+      </div>
+    </div>
+
+    <div id="form-rombel-wrap" style="display:none;margin-bottom:16px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-rombel-judul" style="margin-bottom:14px;">➕ Tambah Kelas</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label class="form-lbl">Nama Kelas *</label>
+            <input type="text" class="filter-input" id="fr-nama" placeholder="X.1" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Fase *</label>
+            <select class="filter-select" id="fr-fase" style="width:100%;margin-top:4px">
+              <option value="">Pilih fase</option>
+              <option value="E">Fase E (Kelas X)</option>
+              <option value="F">Fase F (Kelas XI-XII)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-lbl">Jumlah Siswa</label>
+            <input type="number" class="filter-input" id="fr-siswa" placeholder="36" min="1" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Wali Kelas</label>
+            <select class="filter-select" id="fr-wali" style="width:100%;margin-top:4px">
+              <option value="">Pilih wali kelas</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-lbl">Tahun Ajaran</label>
+            <input type="text" class="filter-input" id="fr-tahun" placeholder="2025/2026" style="width:100%;margin-top:4px">
+          </div>
+          <div>
+            <label class="form-lbl">Semester</label>
+            <select class="filter-select" id="fr-semester" style="width:100%;margin-top:4px">
+              <option>Ganjil</option><option>Genap</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanRombel()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:var(--abu-bg);color:var(--teks);border:1px solid var(--border);" onclick="tutupFormRombel()">Batal</button>
+        </div>
+        <div id="rombel-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <div class="rombel-grid" id="rombel-grid">
+      <div class="loading-inline">Memuat data kelas...</div>
+    </div>
+  </div>
+
   <!-- PAGE: KALENDER AKADEMIK -->
   <div class="page" id="page-kalender">
 
@@ -1087,6 +1255,8 @@
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
     if (page === 'jambaku')  { if(!jbSudahMuat) initJamBaku(); else { jbRenderTabel(); jbRenderPreview(); } }
     if (page === 'kalender') initKalender();
+    if (page === 'mapel')    { renderMapelGrid(allMapel); }
+    if (page === 'rombel')   { renderRombelGrid(); }
   };
 
   // ── INIT ──
@@ -1094,6 +1264,8 @@
     await muatGuru();
     await muatAgenda();
     await muatJadwal();
+    await muatMapel();
+    await muatRombel();
     renderBeranda();
     isiFilterGuru();
     isiFilterTanggal();
@@ -1439,6 +1611,357 @@
 
 
 
+
+
+  // ══════════════════════════════════════
+  // MATA PELAJARAN — CRUD
+  // ══════════════════════════════════════
+  let allMapel = [];
+  let editMapelId = null;
+  let fmGuruList = [];
+
+  async function muatMapel() {
+    try {
+      const snap = await getDocs(collection(db, 'Mata_Pelajaran'));
+      allMapel = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { allMapel = []; }
+  }
+
+  function renderMapelGrid(data) {
+    const grid = document.getElementById('mapel-grid');
+    if (!data.length) {
+      grid.innerHTML = '<div class="loading-inline">Belum ada mata pelajaran. Klik "+ Tambah Mapel"</div>';
+      return;
+    }
+    grid.innerHTML = data.map(m => {
+      const guruNames = Array.isArray(m.id_guru_list)
+        ? m.id_guru_list.map(id => {
+            const g = cacheGuru[id];
+            return g ? `<span class="mapel-guru-tag"><span style="font-family:DM Mono,monospace">${g.kode_guru||'?'}</span> ${g.nama_lengkap.split(',')[0]}</span>` : '';
+          }).join('')
+        : '';
+      return `<div class="mapel-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span class="mapel-kode">${m.kode_mapel||'?'}</span>
+          <button onclick="editMapel('${m.id}')" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button>
+        </div>
+        <div class="mapel-nama">${m.nama_mapel||'—'}
+          ${m.fase ? `<span class="fase-badge fase-${(m.fase||'').toLowerCase().replace(' & f','').replace('e & ','')}">${m.fase}</span>` : ''}
+        </div>
+        <div class="mapel-info">
+          ${m.kelompok ? `<span>📂 ${m.kelompok}</span> · ` : ''}
+          <span>⏱ ${m.jp_per_minggu||'?'} JP/minggu</span>
+        </div>
+        <div style="margin-top:6px;">${guruNames || '<span style="font-size:11px;color:var(--abu)">Belum ada guru pengampu</span>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.filterMapel = function() {
+    const fase = document.getElementById('filter-mapel-fase').value;
+    const cari = (document.getElementById('filter-mapel-cari').value || '').toLowerCase();
+    const filtered = allMapel.filter(m => {
+      if (fase && m.fase !== fase) return false;
+      if (cari && !(m.nama_mapel||'').toLowerCase().includes(cari) && !(m.kode_mapel||'').toLowerCase().includes(cari)) return false;
+      return true;
+    });
+    renderMapelGrid(filtered);
+  };
+
+  window.tampilFormMapel = function(id) {
+    editMapelId = id;
+    fmGuruList = [];
+    document.getElementById('form-mapel-wrap').style.display = 'block';
+    document.getElementById('mapel-form-error').textContent = '';
+    // Isi dropdown guru
+    const sel = document.getElementById('fm-guru-sel');
+    sel.innerHTML = '<option value="">— Pilih guru —</option>' +
+      Object.entries(cacheGuru).filter(([,g]) => g.status_aktif !== false).map(([gid,g]) =>
+        `<option value="${gid}">[${g.kode_guru||'??'}] ${g.nama_lengkap}</option>`
+      ).join('');
+
+    if (id) {
+      const m = allMapel.find(x => x.id === id);
+      document.getElementById('form-mapel-judul').textContent = '✏️ Edit Mata Pelajaran';
+      document.getElementById('fm-kode').value     = m?.kode_mapel || '';
+      document.getElementById('fm-nama').value     = m?.nama_mapel || '';
+      document.getElementById('fm-singkat').value  = m?.nama_singkat || '';
+      document.getElementById('fm-fase').value     = m?.fase || '';
+      document.getElementById('fm-jp').value       = m?.jp_per_minggu || '';
+      document.getElementById('fm-kelompok').value = m?.kelompok || '';
+      fmGuruList = Array.isArray(m?.id_guru_list) ? [...m.id_guru_list] : [];
+    } else {
+      document.getElementById('form-mapel-judul').textContent = '➕ Tambah Mata Pelajaran';
+      ['fm-kode','fm-nama','fm-singkat','fm-jp'].forEach(i => document.getElementById(i).value = '');
+      document.getElementById('fm-fase').value = '';
+      document.getElementById('fm-kelompok').value = '';
+    }
+    fmRenderGuruChips();
+    document.getElementById('form-mapel-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormMapel = function() {
+    document.getElementById('form-mapel-wrap').style.display = 'none';
+    editMapelId = null; fmGuruList = [];
+  };
+
+  window.fmTambahGuru = function() {
+    const sel = document.getElementById('fm-guru-sel');
+    const id  = sel.value;
+    if (!id || fmGuruList.includes(id)) { sel.value = ''; return; }
+    fmGuruList.push(id);
+    sel.value = '';
+    fmRenderGuruChips();
+  };
+
+  function fmRenderGuruChips() {
+    const wrap = document.getElementById('fm-guru-list');
+    wrap.innerHTML = fmGuruList.map((id, i) => {
+      const g = cacheGuru[id];
+      const label = g ? `[${g.kode_guru||'??'}] ${g.nama_lengkap.split(',')[0]}` : id;
+      return `<span class="fg-chip">${label}<button onclick="fmHapusGuru(${i})">✕</button></span>`;
+    }).join('') || '<span style="font-size:12px;color:var(--abu)">Pilih guru dari dropdown di atas</span>';
+  }
+
+  window.fmHapusGuru = function(i) { fmGuruList.splice(i,1); fmRenderGuruChips(); };
+  window.editMapel   = function(id) { tampilFormMapel(id); };
+
+  window.simpanMapel = async function() {
+    const kode = document.getElementById('fm-kode').value.trim().toUpperCase();
+    const nama = document.getElementById('fm-nama').value.trim();
+    const fase = document.getElementById('fm-fase').value;
+    const jp   = parseInt(document.getElementById('fm-jp').value);
+    const errEl = document.getElementById('mapel-form-error');
+    errEl.textContent = '';
+    if (!kode) { errEl.textContent = 'Kode mapel wajib diisi!'; return; }
+    if (!nama) { errEl.textContent = 'Nama mapel wajib diisi!'; return; }
+    if (!fase) { errEl.textContent = 'Pilih fase!'; return; }
+    if (!jp)   { errEl.textContent = 'JP per minggu wajib diisi!'; return; }
+    // Cek duplikat kode
+    const kodeAda = allMapel.find(m => m.kode_mapel === kode && m.id !== editMapelId);
+    if (kodeAda) { errEl.textContent = `Kode "${kode}" sudah digunakan mapel lain!`; return; }
+
+    const data = {
+      kode_mapel:   kode,
+      nama_mapel:   nama,
+      nama_singkat: document.getElementById('fm-singkat').value.trim() || nama,
+      fase, jp_per_minggu: jp,
+      kelompok:     document.getElementById('fm-kelompok').value,
+      id_guru_list: fmGuruList,
+    };
+    try {
+      if (editMapelId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Mata_Pelajaran', editMapelId), data);
+        const idx = allMapel.findIndex(m => m.id === editMapelId);
+        if (idx >= 0) allMapel[idx] = { id: editMapelId, ...data };
+        tampilToast('✅ Mata pelajaran berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Mata_Pelajaran'), data);
+        allMapel.push({ id: ref.id, ...data });
+        tampilToast('✅ Mata pelajaran berhasil ditambahkan!');
+      }
+      tutupFormMapel();
+      filterMapel();
+    } catch(e) { errEl.textContent = 'Gagal: ' + e.message; }
+  };
+
+  // Ekspor & Import Mapel Excel
+  window.eksporMapelExcel = function() {
+    if (!allMapel.length) { tampilToast('⚠ Belum ada data mapel'); return; }
+    const rows = allMapel.map(m => ({
+      'Kode Mapel':    m.kode_mapel||'',
+      'Nama Mapel':    m.nama_mapel||'',
+      'Nama Singkat':  m.nama_singkat||'',
+      'Fase':          m.fase||'',
+      'JP per Minggu': m.jp_per_minggu||'',
+      'Kelompok':      m.kelompok||'',
+      'Guru Pengampu': (m.id_guru_list||[]).map(id => (cacheGuru[id]||{}).nama_lengkap||id).join(', '),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:12},{wch:28},{wch:20},{wch:8},{wch:12},{wch:18},{wch:40}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Mata Pelajaran');
+    XLSX.writeFile(wb, 'Mata_Pelajaran_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
+    tampilToast('✅ Excel Mata Pelajaran berhasil diunduh!');
+  };
+
+  window.importMapelExcel = async function(input) {
+    const file = input.files[0]; if (!file) return; input.value = '';
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb  = XLSX.read(e.target.result, { type:'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+        if (!rows.length) { tampilToast('⚠ File kosong!'); return; }
+        if (!('Kode Mapel' in rows[0])) { tampilToast('⚠ Kolom "Kode Mapel" tidak ditemukan!'); return; }
+
+        // Buat map nama guru → id
+        const namaGuruMap = {};
+        const kodeGuruMap = {};
+        Object.entries(cacheGuru).forEach(([id,g]) => {
+          namaGuruMap[(g.nama_lengkap||'').toLowerCase()] = id;
+          if (g.kode_guru) kodeGuruMap[g.kode_guru.toUpperCase()] = id;
+        });
+
+        let berhasil = 0, gagal = [];
+        for (const row of rows) {
+          const kode = String(row['Kode Mapel']||'').trim().toUpperCase();
+          const nama = String(row['Nama Mapel']||'').trim();
+          if (!kode || !nama) { gagal.push(`Baris kosong: ${kode||'?'}`); continue; }
+          const kodeAda = allMapel.find(m => m.kode_mapel === kode);
+          if (kodeAda) { gagal.push(`"${kode}": sudah ada`); continue; }
+          // Resolve guru
+          const guruRaw = String(row['Guru Pengampu']||'').split(',').map(s => s.trim()).filter(s => s);
+          const idGuruList = guruRaw.map(g => kodeGuruMap[g.toUpperCase()] || namaGuruMap[g.toLowerCase()] || null).filter(Boolean);
+          try {
+            const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const data = {
+              kode_mapel:   kode, nama_mapel: nama,
+              nama_singkat: String(row['Nama Singkat']||nama),
+              fase:         String(row['Fase']||''),
+              jp_per_minggu: parseInt(row['JP per Minggu'])||0,
+              kelompok:     String(row['Kelompok']||''),
+              id_guru_list: idGuruList,
+            };
+            const ref = await addDoc(collection(db, 'Mata_Pelajaran'), data);
+            allMapel.push({ id: ref.id, ...data });
+            berhasil++;
+          } catch(e) { gagal.push(`"${kode}": ${e.message}`); }
+        }
+        filterMapel();
+        tampilModalHasil(`✅ Import Selesai — ${berhasil} mapel ditambahkan`, '', gagal.length ? ['<strong>Gagal:</strong>',...gagal] : [], berhasil > 0 ? 'success' : 'error');
+      } catch(err) { tampilToast('❌ Gagal baca file: ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  window.infoFormatMapel = function() {
+    const html = `<div class="modal-overlay" id="modal-mapel-info" onclick="if(event.target===this)this.remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Format Data Mata Pelajaran</div>
+        <div class="modal-note">Disimpan di koleksi <strong>Mata_Pelajaran</strong> di Firestore.</div>
+        <table class="modal-tabel"><thead><tr><th>Kolom Excel</th><th>Contoh</th><th>Keterangan</th></tr></thead><tbody>
+          <tr><td><code>Kode Mapel</code></td><td>MTK</td><td>Unik, maks 6 huruf — wajib</td></tr>
+          <tr><td><code>Nama Mapel</code></td><td>Matematika</td><td>Nama lengkap — wajib</td></tr>
+          <tr><td><code>Nama Singkat</code></td><td>Matematika</td><td>Untuk tampil di grid roster</td></tr>
+          <tr><td><code>Fase</code></td><td>E / F / EF</td><td>E=Kelas X, F=XI-XII</td></tr>
+          <tr><td><code>JP per Minggu</code></td><td>3</td><td>Jam pelajaran per minggu</td></tr>
+          <tr><td><code>Kelompok</code></td><td>Umum A</td><td>Kelompok mata pelajaran</td></tr>
+          <tr><td><code>Guru Pengampu</code></td><td>SS, SA</td><td>Kode guru dipisah koma</td></tr>
+        </tbody></table>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-mapel-info').remove()">Tutup</button>
+      </div></div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  // ══════════════════════════════════════
+  // ROMBEL — CRUD
+  // ══════════════════════════════════════
+  let allRombel = [];
+  let editRombelId = null;
+
+  async function muatRombel() {
+    try {
+      const snap = await getDocs(collection(db, 'Rombel'));
+      allRombel = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { allRombel = []; }
+  }
+
+  function renderRombelGrid() {
+    const grid = document.getElementById('rombel-grid');
+    const urutan = ['X','XI','XII'];
+    const sorted = [...allRombel].sort((a,b) => {
+      const ai = urutan.findIndex(u => (a.nama_kelas||'').startsWith(u));
+      const bi = urutan.findIndex(u => (b.nama_kelas||'').startsWith(u));
+      if (ai !== bi) return ai - bi;
+      return (a.nama_kelas||'').localeCompare(b.nama_kelas||'');
+    });
+    if (!sorted.length) { grid.innerHTML = '<div class="loading-inline">Belum ada kelas. Klik "+ Tambah Kelas"</div>'; return; }
+    grid.innerHTML = sorted.map(r => {
+      const wali = r.id_wali ? (cacheGuru[r.id_wali]||{}).nama_lengkap || '—' : '—';
+      return `<div class="rombel-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="rombel-nama">${r.nama_kelas}</div>
+          <button onclick="editRombel('${r.id}')" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️</button>
+        </div>
+        <div class="rombel-info">
+          <span class="fase-badge fase-${(r.fase||'e').toLowerCase()}">${r.fase||'?'}</span>
+          · ${r.jumlah_siswa||'?'} siswa · ${r.tahun_ajaran||'—'}<br>
+          👤 Wali: ${wali}
+        </div>
+        <span class="rombel-mapel-count">${r.semester||'Ganjil'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  window.tampilFormRombel = function(id) {
+    editRombelId = id;
+    document.getElementById('form-rombel-wrap').style.display = 'block';
+    document.getElementById('rombel-form-error').textContent = '';
+    // Isi dropdown wali kelas
+    const sel = document.getElementById('fr-wali');
+    sel.innerHTML = '<option value="">Pilih wali kelas</option>' +
+      Object.entries(cacheGuru).filter(([,g]) => g.status_aktif !== false).map(([gid,g]) =>
+        `<option value="${gid}">[${g.kode_guru||'??'}] ${g.nama_lengkap}</option>`
+      ).join('');
+    if (id) {
+      const r = allRombel.find(x => x.id === id);
+      document.getElementById('form-rombel-judul').textContent = '✏️ Edit Kelas';
+      document.getElementById('fr-nama').value    = r?.nama_kelas||'';
+      document.getElementById('fr-fase').value    = r?.fase||'';
+      document.getElementById('fr-siswa').value   = r?.jumlah_siswa||'';
+      document.getElementById('fr-wali').value    = r?.id_wali||'';
+      document.getElementById('fr-tahun').value   = r?.tahun_ajaran||'';
+      document.getElementById('fr-semester').value= r?.semester||'Ganjil';
+    } else {
+      document.getElementById('form-rombel-judul').textContent = '➕ Tambah Kelas';
+      ['fr-nama','fr-siswa','fr-tahun'].forEach(i => document.getElementById(i).value = '');
+      document.getElementById('fr-fase').value = '';
+      document.getElementById('fr-tahun').value = '2025/2026';
+    }
+    document.getElementById('form-rombel-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormRombel = function() {
+    document.getElementById('form-rombel-wrap').style.display = 'none';
+    editRombelId = null;
+  };
+
+  window.editRombel = function(id) { tampilFormRombel(id); };
+
+  window.simpanRombel = async function() {
+    const nama = document.getElementById('fr-nama').value.trim();
+    const fase = document.getElementById('fr-fase').value;
+    const errEl = document.getElementById('rombel-form-error');
+    errEl.textContent = '';
+    if (!nama) { errEl.textContent = 'Nama kelas wajib diisi!'; return; }
+    if (!fase) { errEl.textContent = 'Pilih fase!'; return; }
+    const data = {
+      nama_kelas:    nama, fase,
+      jumlah_siswa:  parseInt(document.getElementById('fr-siswa').value)||0,
+      id_wali:       document.getElementById('fr-wali').value,
+      tahun_ajaran:  document.getElementById('fr-tahun').value.trim()||'2025/2026',
+      semester:      document.getElementById('fr-semester').value,
+    };
+    try {
+      if (editRombelId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Rombel', editRombelId), data);
+        const idx = allRombel.findIndex(r => r.id === editRombelId);
+        if (idx >= 0) allRombel[idx] = { id: editRombelId, ...data };
+        tampilToast('✅ Kelas berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Rombel'), data);
+        allRombel.push({ id: ref.id, ...data });
+        tampilToast('✅ Kelas berhasil ditambahkan!');
+      }
+      tutupFormRombel();
+      renderRombelGrid();
+    } catch(e) { errEl.textContent = 'Gagal: ' + e.message; }
+  };
 
   // ══════════════════════════════════════
   // KALENDER AKADEMIK
@@ -2540,6 +3063,20 @@
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
   window.initJamBaku = initJamBaku;
+  window.filterMapel = filterMapel;
+  window.tampilFormMapel = tampilFormMapel;
+  window.simpanMapel = simpanMapel;
+  window.tutupFormMapel = tutupFormMapel;
+  window.fmTambahGuru = fmTambahGuru;
+  window.fmHapusGuru = fmHapusGuru;
+  window.editMapel = editMapel;
+  window.eksporMapelExcel = eksporMapelExcel;
+  window.importMapelExcel = importMapelExcel;
+  window.infoFormatMapel = infoFormatMapel;
+  window.tampilFormRombel = tampilFormRombel;
+  window.simpanRombel = simpanRombel;
+  window.tutupFormRombel = tutupFormRombel;
+  window.editRombel = editRombel;
   window.initKalender = initKalender;
   window.kalMuatDariFirestore = kalMuatDariFirestore;
   window.kalHitung = kalHitung;
