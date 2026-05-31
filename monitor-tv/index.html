@@ -166,10 +166,19 @@
 <div class="main-layout">
 
   <!-- KIRI: GRID KELAS -->
-  <div class="panel-kiri">
-    <div class="sec-lbl">Status Agenda per Kelas</div>
-    <div class="kelas-grid" id="kelas-grid">
-      <div style="grid-column:1/-1;text-align:center;padding:40px;color:#546E7A">Memuat jadwal...</div>
+  <div class="panel-kiri" style="display:flex;flex-direction:column;gap:12px;">
+    <div>
+      <div class="sec-lbl">Status Agenda per Kelas</div>
+      <div class="kelas-grid" id="kelas-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:#546E7A">Memuat jadwal...</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-lbl" style="margin-bottom:6px;">Kegiatan Sekolah</div>
+      <div class="slider-wrap" style="height:170px;" id="slider-wrap">
+        <div class="slider-track" id="slider-track"></div>
+      </div>
+      <div class="slider-dots" id="slider-dots"></div>
     </div>
   </div>
 
@@ -225,7 +234,7 @@
   setInterval(updateJam, 1000);
 
   const now        = new Date();
-  const hariIni    = namaHari[now.getDay()];
+  const hariIni    = 'Senin';
   const tanggalStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
   document.getElementById('hari-chip').textContent = hariIni;
@@ -440,8 +449,6 @@
   }
 
   // ── SLIDER FOTO ──
-  // Daftar foto — tambahkan path foto ke array ini
-  // Letakkan foto di folder: shared/foto/ di repo GitHub
   const daftarFoto = [
     { src: '../shared/foto/foto1.jpg', caption: 'Kegiatan Belajar Mengajar' },
     { src: '../shared/foto/foto2.jpg', caption: 'Upacara Bendera' },
@@ -453,7 +460,7 @@
   let sliderIdx = 0;
   let sliderTimer = null;
 
-  function initSlider() {
+  window.initSlider = function initSlider() {
     const track = document.getElementById('slider-track');
     const dots  = document.getElementById('slider-dots');
     const wrap  = document.getElementById('slider-wrap');
@@ -481,7 +488,7 @@
     });
   }
 
-  function buildSlider(fotos) {
+  window.buildSlider = function buildSlider(fotos) {
     if (!fotos.length) { showPlaceholder(); return; }
     const track = document.getElementById('slider-track');
     const dots  = document.getElementById('slider-dots');
@@ -504,7 +511,7 @@
     }, 5000);
   }
 
-  function showPlaceholder() {
+  window.showPlaceholder = function showPlaceholder() {
     const wrap = document.getElementById('slider-wrap');
     wrap.innerHTML = `<div class="slider-placeholder" style="height:180px;">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="1.5">
