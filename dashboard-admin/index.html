@@ -479,6 +479,13 @@
     }
     .toast.tampil { transform: translateX(-50%) translateY(0); }
 
+
+    .form-lbl {
+      font-size: 11px; font-weight: 700;
+      color: var(--teks-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      display: block;
+    }
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main { margin-left: 0; }
@@ -709,7 +716,27 @@
 
   <!-- PAGE: GURU -->
   <div class="page" id="page-guru">
-    <div class="section-judul">👨‍🏫 Daftar Guru</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="section-judul" style="margin:0">👨‍🏫 Daftar Guru</div>
+      <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="tampilFormGuru(null)">+ Tambah Guru</button>
+    </div>
+    <div id="form-guru-wrap" style="display:none;margin-bottom:20px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-guru-judul" style="margin-bottom:12px;">➕ Tambah Guru Baru</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">NIP</label><input type="text" class="filter-input" id="fg-nip" placeholder="197001012000011001" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
+          <div><label class="form-lbl">No. HP</label><input type="text" class="filter-input" id="fg-hp" placeholder="08123456789" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanGuru()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:#f0f0f0;color:var(--teks);" onclick="tutupFormGuru()">Batal</button>
+        </div>
+        <div id="guru-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
     <div class="guru-grid" id="guru-grid">
       <div class="loading-inline">Memuat data guru...</div>
     </div>
@@ -717,9 +744,34 @@
 
   <!-- PAGE: JADWAL -->
   <div class="page" id="page-jadwal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="section-judul" style="margin:0">🗓 Jadwal Pelajaran</div>
+      <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="tampilFormJadwal(null)">+ Tambah Jadwal</button>
+    </div>
+    <div id="form-jadwal-wrap" style="display:none;margin-bottom:20px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-jadwal-judul" style="margin-bottom:12px;">➕ Tambah Jadwal Baru</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div><label class="form-lbl">Guru *</label><select class="filter-select" id="fj-guru" style="width:100%;margin-top:4px"><option value="">Pilih guru</option></select></div>
+          <div><label class="form-lbl">Hari *</label><select class="filter-select" id="fj-hari" style="width:100%;margin-top:4px"><option value="">Pilih hari</option><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option></select></div>
+          <div><label class="form-lbl">Kelas *</label><input type="text" class="filter-input" id="fj-kelas" placeholder="Contoh: X IPA 1" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Mata Pelajaran *</label><input type="text" class="filter-input" id="fj-mapel" placeholder="Contoh: Matematika" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Ke</label><input type="number" class="filter-input" id="fj-jam-ke" placeholder="1" min="1" max="12" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Mulai</label><input type="time" class="filter-input" id="fj-jam-mulai" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Selesai</label><input type="time" class="filter-input" id="fj-jam-selesai" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Semester</label><select class="filter-select" id="fj-semester" style="width:100%;margin-top:4px"><option>Ganjil</option><option>Genap</option></select></div>
+          <div><label class="form-lbl">Tahun Ajaran</label><input type="text" class="filter-input" id="fj-tahun" placeholder="2025/2026" style="width:100%;margin-top:4px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanJadwal()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:#f0f0f0;color:var(--teks);" onclick="tutupFormJadwal()">Batal</button>
+        </div>
+        <div id="jadwal-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
     <div class="tabel-card">
       <div class="tabel-header">
-        <div class="section-judul" style="margin:0">🗓 Jadwal Pelajaran</div>
+        <div class="section-judul" style="margin:0">🗓 Daftar Jadwal</div>
       </div>
       <table>
         <thead>
@@ -731,6 +783,7 @@
             <th>Jam Ke</th>
             <th>Waktu</th>
             <th>Semester</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody id="tabel-jadwal">
@@ -1032,12 +1085,15 @@
       const inisial = (g.nama_lengkap||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
       return `<div class="guru-card">
         <div class="guru-avatar">${inisial}</div>
-        <div>
+        <div style="flex:1">
           <div class="guru-nama">${g.nama_lengkap||'—'}</div>
           <div class="guru-nip">${g.nip||'—'}</div>
           <div class="guru-pin">PIN: ${'●'.repeat((g.pin_login||'').length)}</div>
         </div>
-        <span class="guru-status ${g.status_aktif?'aktif':'nonaktif'}">${g.status_aktif?'Aktif':'Nonaktif'}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="guru-status ${g.status_aktif?'aktif':'nonaktif'}">${g.status_aktif?'Aktif':'Nonaktif'}</span>
+          <button onclick="editGuru('${id}')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button>
+        </div>
       </div>`;
     }).join('');
   }
@@ -1062,6 +1118,7 @@
         <td style="text-align:center">${j.jam_ke||'—'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:12px">${j.jam_mulai||''}–${j.jam_selesai||''}</td>
         <td>${j.semester||'—'}</td>
+        <td><button onclick="editJadwal('${j.id}')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button></td>
       </tr>`;
     }).join('');
   }
@@ -1140,6 +1197,168 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('tampil'), 3000);
   }
+
+  // ── FORM GURU ──
+  let editGuruId = null;
+
+  window.tampilFormGuru = function(id) {
+    editGuruId = id;
+    document.getElementById('form-guru-wrap').style.display = 'block';
+    document.getElementById('guru-form-error').textContent = '';
+    if (id && cacheGuru[id]) {
+      const g = cacheGuru[id];
+      document.getElementById('form-guru-judul').textContent = '✏️ Edit Data Guru';
+      document.getElementById('fg-nama').value   = g.nama_lengkap || '';
+      document.getElementById('fg-nip').value    = g.nip || '';
+      document.getElementById('fg-pin').value    = g.pin_login || '';
+      document.getElementById('fg-hp').value     = g.no_hp || '';
+      document.getElementById('fg-status').value = String(g.status_aktif !== false);
+    } else {
+      document.getElementById('form-guru-judul').textContent = '➕ Tambah Guru Baru';
+      document.getElementById('fg-nama').value = '';
+      document.getElementById('fg-nip').value  = '';
+      document.getElementById('fg-pin').value  = '';
+      document.getElementById('fg-hp').value   = '';
+      document.getElementById('fg-status').value = 'true';
+    }
+    document.getElementById('form-guru-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormGuru = function() {
+    document.getElementById('form-guru-wrap').style.display = 'none';
+    editGuruId = null;
+  };
+
+  window.simpanGuru = async function() {
+    const nama = document.getElementById('fg-nama').value.trim();
+    const pin  = document.getElementById('fg-pin').value.trim();
+    const errEl = document.getElementById('guru-form-error');
+    errEl.textContent = '';
+    if (!nama) { errEl.textContent = 'Nama lengkap wajib diisi!'; return; }
+    if (!pin || pin.length !== 4 || isNaN(pin)) { errEl.textContent = 'PIN harus 4 digit angka!'; return; }
+
+    // Cek PIN duplikat
+    const pinExist = Object.entries(cacheGuru).find(([id, g]) => g.pin_login === pin && id !== editGuruId);
+    if (pinExist) { errEl.textContent = 'PIN sudah digunakan guru lain!'; return; }
+
+    const data = {
+      nama_lengkap: nama,
+      nip:          document.getElementById('fg-nip').value.trim(),
+      pin_login:    pin,
+      no_hp:        document.getElementById('fg-hp').value.trim(),
+      status_aktif: document.getElementById('fg-status').value === 'true'
+    };
+
+    try {
+      if (editGuruId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Data_Guru', editGuruId), data);
+        cacheGuru[editGuruId] = data;
+        tampilToast('✅ Data guru berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Data_Guru'), data);
+        cacheGuru[ref.id] = data;
+        tampilToast('✅ Guru baru berhasil ditambahkan!');
+      }
+      tutupFormGuru();
+      renderGuru();
+      isiFilterGuru();
+    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
+  };
+
+  // ── FORM JADWAL ──
+  let editJadwalId = null;
+
+  window.tampilFormJadwal = function(id) {
+    editJadwalId = id;
+    // Isi dropdown guru
+    const sel = document.getElementById('fj-guru');
+    sel.innerHTML = '<option value="">Pilih guru</option>';
+    Object.entries(cacheGuru).forEach(([gid, g]) => {
+      if (g.status_aktif !== false) {
+        const opt = document.createElement('option');
+        opt.value = gid;
+        opt.textContent = g.nama_lengkap;
+        sel.appendChild(opt);
+      }
+    });
+    document.getElementById('form-jadwal-wrap').style.display = 'block';
+    document.getElementById('jadwal-form-error').textContent = '';
+    if (id) {
+      const j = allJadwal.find(x => x.id === id);
+      if (j) {
+        document.getElementById('form-jadwal-judul').textContent = '✏️ Edit Jadwal';
+        document.getElementById('fj-guru').value      = j.id_guru || '';
+        document.getElementById('fj-hari').value      = j.hari || '';
+        document.getElementById('fj-kelas').value     = j.kelas || '';
+        document.getElementById('fj-mapel').value     = j.mata_pelajaran || j.mapel || '';
+        document.getElementById('fj-jam-ke').value    = j.jam_ke || '';
+        document.getElementById('fj-jam-mulai').value = j.jam_mulai || '';
+        document.getElementById('fj-jam-selesai').value = j.jam_selesai || '';
+        document.getElementById('fj-semester').value  = j.semester || 'Ganjil';
+        document.getElementById('fj-tahun').value     = j.tahun_ajaran || '2025/2026';
+      }
+    } else {
+      document.getElementById('form-jadwal-judul').textContent = '➕ Tambah Jadwal Baru';
+      ['fj-guru','fj-hari','fj-kelas','fj-mapel','fj-jam-ke','fj-jam-mulai','fj-jam-selesai'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('fj-tahun').value = '2025/2026';
+    }
+    document.getElementById('form-jadwal-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormJadwal = function() {
+    document.getElementById('form-jadwal-wrap').style.display = 'none';
+    editJadwalId = null;
+  };
+
+  window.simpanJadwal = async function() {
+    const guru  = document.getElementById('fj-guru').value;
+    const hari  = document.getElementById('fj-hari').value;
+    const kelas = document.getElementById('fj-kelas').value.trim();
+    const mapel = document.getElementById('fj-mapel').value.trim();
+    const errEl = document.getElementById('jadwal-form-error');
+    errEl.textContent = '';
+    if (!guru)  { errEl.textContent = 'Pilih guru!'; return; }
+    if (!hari)  { errEl.textContent = 'Pilih hari!'; return; }
+    if (!kelas) { errEl.textContent = 'Kelas wajib diisi!'; return; }
+    if (!mapel) { errEl.textContent = 'Mata pelajaran wajib diisi!'; return; }
+
+    const data = {
+      id_guru:       guru,
+      hari,
+      kelas,
+      mata_pelajaran: mapel,
+      jam_ke:        parseInt(document.getElementById('fj-jam-ke').value) || 1,
+      jam_mulai:     document.getElementById('fj-jam-mulai').value,
+      jam_selesai:   document.getElementById('fj-jam-selesai').value,
+      semester:      document.getElementById('fj-semester').value,
+      tahun_ajaran:  document.getElementById('fj-tahun').value || '2025/2026'
+    };
+
+    try {
+      if (editJadwalId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Jadwal_Pelajaran', editJadwalId), data);
+        const idx = allJadwal.findIndex(x => x.id === editJadwalId);
+        if (idx >= 0) allJadwal[idx] = { id: editJadwalId, ...data };
+        tampilToast('✅ Jadwal berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Jadwal_Pelajaran'), data);
+        allJadwal.push({ id: ref.id, ...data });
+        tampilToast('✅ Jadwal baru berhasil ditambahkan!');
+      }
+      tutupFormJadwal();
+      renderJadwal();
+    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
+  };
+
+  window.editGuru = function(id) { tampilFormGuru(id); };
+  window.editJadwal = function(id) { tampilFormJadwal(id); };
+
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
   window.logout      = logout;
