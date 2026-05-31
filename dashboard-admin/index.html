@@ -827,19 +827,10 @@
           <div><label class="form-lbl">NIP</label><input type="text" class="filter-input" id="fg-nip" placeholder="197001012000011001" style="width:100%;margin-top:4px"></div>
           <div><label class="form-lbl">No. HP</label><input type="text" class="filter-input" id="fg-hp" placeholder="08123456789" style="width:100%;margin-top:4px"></div>
           <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div><label class="form-lbl">Maks JP/minggu</label><input type="number" class="filter-input" id="fg-maxjam" placeholder="24" min="1" max="40" style="width:100%;margin-top:4px"></div>
-            <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
-          </div>
+          <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
         </div>
-        <div style="margin-top:12px;">
-          <label class="form-lbl">Bidang Studi / Mata Pelajaran yang Diampu</label>
-          <div id="fg-mapel-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:36px;padding:8px;background:var(--abu-bg);border:1px solid var(--border);border-radius:9px;"></div>
-          <div style="display:flex;gap:6px;margin-top:8px;">
-            <input type="text" class="filter-input" id="fg-mapel-input" placeholder="Ketik nama mapel lalu Enter atau klik Tambah..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();fgTambahMapel();}">
-            <button class="btn-ekspor" style="background:var(--biru-tua);color:white;white-space:nowrap;" onclick="fgTambahMapel()">+ Tambah</button>
-          </div>
-          <div style="font-size:11px;color:var(--abu);margin-top:4px;">Contoh: Matematika, Informatika, Fisika — klik ✕ untuk hapus</div>
+        <div style="margin-top:8px;padding:10px 14px;background:var(--biru-muda);border-radius:var(--radius-sm);font-size:12px;color:var(--biru-tua);">
+          ℹ️ Mapel yang diampu dan jumlah JP dikelola di menu <strong>Mata Pelajaran</strong> dan dihitung otomatis dari <strong>Roster</strong>.
         </div>
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanGuru()">💾 Simpan</button>
@@ -1483,20 +1474,21 @@
     if (!gurList.length) { grid.innerHTML = `<div class="loading-inline">Belum ada data guru.</div>`; return; }
     grid.innerHTML = gurList.map(([id, g]) => {
       const inisial = (g.nama_lengkap||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      const mapelList = Array.isArray(g.bidang_studi) ? g.bidang_studi : (g.bidang_studi ? [g.bidang_studi] : []);
-      const mapelHtml = mapelList.length
-        ? mapelList.map(m => `<span class="guru-mapel-tag">${m}</span>`).join('')
-        : '<span style="font-size:10px;color:var(--abu)">Belum diisi</span>';
+      // Ambil mapel dari Mata_Pelajaran yang guru ini ada di id_guru_list
+      const mapelGuru = allMapel.filter(m => (m.id_guru_list||[]).includes(id));
+      const mapelHtml = mapelGuru.length
+        ? mapelGuru.map(m => `<span class="guru-mapel-tag"><span style="font-family:DM Mono,monospace;font-weight:700">${m.kode_mapel}</span> ${m.nama_mapel}</span>`).join('')
+        : '<span style="font-size:10px;color:var(--abu)">Belum ada mapel — atur di menu Mata Pelajaran</span>';
       return `<div class="guru-card">
         <div class="guru-avatar">${inisial}</div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-            ${g.kode_guru ? `<span class="guru-kode">${g.kode_guru}</span>` : ''}
+            ${g.kode_guru ? `<span class="guru-kode">${g.kode_guru}</span>` : '<span class="guru-kode" style="background:var(--merah)">??</span>'}
             <span class="guru-nama" style="margin:0">${g.nama_lengkap||'—'}</span>
           </div>
           <div class="guru-nip">${g.nip||'—'}</div>
-          <div class="guru-mapel-list">${mapelHtml}</div>
-          <div class="guru-pin" style="margin-top:3px;">PIN: ${'●'.repeat((g.pin_login||'').length)} · Maks ${g.max_jam_minggu||'?'} JP/minggu</div>
+          <div class="guru-mapel-list" style="margin-top:4px;">${mapelHtml}</div>
+          <div class="guru-pin" style="margin-top:3px;">PIN: ${'●'.repeat((g.pin_login||'').length)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
           <span class="guru-status ${g.status_aktif?'aktif':'nonaktif'}">${g.status_aktif?'Aktif':'Nonaktif'}</span>
@@ -2132,10 +2124,8 @@
         let berhasil = 0, gagal = [];
 
         for (const row of rows) {
-          const nama    = String(row['Nama Lengkap']||'').trim();
-          const kode    = String(row['Kode Guru']||'').trim().toUpperCase();
-          const mapelRaw = String(row['Bidang Studi']||'').trim();
-          const maxJam   = parseInt(row['Maks JP Minggu']||0) || null;
+          const nama       = String(row['Nama Lengkap']||'').trim();
+          const kode       = String(row['Kode Guru']||'').trim().toUpperCase();
           const idLangsung = String(row['ID Dokumen']||'').trim();
 
           // Cari ID guru — 4 cara: ID langsung, kode lama, nama lengkap, nama pokok
@@ -2157,14 +2147,10 @@
           }
           if (!guruId) { gagal.push('"' + (nama||kode) + '": guru tidak ditemukan di sistem'); continue; }
 
-          // Bangun update object — selalu update kode_guru kalau ada di Excel
+          // Bangun update object — hanya update kode_guru dan data dasar
           const update = {};
           if (kode) update.kode_guru = kode;
-          if (mapelRaw) {
-            update.bidang_studi = mapelRaw.split(',').map(s => s.trim()).filter(s => s);
-          }
-          if (maxJam) update.max_jam_minggu = maxJam;
-          if (!Object.keys(update).length) { gagal.push('"' + nama + '": tidak ada data baru di baris ini'); continue; }
+          if (!Object.keys(update).length) { gagal.push('"' + nama + '": kolom Kode Guru kosong'); continue; }
 
           try {
             const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
@@ -2252,24 +2238,19 @@
     if (id && cacheGuru[id]) {
       const g = cacheGuru[id];
       document.getElementById('form-guru-judul').textContent = '✏️ Edit Data Guru';
-      document.getElementById('fg-nama').value    = g.nama_lengkap || '';
-      document.getElementById('fg-kode').value    = g.kode_guru || '';
-      document.getElementById('fg-nip').value     = g.nip || '';
-      document.getElementById('fg-pin').value     = g.pin_login || '';
-      document.getElementById('fg-hp').value      = g.no_hp || '';
-      document.getElementById('fg-maxjam').value  = g.max_jam_minggu || '';
-      document.getElementById('fg-status').value  = String(g.status_aktif !== false);
-      // Bidang studi
-      if (Array.isArray(g.bidang_studi)) fgMapelList = [...g.bidang_studi];
-      else if (g.bidang_studi) fgMapelList = [g.bidang_studi];
+      document.getElementById('fg-nama').value   = g.nama_lengkap || '';
+      document.getElementById('fg-kode').value   = g.kode_guru || '';
+      document.getElementById('fg-nip').value    = g.nip || '';
+      document.getElementById('fg-pin').value    = g.pin_login || '';
+      document.getElementById('fg-hp').value     = g.no_hp || '';
+      document.getElementById('fg-status').value = String(g.status_aktif !== false);
     } else {
       document.getElementById('form-guru-judul').textContent = '➕ Tambah Guru Baru';
-      ['fg-nama','fg-kode','fg-nip','fg-pin','fg-hp','fg-maxjam'].forEach(id => {
+      ['fg-nama','fg-kode','fg-nip','fg-pin','fg-hp'].forEach(id => {
         document.getElementById(id).value = '';
       });
       document.getElementById('fg-status').value = 'true';
     }
-    fgRenderMapelChips();
     document.getElementById('form-guru-wrap').scrollIntoView({ behavior:'smooth' });
   };
 
@@ -2294,14 +2275,12 @@
     if (kodeExist) { errEl.textContent = `Kode "${kode}" sudah digunakan ${kodeExist[1].nama_lengkap}!`; return; }
 
     const data = {
-      nama_lengkap:  nama,
-      kode_guru:     kode,
-      nip:           document.getElementById('fg-nip').value.trim(),
-      pin_login:     pin,
-      no_hp:         document.getElementById('fg-hp').value.trim(),
-      max_jam_minggu: parseInt(document.getElementById('fg-maxjam').value) || 24,
-      bidang_studi:  fgMapelList,
-      status_aktif:  document.getElementById('fg-status').value === 'true'
+      nama_lengkap: nama,
+      kode_guru:    kode,
+      nip:          document.getElementById('fg-nip').value.trim(),
+      pin_login:    pin,
+      no_hp:        document.getElementById('fg-hp').value.trim(),
+      status_aktif: document.getElementById('fg-status').value === 'true'
     };
 
     try {
@@ -2798,19 +2777,18 @@
   // ── EKSPOR GURU EXCEL ──
   window.eksporGuruExcel = function() {
     const rows = Object.entries(cacheGuru).map(([id, g]) => ({
-      'ID Dokumen':     id,
-      'Nama Lengkap':   g.nama_lengkap || '',
-      'Kode Guru':      g.kode_guru || '',
-      'NIP':            g.nip || '',
-      'PIN Login':      g.pin_login || '',
-      'No. HP':         g.no_hp || '',
-      'Bidang Studi':   Array.isArray(g.bidang_studi) ? g.bidang_studi.join(', ') : (g.bidang_studi||''),
-      'Maks JP Minggu': g.max_jam_minggu || '',
-      'Status Aktif':   g.status_aktif ? 'Ya' : 'Tidak',
+      'ID Dokumen':   id,
+      'Nama Lengkap': g.nama_lengkap || '',
+      'Kode Guru':    g.kode_guru || '',
+      'NIP':          g.nip || '',
+      'PIN Login':    g.pin_login || '',
+      'No. HP':       g.no_hp || '',
+      'Status Aktif': g.status_aktif ? 'Ya' : 'Tidak',
+      'Mapel Diampu': allMapel.filter(m => (m.id_guru_list||[]).includes(id)).map(m => m.kode_mapel).join(', '),
     }));
     if (!rows.length) { tampilToast('⚠ Belum ada data guru'); return; }
     const ws = XLSX.utils.json_to_sheet(rows);
-    ws['!cols'] = [{wch:28},{wch:30},{wch:10},{wch:20},{wch:10},{wch:16},{wch:32},{wch:14},{wch:12}];
+    ws['!cols'] = [{wch:28},{wch:30},{wch:10},{wch:20},{wch:10},{wch:16},{wch:12},{wch:24}];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
     XLSX.writeFile(wb, 'Data_Guru_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
@@ -2859,14 +2837,15 @@
         <table class="modal-tabel">
           <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
           <tbody>
-            <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar</td></tr>
+            <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar — wajib</td></tr>
             <tr><td><code>kode_guru</code></td><td>string</td><td>SS</td><td>Inisial unik maks 4 huruf — dipakai di grid roster</td></tr>
             <tr><td><code>nip</code></td><td>string</td><td>197001012000011001</td><td>NIP 18 digit (opsional)</td></tr>
             <tr><td><code>pin_login</code></td><td>string</td><td>1234</td><td>PIN 4 digit, harus unik tiap guru</td></tr>
             <tr><td><code>no_hp</code></td><td>string</td><td>08123456789</td><td>Nomor WhatsApp aktif (opsional)</td></tr>
-            <tr><td><code>bidang_studi</code></td><td>array</td><td>Matematika, Informatika</td><td>Daftar mapel yang diampu (bisa lebih dari 1)</td></tr>
-            <tr><td><code>max_jam_minggu</code></td><td>number</td><td>24</td><td>Maksimal JP per minggu</td></tr>
             <tr><td><code>status_aktif</code></td><td>boolean</td><td>true</td><td>true = aktif, false = nonaktif</td></tr>
+            <tr><td colspan="4" style="background:var(--biru-muda);color:var(--biru-tua);font-size:11px;padding:6px 10px;">
+              ℹ️ Mapel yang diampu diatur di menu <strong>Mata Pelajaran</strong>. Jumlah JP dihitung otomatis dari Roster.
+            </td></tr>
           </tbody>
         </table>
         <div class="modal-note">⚠️ PIN harus berupa 4 digit angka dan tidak boleh sama antar guru. Contoh: 1001, 1002, 1003, dst.</div>
