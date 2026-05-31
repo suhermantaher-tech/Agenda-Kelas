@@ -1863,14 +1863,27 @@
       });
       const guruAktif = guruList.filter(g => !g.bentrok);
       const dipilih   = isi?.id_mapel === m.id ? 'dipilih' : '';
+      // Buat pilihan guru per mapel
+      const guruOpsi = guruList.length === 0
+        ? '<span style="color:var(--merah);font-size:11px">Belum ada guru pengampu</span>'
+        : `<div class="roster-guru-opsi" id="guru-opsi-${m.id}" style="display:${dipilih?'flex':'none'};flex-wrap:wrap;gap:5px;margin-top:6px;">
+            ${guruList.map(g => `
+              <label style="display:inline-flex;align-items:center;gap:4px;cursor:${g.bentrok?'not-allowed':'pointer'};opacity:${g.bentrok?'0.4':'1'}">
+                <input type="radio" name="roster-guru-pick" value="${g.gid}" ${isi?.id_guru===g.gid?'checked':''} ${g.bentrok?'disabled':''} onchange="rosterPilihGuru('${g.gid}')">
+                <span style="font-size:11px;font-weight:600;font-family:DM Mono,monospace">${g.kode}</span>
+                <span style="font-size:11px;">${g.nama.split(',')[0]}</span>
+                ${g.bentrok?'<span style="font-size:10px;color:var(--merah)">(bentrok)</span>':''}
+              </label>`).join('')}
+          </div>`;
       return `<div class="roster-mapel-item ${dipilih}" onclick="rosterPilihMapel('${m.id}')">
         <span class="roster-mapel-kode">${m.kode_mapel}</span>
         <div style="flex:1">
           <div class="roster-mapel-nama">${m.nama_mapel}</div>
-          <div class="roster-mapel-guru">
+          ${guruOpsi}
+          <div class="roster-mapel-guru-ringkas" id="guru-ringkas-${m.id}" style="display:${dipilih?'none':'block'}">
             ${guruList.length === 0
-              ? '<span style="color:var(--merah)">Belum ada guru pengampu</span>'
-              : guruList.map(g => `<span style="${g.bentrok?'color:var(--merah);text-decoration:line-through':''}">${g.kode} ${g.nama.split(',')[0]}</span>`).join(' · ')
+              ? '<span style="color:var(--merah)">Belum ada guru</span>'
+              : guruList.map(g => `<span style="font-size:11px;${g.bentrok?'color:var(--merah);text-decoration:line-through':''}">${g.kode} ${g.nama.split(',')[0]}</span>`).join(' · ')
             }
           </div>
         </div>
@@ -1910,13 +1923,43 @@
   };
 
   let rosterMapelDipilih = null;
+  // rosterGuruDipilih didefinisikan di rosterPilihMapel
+
+  let rosterGuruDipilih = null;
 
   window.rosterPilihMapel = function(mapelId) {
+    // Sembunyikan semua opsi guru dan ringkasan
+    document.querySelectorAll('[id^="guru-opsi-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('[id^="guru-ringkas-"]').forEach(el => el.style.display = 'block');
+
     rosterMapelDipilih = mapelId;
+    rosterGuruDipilih  = null;
     document.querySelectorAll('.roster-mapel-item').forEach(el => el.classList.remove('dipilih'));
     event.currentTarget.classList.add('dipilih');
+
+    // Tampilkan opsi guru untuk mapel ini
+    const opsiEl   = document.getElementById('guru-opsi-' + mapelId);
+    const ringkasEl = document.getElementById('guru-ringkas-' + mapelId);
+    if (opsiEl)    opsiEl.style.display   = 'flex';
+    if (ringkasEl) ringkasEl.style.display = 'none';
+
+    // Auto-pilih guru pertama yang tidak bentrok
+    const radioChecked = opsiEl?.querySelector('input[type=radio]:not([disabled])');
+    if (radioChecked) {
+      radioChecked.checked = true;
+      rosterGuruDipilih = radioChecked.value;
+    }
+
     document.getElementById('roster-simpan-btn').disabled = false;
     document.getElementById('roster-simpan-btn').style.opacity = '1';
+  };
+
+  window.rosterPilihGuru = function(guruId) {
+    rosterGuruDipilih = guruId;
+    // Pastikan tombol simpan aktif
+    document.getElementById('roster-simpan-btn').disabled = false;
+    document.getElementById('roster-simpan-btn').style.opacity = '1';
+    event.stopPropagation();
   };
 
   window.rosterSimpanSlot = async function() {
@@ -1928,17 +1971,22 @@
     const tahun   = document.getElementById('roster-filter-tahun').value;
     const rombel  = allRombel.find(r => r.id === rombelId);
 
-    // Pilih guru pertama yang tidak bentrok
+    // Pakai guru yang dipilih manual, atau auto-pilih yang tidak bentrok
     const slotsHariIni = rosterData[rosterHariAktif] || {};
     const guruSibuk = new Set(
       Object.values(slotsHariIni)
-        .filter(d => String(d.slot_urutan) === String(slotUrutan))
+        .filter(d => String(d.slot_urutan) === String(slotUrutan) && d.id_rombel !== rombelId)
         .map(d => d.id_guru)
     );
-    const guruPilih = (mapel?.id_guru_list||[]).find(gid => !guruSibuk.has(gid));
 
-    if (!guruPilih && (mapel?.id_guru_list||[]).length > 0) {
+    let guruPilih = rosterGuruDipilih;
+    if (!guruPilih) {
+      guruPilih = (mapel?.id_guru_list||[]).find(gid => !guruSibuk.has(gid));
+    }
+    if (guruPilih && guruSibuk.has(guruPilih)) {
       document.getElementById('roster-bentrok-warn').style.display = 'block';
+      document.getElementById('roster-bentrok-warn').textContent =
+        '⚠ ' + (cacheGuru[guruPilih]?.kode_guru||'Guru') + ' sudah mengajar di kelas lain jam ini!';
       return;
     }
 
@@ -3494,6 +3542,7 @@
   window.loginAdmin  = loginAdmin;
   window.initJamBaku = initJamBaku;
   window.rosterMuat = rosterMuat;
+  window.rosterPilihGuru = rosterPilihGuru;
   window.rosterGantiHari = rosterGantiHari;
   window.rosterKlikSlot = rosterKlikSlot;
   window.rosterPilihMapel = rosterPilihMapel;
