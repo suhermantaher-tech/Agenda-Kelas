@@ -1081,7 +1081,7 @@
     document.getElementById('topbar-judul').textContent = judul[page]||page;
     document.getElementById('topbar-sub').textContent   = sub[page]||'';
 
-    if (page === 'laporan')  renderLaporan();
+    if (page === 'laporan')  renderLaporan().catch(e => console.error(e));
     if (page === 'guru')     renderGuru();
     if (page === 'jadwal')   renderJadwal();
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
@@ -1237,27 +1237,21 @@
     });
   }
 
-  function renderLaporan() {
+  async function renderLaporan() {
     const now = new Date();
     const mingguLalu = new Date(now); mingguLalu.setDate(now.getDate()-7);
     const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     const smstr = now.getMonth() < 6 ? 1 : 2;
     const smstrMulai = smstr === 1 ? `${now.getFullYear()}-01` : `${now.getFullYear()}-07`;
 
-    // Ambil kalender akademik aktif
-    const bulanSmt = sekarang.getMonth();
-    const smtAktif = bulanSmt >= 6 ? 'ganjil' : 'genap';
-    let mingguEfektif = 18; // default
-    let tglMulaiSmt = null;
+    // Ambil kalender akademik aktif untuk realisasi JP
+    const smtAktif = smstr === 2 ? 'ganjil' : 'genap';
+    let mingguEfektif = 18;
     try {
-      const tahunStr = sekarang.getFullYear() + '/' + (sekarang.getFullYear()+1);
-      const kalSnap  = await getDocs(collection(db, 'Kalender_Akademik'));
+      const kalSnap = await getDocs(collection(db, 'Kalender_Akademik'));
       kalSnap.docs.forEach(d => {
         const dd = d.data();
-        if (dd.semester === smtAktif) {
-          mingguEfektif = dd.minggu_efektif || 18;
-          tglMulaiSmt   = dd.tanggal_mulai || null;
-        }
+        if (dd.semester === smtAktif) mingguEfektif = dd.minggu_efektif || 18;
       });
     } catch(e) {}
 
