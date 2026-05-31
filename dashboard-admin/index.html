@@ -507,6 +507,13 @@
       text-transform: uppercase; letter-spacing: 0.5px;
       display: block;
     }
+    .fg-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; background:var(--biru-muda); color:var(--biru-tua); border-radius:20px; font-size:12px; font-weight:600; }
+    .fg-chip button { background:none; border:none; cursor:pointer; color:var(--biru-tua); font-size:13px; padding:0; line-height:1; opacity:0.7; }
+    .fg-chip button:hover { opacity:1; }
+    .guru-card { position:relative; }
+    .guru-kode { display:inline-block; font-family:"DM Mono",monospace; font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:1px 7px; border-radius:6px; margin-bottom:3px; }
+    .guru-mapel-list { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+    .guru-mapel-tag { font-size:10px; padding:1px 7px; background:var(--biru-muda); color:var(--biru-tua); border-radius:10px; font-weight:500; }
     .jb-hari-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
     .jb-tab { padding:7px 18px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); transition:all 0.15s; font-family:"Plus Jakarta Sans",sans-serif; }
     .jb-tab.aktif { background:#E07020; border-color:#B85510; color:white; }
@@ -767,6 +774,8 @@
         <button class="btn-ekspor btn-excel" onclick="eksporGuruExcel()">📊 Unduh Excel</button>
         <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-guru-file').click()">📥 Import Excel</button>
         <input type="file" id="imp-guru-file" accept=".xlsx,.xls" style="display:none" onchange="importGuruExcel(this)">
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('upd-guru-file').click()">🔄 Update Excel</button>
+        <input type="file" id="upd-guru-file" accept=".xlsx,.xls" style="display:none" onchange="updateGuruExcel(this)">
         <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatGuru()">📋 Info Format</button>
         <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormGuru(null)">+ Tambah Guru</button>
       </div>
@@ -775,11 +784,24 @@
       <div class="tabel-card" style="padding:20px;">
         <div class="section-judul" id="form-guru-judul" style="margin-bottom:12px;">➕ Tambah Guru Baru</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px" oninput="fgAutoKode()"></div>
+          <div><label class="form-lbl">Kode Guru * <span style="font-weight:400;color:var(--abu)">(unik, maks 4 huruf)</span></label><input type="text" class="filter-input" id="fg-kode" placeholder="SS" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase"></div>
           <div><label class="form-lbl">NIP</label><input type="text" class="filter-input" id="fg-nip" placeholder="197001012000011001" style="width:100%;margin-top:4px"></div>
-          <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
           <div><label class="form-lbl">No. HP</label><input type="text" class="filter-input" id="fg-hp" placeholder="08123456789" style="width:100%;margin-top:4px"></div>
-          <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+          <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><label class="form-lbl">Maks JP/minggu</label><input type="number" class="filter-input" id="fg-maxjam" placeholder="24" min="1" max="40" style="width:100%;margin-top:4px"></div>
+            <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <label class="form-lbl">Bidang Studi / Mata Pelajaran yang Diampu</label>
+          <div id="fg-mapel-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:36px;padding:8px;background:var(--abu-bg);border:1px solid var(--border);border-radius:9px;"></div>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <input type="text" class="filter-input" id="fg-mapel-input" placeholder="Ketik nama mapel lalu Enter atau klik Tambah..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();fgTambahMapel();}">
+            <button class="btn-ekspor" style="background:var(--biru-tua);color:white;white-space:nowrap;" onclick="fgTambahMapel()">+ Tambah</button>
+          </div>
+          <div style="font-size:11px;color:var(--abu);margin-top:4px;">Contoh: Matematika, Informatika, Fisika — klik ✕ untuk hapus</div>
         </div>
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanGuru()">💾 Simpan</button>
@@ -1190,14 +1212,22 @@
     if (!gurList.length) { grid.innerHTML = `<div class="loading-inline">Belum ada data guru.</div>`; return; }
     grid.innerHTML = gurList.map(([id, g]) => {
       const inisial = (g.nama_lengkap||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+      const mapelList = Array.isArray(g.bidang_studi) ? g.bidang_studi : (g.bidang_studi ? [g.bidang_studi] : []);
+      const mapelHtml = mapelList.length
+        ? mapelList.map(m => `<span class="guru-mapel-tag">${m}</span>`).join('')
+        : '<span style="font-size:10px;color:var(--abu)">Belum diisi</span>';
       return `<div class="guru-card">
         <div class="guru-avatar">${inisial}</div>
-        <div style="flex:1">
-          <div class="guru-nama">${g.nama_lengkap||'—'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+            ${g.kode_guru ? `<span class="guru-kode">${g.kode_guru}</span>` : ''}
+            <span class="guru-nama" style="margin:0">${g.nama_lengkap||'—'}</span>
+          </div>
           <div class="guru-nip">${g.nip||'—'}</div>
-          <div class="guru-pin">PIN: ${'●'.repeat((g.pin_login||'').length)}</div>
+          <div class="guru-mapel-list">${mapelHtml}</div>
+          <div class="guru-pin" style="margin-top:3px;">PIN: ${'●'.repeat((g.pin_login||'').length)} · Maks ${g.max_jam_minggu||'?'} JP/minggu</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
           <span class="guru-status ${g.status_aktif?'aktif':'nonaktif'}">${g.status_aktif?'Aktif':'Nonaktif'}</span>
           <button onclick="editGuru('${id}')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button>
         </div>
@@ -1307,6 +1337,219 @@
 
 
 
+
+
+
+  // ══════════════════════════════════════
+  // UPDATE GURU VIA EXCEL (kode_guru, bidang_studi, max_jam)
+  // ══════════════════════════════════════
+  window.updateGuruExcel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type:'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
+
+        if (!rows.length) { tampilToast('⚠ File Excel kosong!'); return; }
+
+        // Cek kolom minimal
+        const sample = rows[0];
+        if (!('Nama Lengkap' in sample) && !('Kode Guru' in sample)) {
+          tampilModalHasil('❌ Format tidak sesuai',
+            'File harus memiliki kolom <code>Nama Lengkap</code> atau <code>Kode Guru</code> sebagai pengenal.',
+            [], 'error'); return;
+        }
+
+        // Buat map nama → id dan kode → id
+        const namaToId = {}, kodeToId = {};
+        Object.entries(cacheGuru).forEach(([id,g]) => {
+          namaToId[(g.nama_lengkap||'').toLowerCase()] = id;
+          if (g.kode_guru) kodeToId[g.kode_guru.toUpperCase()] = id;
+        });
+
+        let berhasil = 0, gagal = [];
+
+        for (const row of rows) {
+          const nama  = String(row['Nama Lengkap']||'').trim();
+          const kode  = String(row['Kode Guru']||'').trim().toUpperCase();
+          const mapelRaw = String(row['Bidang Studi']||'').trim();
+          const maxJam   = parseInt(row['Maks JP Minggu']||0) || null;
+
+          // Cari ID guru
+          let guruId = kode ? kodeToId[kode] : null;
+          if (!guruId && nama) guruId = namaToId[nama.toLowerCase()];
+          if (!guruId) { gagal.push(`"${nama||kode}": guru tidak ditemukan`); continue; }
+
+          // Bangun update object
+          const update = {};
+          if (kode && !kodeToId[kode]) update.kode_guru = kode;
+          else if (kode) update.kode_guru = kode;
+          if (mapelRaw) {
+            update.bidang_studi = mapelRaw.split(',').map(s => s.trim()).filter(s => s);
+          }
+          if (maxJam) update.max_jam_minggu = maxJam;
+          if (!Object.keys(update).length) { gagal.push(`"${nama}": tidak ada data baru`); continue; }
+
+          try {
+            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            await updateDoc(doc(db, 'Data_Guru', guruId), update);
+            cacheGuru[guruId] = { ...cacheGuru[guruId], ...update };
+            berhasil++;
+          } catch(e) { gagal.push(`"${nama}": ${e.message}`); }
+        }
+
+        renderGuru();
+        tampilModalHasil(
+          `✅ Update Selesai — ${berhasil} guru diperbarui`,
+          `<strong>${berhasil}</strong> data guru berhasil diperbarui di Firestore.`,
+          gagal.length ? ['<strong>Gagal:</strong>', ...gagal] : [],
+          berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) { tampilToast('❌ Gagal membaca file: ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // ══════════════════════════════════════
+  // FORM GURU — Fungsi tambahan
+  // ══════════════════════════════════════
+  let fgMapelList = []; // array bidang studi sementara
+
+  // Auto generate kode guru dari nama
+  window.fgAutoKode = function() {
+    const nama = document.getElementById('fg-nama').value.trim();
+    const kodeEl = document.getElementById('fg-kode');
+    if (!kodeEl.value && nama) {
+      // Ambil inisial kata-kata sebelum koma/gelar
+      const namaBersih = nama.split(',')[0].trim();
+      const kata = namaBersih.split(' ').filter(k => k.length > 0);
+      let kode = '';
+      if (kata.length >= 2) kode = (kata[0][0] + kata[1][0]).toUpperCase();
+      else if (kata.length === 1) kode = kata[0].slice(0,2).toUpperCase();
+      // Cek duplikat
+      const kodeSudahAda = Object.values(cacheGuru).map(g => g.kode_guru||'');
+      let finalKode = kode;
+      let suffix = 1;
+      while (kodeSudahAda.includes(finalKode) && suffix < 10) {
+        finalKode = kode + suffix;
+        suffix++;
+      }
+      kodeEl.value = finalKode;
+    }
+  };
+
+  // Render chip bidang studi
+  function fgRenderMapelChips() {
+    const wrap = document.getElementById('fg-mapel-list');
+    if (!wrap) return;
+    wrap.innerHTML = fgMapelList.map((m,i) =>
+      `<span class="fg-chip">${m}<button onclick="fgHapusMapel(${i})" title="Hapus">✕</button></span>`
+    ).join('') || '<span style="font-size:12px;color:var(--abu);padding:2px 4px">Belum ada mapel — ketik di bawah</span>';
+  }
+
+  window.fgTambahMapel = function() {
+    const inp = document.getElementById('fg-mapel-input');
+    const val = inp.value.trim();
+    if (!val) return;
+    // Bisa input beberapa sekaligus dipisah koma
+    const items = val.split(',').map(s => s.trim()).filter(s => s);
+    items.forEach(item => {
+      if (!fgMapelList.includes(item)) fgMapelList.push(item);
+    });
+    inp.value = '';
+    fgRenderMapelChips();
+    inp.focus();
+  };
+
+  window.fgHapusMapel = function(i) {
+    fgMapelList.splice(i,1);
+    fgRenderMapelChips();
+  };
+
+  // Override tampilFormGuru untuk isi field baru
+  window.tampilFormGuru = function(id) {
+    editGuruId = id;
+    fgMapelList = [];
+    document.getElementById('form-guru-wrap').style.display = 'block';
+    document.getElementById('guru-form-error').textContent = '';
+
+    if (id && cacheGuru[id]) {
+      const g = cacheGuru[id];
+      document.getElementById('form-guru-judul').textContent = '✏️ Edit Data Guru';
+      document.getElementById('fg-nama').value    = g.nama_lengkap || '';
+      document.getElementById('fg-kode').value    = g.kode_guru || '';
+      document.getElementById('fg-nip').value     = g.nip || '';
+      document.getElementById('fg-pin').value     = g.pin_login || '';
+      document.getElementById('fg-hp').value      = g.no_hp || '';
+      document.getElementById('fg-maxjam').value  = g.max_jam_minggu || '';
+      document.getElementById('fg-status').value  = String(g.status_aktif !== false);
+      // Bidang studi
+      if (Array.isArray(g.bidang_studi)) fgMapelList = [...g.bidang_studi];
+      else if (g.bidang_studi) fgMapelList = [g.bidang_studi];
+    } else {
+      document.getElementById('form-guru-judul').textContent = '➕ Tambah Guru Baru';
+      ['fg-nama','fg-kode','fg-nip','fg-pin','fg-hp','fg-maxjam'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('fg-status').value = 'true';
+    }
+    fgRenderMapelChips();
+    document.getElementById('form-guru-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  // Override simpanGuru untuk simpan field baru
+  window.simpanGuru = async function() {
+    const nama   = document.getElementById('fg-nama').value.trim();
+    const kode   = document.getElementById('fg-kode').value.trim().toUpperCase();
+    const pin    = document.getElementById('fg-pin').value.trim();
+    const errEl  = document.getElementById('guru-form-error');
+    errEl.textContent = '';
+
+    if (!nama)  { errEl.textContent = 'Nama lengkap wajib diisi!'; return; }
+    if (!kode)  { errEl.textContent = 'Kode guru wajib diisi! (contoh: SS, SA)'; return; }
+    if (!pin || pin.length !== 4 || isNaN(pin)) { errEl.textContent = 'PIN harus 4 digit angka!'; return; }
+
+    // Cek PIN duplikat
+    const pinExist = Object.entries(cacheGuru).find(([id,g]) => g.pin_login === pin && id !== editGuruId);
+    if (pinExist) { errEl.textContent = 'PIN sudah digunakan guru lain!'; return; }
+
+    // Cek kode duplikat
+    const kodeExist = Object.entries(cacheGuru).find(([id,g]) => (g.kode_guru||'').toUpperCase() === kode && id !== editGuruId);
+    if (kodeExist) { errEl.textContent = `Kode "${kode}" sudah digunakan ${kodeExist[1].nama_lengkap}!`; return; }
+
+    const data = {
+      nama_lengkap:  nama,
+      kode_guru:     kode,
+      nip:           document.getElementById('fg-nip').value.trim(),
+      pin_login:     pin,
+      no_hp:         document.getElementById('fg-hp').value.trim(),
+      max_jam_minggu: parseInt(document.getElementById('fg-maxjam').value) || 24,
+      bidang_studi:  fgMapelList,
+      status_aktif:  document.getElementById('fg-status').value === 'true'
+    };
+
+    try {
+      if (editGuruId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Data_Guru', editGuruId), data);
+        cacheGuru[editGuruId] = data;
+        tampilToast('✅ Data guru berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Data_Guru'), data);
+        cacheGuru[ref.id] = data;
+        tampilToast('✅ Guru baru berhasil ditambahkan!');
+      }
+      tutupFormGuru();
+      renderGuru();
+      isiFilterGuru();
+    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
+  };
 
   // ══════════════════════════════════════
   // JAM BAKU — Data & State
@@ -1843,18 +2086,25 @@
           <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
           <tbody>
             <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar</td></tr>
+            <tr><td><code>kode_guru</code></td><td>string</td><td>SS</td><td>Inisial unik maks 4 huruf — dipakai di grid roster</td></tr>
             <tr><td><code>nip</code></td><td>string</td><td>197001012000011001</td><td>NIP 18 digit (opsional)</td></tr>
             <tr><td><code>pin_login</code></td><td>string</td><td>1234</td><td>PIN 4 digit, harus unik tiap guru</td></tr>
             <tr><td><code>no_hp</code></td><td>string</td><td>08123456789</td><td>Nomor WhatsApp aktif (opsional)</td></tr>
+            <tr><td><code>bidang_studi</code></td><td>array</td><td>Matematika, Informatika</td><td>Daftar mapel yang diampu (bisa lebih dari 1)</td></tr>
+            <tr><td><code>max_jam_minggu</code></td><td>number</td><td>24</td><td>Maksimal JP per minggu</td></tr>
             <tr><td><code>status_aktif</code></td><td>boolean</td><td>true</td><td>true = aktif, false = nonaktif</td></tr>
           </tbody>
         </table>
         <div class="modal-note">⚠️ PIN harus berupa 4 digit angka dan tidak boleh sama antar guru. Contoh: 1001, 1002, 1003, dst.</div>
         <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
-          📥 <strong>Cara Import dari Excel:</strong><br>
-          1. Klik tombol <strong>Unduh Excel</strong> untuk mendapat file contoh (jika sudah ada data)<br>
-          2. Atau buat file Excel baru dengan kolom: <code>Nama Lengkap</code>, <code>PIN Login</code>, <code>NIP</code>, <code>No. HP</code>, <code>Status Aktif</code><br>
-          3. Isi data guru per baris, lalu klik <strong>Import Excel</strong> dan pilih file tersebut
+          📥 <strong>Cara Import guru baru dari Excel:</strong><br>
+          Kolom wajib: <code>Nama Lengkap</code>, <code>PIN Login</code> — kolom lain opsional.
+        </div>
+        <div class="modal-note" style="background:var(--biru-muda);border:1px solid #90CAF9;">
+          🔄 <strong>Cara Update data guru yang sudah ada (kode, bidang studi, max jam):</strong><br>
+          1. Klik <strong>Unduh Excel</strong> → buka file, tambahkan kolom: <code>Kode Guru</code>, <code>Bidang Studi</code>, <code>Maks JP Minggu</code><br>
+          2. Isi <code>Bidang Studi</code> dengan nama mapel dipisah koma. Contoh: <code>Matematika, Informatika</code><br>
+          3. Klik <strong>Update Excel</strong> → pilih file → data guru diperbarui tanpa mengubah PIN
         </div>
         <button class="btn-modal-tutup" onclick="document.getElementById('modal-info').remove()">Tutup</button>
       </div>
