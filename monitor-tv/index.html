@@ -491,7 +491,7 @@
   setInterval(updateJam, 1000);
 
   const sekarang = new Date();
-  const hariIni  = "Senin";
+  const hariIni  = namaHari[sekarang.getDay()];
   const tanggalStr = `${sekarang.getFullYear()}-${String(sekarang.getMonth()+1).padStart(2,'0')}-${String(sekarang.getDate()).padStart(2,'0')}`;
 
   document.getElementById('hari-chip').textContent = hariIni;
@@ -527,7 +527,7 @@
     jadwalList.forEach(({id, data}) => {
       const totalSlot  = data._totalSlot  || 1;
       const terisiSlot = data._terisiSlot || 0;
-      const sudahSemua = terisiSlot === totalSlot;
+      const sudahSemua = terisiSlot >= totalSlot;
       if (sudahSemua) jmlSudah++;
 
       const namaGuru = cacheGuru[data.id_guru] || '—';
@@ -614,7 +614,8 @@
           slots: []
         };
       }
-      rombelMap[rid].slots.push({ docId: d.id, ...dd });
+      // Simpan id_rombel di setiap slot agar bisa dipakai untuk pencocokan
+      rombelMap[rid].slots.push({ docId: d.id, id_rombel: rid, ...dd });
     });
 
     const rombelList = Object.values(rombelMap)
@@ -627,15 +628,29 @@
     );
 
     onSnapshot(qAgenda, (snap) => {
-      // Agenda dicocokkan via id_jadwal (docId dari Jadwal_Pelajaran)
-      const sudahIsiSet = new Set(snap.docs.map(d => d.data().id_jadwal));
+      // Agenda dicocokkan via id_jadwal ATAU via id_rombel+slot_urutan
+      const agendaDocs = snap.docs.map(d => d.data());
+      const sudahIsiSet = new Set(agendaDocs.map(d => d.id_jadwal).filter(Boolean));
+
+      // Set tambahan: id_rombel + slot_urutan untuk fallback
+      const sudahIsiRombelSlot = new Set(
+        agendaDocs
+          .filter(d => d.id_rombel && d.slot_urutan)
+          .map(d => d.id_rombel + '_' + d.slot_urutan)
+      );
+
+      function slotSudahTerisi(s) {
+        return sudahIsiSet.has(s.docId) ||
+               sudahIsiRombelSlot.has(s.id_rombel + '_' + s.slot_urutan) ||
+               sudahIsiRombelSlot.has(rombelMap[s.id_rombel]?.id + '_' + s.slot_urutan);
+      }
 
       // Untuk setiap rombel, cek berapa slot sudah terisi
       const jadwalList = rombelList.map(r => {
         const totalSlot  = r.slots.length;
-        const terisiSlot = r.slots.filter(s => sudahIsiSet.has(s.docId)).length;
+        const terisiSlot = r.slots.filter(s => slotSudahTerisi(s)).length;
         // Ambil mapel pertama yang belum terisi atau yang sudah terisi
-        const slotAktif  = r.slots.find(s => !sudahIsiSet.has(s.docId)) || r.slots[0];
+        const slotAktif  = r.slots.find(s => !slotSudahTerisi(s)) || r.slots[0];
         return {
           id:        r.id,
           data: {
