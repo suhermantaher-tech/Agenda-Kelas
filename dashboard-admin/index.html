@@ -514,6 +514,34 @@
     .guru-kode { display:inline-block; font-family:"DM Mono",monospace; font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:1px 7px; border-radius:6px; margin-bottom:3px; }
     .guru-mapel-list { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
     .guru-mapel-tag { font-size:10px; padding:1px 7px; background:var(--biru-muda); color:var(--biru-tua); border-radius:10px; font-weight:500; }
+    .roster-wrap { overflow-x:auto; }
+    .roster-table { border-collapse:collapse; font-size:12px; min-width:600px; }
+    .roster-table th { padding:8px 10px; text-align:center; background:var(--biru-tua); color:white; font-weight:700; font-size:11px; white-space:nowrap; border:1px solid rgba(255,255,255,0.15); position:sticky; top:0; z-index:10; }
+    .roster-table th.th-jam { background:var(--oranye-gelap); min-width:90px; position:sticky; left:0; z-index:11; }
+    .roster-table td { border:1px solid var(--border); padding:0; vertical-align:top; min-width:100px; max-width:130px; }
+    .roster-table td.td-jam { background:var(--abu-bg); padding:6px 8px; font-size:11px; font-weight:700; color:var(--teks-muted); text-align:center; position:sticky; left:0; z-index:5; min-width:90px; white-space:nowrap; }
+    .roster-table td.td-jeda { background:#FFF8E1; text-align:center; padding:6px; color:#F57F17; font-size:11px; font-weight:600; }
+    .roster-slot { padding:5px 6px; min-height:54px; cursor:pointer; transition:background 0.15s; display:flex; flex-direction:column; justify-content:center; }
+    .roster-slot:hover { background:var(--oranye-terang); }
+    .roster-slot.terisi { background:#E8F5E9; cursor:pointer; }
+    .roster-slot.terisi:hover { background:#C8E6C9; }
+    .roster-slot-kode { font-family:"DM Mono",monospace; font-size:12px; font-weight:700; color:var(--biru-tua); }
+    .roster-slot-guru { font-size:10px; color:var(--hijau); font-weight:600; margin-top:2px; }
+    .roster-slot-jp { font-size:10px; color:var(--abu); }
+    .roster-slot-kosong { color:var(--border); font-size:18px; text-align:center; width:100%; }
+    .roster-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9990; padding:24px; }
+    .roster-modal { background:white; border-radius:20px; padding:24px; max-width:480px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 24px 60px rgba(0,0,0,0.2); }
+    .roster-modal-judul { font-size:15px; font-weight:800; color:var(--teks); margin-bottom:14px; }
+    .roster-mapel-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer; margin-bottom:8px; transition:border-color 0.15s, background 0.15s; }
+    .roster-mapel-item:hover { border-color:var(--oranye); background:var(--oranye-terang); }
+    .roster-mapel-item.dipilih { border-color:var(--hijau); background:#E8F5E9; }
+    .roster-mapel-kode { font-family:"DM Mono",monospace; font-size:12px; font-weight:700; background:var(--biru-tua); color:white; padding:2px 8px; border-radius:5px; flex-shrink:0; }
+    .roster-mapel-nama { font-size:13px; font-weight:600; color:var(--teks); flex:1; }
+    .roster-mapel-guru { font-size:11px; color:var(--abu); }
+    .roster-mapel-jp { font-size:11px; color:var(--oranye-gelap); font-weight:700; }
+    .roster-filter-hari { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+    .roster-hari-btn { padding:6px 16px; border:0.5px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:"Plus Jakarta Sans",sans-serif; transition:all 0.15s; }
+    .roster-hari-btn.aktif { background:var(--biru-tua); border-color:var(--biru-tua); color:white; }
     .mapel-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
     .mapel-card { background:var(--putih); border:1.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
     .mapel-kode { font-family:"DM Mono",monospace; font-size:13px; font-weight:700; background:var(--biru-tua); color:white; padding:2px 10px; border-radius:6px; display:inline-block; margin-bottom:6px; }
@@ -636,6 +664,9 @@
     </button>
     <button class="nav-item" onclick="gantiPage('rombel', this)">
       <span class="nav-ikon">🏫</span> Rombel / Kelas
+    </button>
+    <button class="nav-item" onclick="gantiPage('roster', this)">
+      <span class="nav-ikon">📋</span> Penyusunan Roster
     </button>
     <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('jambaku', this)">
@@ -898,6 +929,51 @@
           <tr><td colspan="7" class="loading-inline">Memuat jadwal...</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- PAGE: ROSTER -->
+  <div class="page" id="page-roster">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">📋 Penyusunan Roster KBM</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select class="filter-select" id="roster-filter-smt" onchange="rosterMuat()">
+          <option value="Ganjil">Semester Ganjil</option>
+          <option value="Genap">Semester Genap</option>
+        </select>
+        <select class="filter-select" id="roster-filter-tahun" onchange="rosterMuat()">
+          <option value="2025/2026">2025/2026</option>
+          <option value="2026/2027">2026/2027</option>
+        </select>
+        <button class="btn-ekspor btn-excel" onclick="eksporRosterExcel()">📊 Ekspor Excel</button>
+      </div>
+    </div>
+
+    <div style="background:var(--biru-muda);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--biru-tua);margin-bottom:14px;line-height:1.7;">
+      💡 <strong>Cara pakai:</strong> Pilih hari → klik sel kosong di grid → pilih mata pelajaran → simpan.
+      Sistem otomatis validasi: guru tidak bisa mengajar 2 kelas di jam yang sama.
+    </div>
+
+    <div class="roster-filter-hari" id="roster-hari-tabs"></div>
+
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--teks-muted);">
+        <div style="width:16px;height:16px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:3px;"></div> Terisi
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--teks-muted);">
+        <div style="width:16px;height:16px;background:white;border:1px solid var(--border);border-radius:3px;"></div> Kosong
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--teks-muted);">
+        <div style="width:16px;height:16px;background:#FFF8E1;border:1px solid #FFE082;border-radius:3px;"></div> Jeda/Istirahat
+      </div>
+      <span style="margin-left:auto;font-size:12px;color:var(--abu);" id="roster-stat">—</span>
+    </div>
+
+    <div class="roster-wrap">
+      <div id="roster-grid-wrap">
+        <div class="loading-inline" style="padding:40px;">Pilih semester lalu klik "Muat Roster"</div>
+      </div>
     </div>
   </div>
 
@@ -1246,6 +1322,7 @@
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
     if (page === 'jambaku')  { if(!jbSudahMuat) initJamBaku(); else { jbRenderTabel(); jbRenderPreview(); } }
     if (page === 'kalender') initKalender();
+    if (page === 'roster')   { if(!rosterSudahMuat) rosterMuat(); else rosterRenderGrid(); }
     if (page === 'mapel')    { renderMapelGrid(allMapel); }
     if (page === 'rombel')   { renderRombelGrid(); }
   };
@@ -1604,6 +1681,356 @@
 
 
 
+
+
+  // ══════════════════════════════════════
+  // ROSTER — Penyusunan Jadwal
+  // ══════════════════════════════════════
+  const hariRoster = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  let rosterHariAktif = 'Senin';
+  let rosterData = {};      // { hari: { rombelId_slotUrutan: { id_mapel, id_guru, durasi_jp } } }
+  let jamBakuData = {};     // { hari: [ {urutan, jenis, jam_mulai, jam_selesai, keterangan} ] }
+  let rosterSudahMuat = false;
+  let rosterSlotTarget = null; // { hariKey, rombelId, slotUrutan }
+
+  // ── INIT ROSTER ──
+  window.rosterMuat = async function() {
+    const wrap = document.getElementById('roster-grid-wrap');
+    wrap.innerHTML = '<div class="loading-inline" style="padding:40px">Memuat data roster...</div>';
+
+    // Build hari tabs
+    const tabsEl = document.getElementById('roster-hari-tabs');
+    tabsEl.innerHTML = hariRoster.map(h =>
+      `<button class="roster-hari-btn ${h===rosterHariAktif?'aktif':''}" onclick="rosterGantiHari('${h}',this)">${h}</button>`
+    ).join('');
+
+    try {
+      // Muat Jam Baku
+      const jbSnap = await getDocs(collection(db, 'Jam_Baku'));
+      jamBakuData = {};
+      jbSnap.docs.forEach(d => {
+        const dd = d.data();
+        if (!jamBakuData[dd.hari]) jamBakuData[dd.hari] = [];
+        jamBakuData[dd.hari].push({ ...dd, id: d.id });
+      });
+      hariRoster.forEach(h => {
+        if (jamBakuData[h]) jamBakuData[h].sort((a,b) => a.urutan - b.urutan);
+      });
+
+      // Muat Roster yang sudah ada
+      const smt   = document.getElementById('roster-filter-smt').value;
+      const tahun = document.getElementById('roster-filter-tahun').value;
+      const rSnap = await getDocs(
+        query(collection(db, 'Jadwal_Pelajaran'),
+          where('semester', '==', smt),
+          where('tahun_ajaran', '==', tahun)
+        )
+      );
+      rosterData = {};
+      rSnap.docs.forEach(d => {
+        const dd = d.data();
+        const key = dd.hari + '_' + dd.id_rombel + '_' + dd.slot_urutan;
+        if (!rosterData[dd.hari]) rosterData[dd.hari] = {};
+        rosterData[dd.hari][dd.id_rombel + '_' + dd.slot_urutan] = { docId: d.id, ...dd };
+      });
+
+      rosterSudahMuat = true;
+      rosterRenderGrid();
+    } catch(e) {
+      wrap.innerHTML = '<div class="loading-inline" style="padding:40px;color:var(--merah)">Gagal muat: ' + e.message + '</div>';
+    }
+  };
+
+  window.rosterGantiHari = function(hari, el) {
+    rosterHariAktif = hari;
+    document.querySelectorAll('.roster-hari-btn').forEach(b => b.classList.remove('aktif'));
+    el.classList.add('aktif');
+    rosterRenderGrid();
+  };
+
+  // ── RENDER GRID ──
+  function rosterRenderGrid() {
+    const wrap   = document.getElementById('roster-grid-wrap');
+    const slots  = jamBakuData[rosterHariAktif] || [];
+    const rombels = [...allRombel].sort((a,b) => a.nama_kelas.localeCompare(b.nama_kelas));
+
+    if (!slots.length) {
+      wrap.innerHTML = '<div class="loading-inline" style="padding:30px">Jam baku ' + rosterHariAktif + ' belum diatur. Silakan setting di menu ⏰ Jam Baku dulu.</div>';
+      return;
+    }
+    if (!rombels.length) {
+      wrap.innerHTML = '<div class="loading-inline" style="padding:30px">Belum ada kelas. Silakan tambah di menu 🏫 Rombel dulu.</div>';
+      return;
+    }
+
+    // Hitung statistik
+    const kbmSlots = slots.filter(s => s.jenis === 'KBM');
+    const totalSel  = kbmSlots.length * rombels.length;
+    const terisi    = Object.values(rosterData[rosterHariAktif] || {}).length;
+    document.getElementById('roster-stat').textContent =
+      rosterHariAktif + ': ' + terisi + ' dari ' + totalSel + ' slot terisi (' + Math.round(terisi/totalSel*100||0) + '%)';
+
+    let html = '<table class="roster-table"><thead><tr>';
+    html += '<th class="th-jam">Jam</th>';
+    rombels.forEach(r => {
+      html += `<th>${r.nama_kelas}<br><span style="font-weight:400;font-size:10px;opacity:0.75">${r.fase||''}</span></th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    let kbmKe = 0;
+    slots.forEach(slot => {
+      if (slot.jenis === 'Jeda') {
+        html += `<tr><td class="td-jam">${slot.jam_mulai}–${slot.jam_selesai}<br><span style="color:var(--oranye-gelap)">${slot.keterangan||'Jeda'}</span></td>`;
+        html += `<td class="td-jeda" colspan="${rombels.length}">${slot.keterangan||'Istirahat'}</td></tr>`;
+        return;
+      }
+      kbmKe++;
+      html += `<tr><td class="td-jam"><strong>${kbmKe}</strong><br>${slot.jam_mulai}<br><span style="font-size:10px;color:var(--abu)">–${slot.jam_selesai}</span></td>`;
+
+      rombels.forEach(r => {
+        const slotKey = r.id + '_' + slot.urutan;
+        const isi = (rosterData[rosterHariAktif] || {})[slotKey];
+        if (isi) {
+          const mapel = allMapel.find(m => m.id === isi.id_mapel);
+          const guru  = cacheGuru[isi.id_guru];
+          const kodeM = mapel?.kode_mapel || '?';
+          const kodeG = guru?.kode_guru || '?';
+          html += `<td onclick="rosterKlikSlot('${r.id}','${slot.urutan}','${slotKey}')" title="${mapel?.nama_mapel||''} — ${guru?.nama_lengkap||''}">
+            <div class="roster-slot terisi">
+              <div class="roster-slot-kode">${kodeM}</div>
+              <div class="roster-slot-guru">${kodeG}</div>
+              ${isi.durasi_jp > 1 ? `<div class="roster-slot-jp">${isi.durasi_jp}JP</div>` : ''}
+            </div>
+          </td>`;
+        } else {
+          html += `<td onclick="rosterKlikSlot('${r.id}','${slot.urutan}',null)" title="Klik untuk isi">
+            <div class="roster-slot">
+              <span class="roster-slot-kosong">+</span>
+            </div>
+          </td>`;
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  // ── KLIK SLOT ──
+  window.rosterKlikSlot = function(rombelId, slotUrutan, slotKey) {
+    rosterSlotTarget = { rombelId, slotUrutan, slotKey };
+    const slot  = (jamBakuData[rosterHariAktif]||[]).find(s => String(s.urutan) === String(slotUrutan));
+    const rombel = allRombel.find(r => r.id === rombelId);
+    const isi   = slotKey ? (rosterData[rosterHariAktif]||{})[slotKey] : null;
+
+    // Cari mapel yang belum ada di slot lain hari ini untuk kelas ini
+    // dan guru tidak bentrok
+    const slotsHariIni = rosterData[rosterHariAktif] || {};
+    const guruSibuk = {}; // guruId → [slotUrutan]
+    Object.entries(slotsHariIni).forEach(([key, d]) => {
+      if (!guruSibuk[d.id_guru]) guruSibuk[d.id_guru] = [];
+      guruSibuk[d.id_guru].push(String(d.slot_urutan));
+    });
+
+    // Filter mapel yang tersedia untuk kelas ini (sesuai fase)
+    const fasaKelas = rombel?.fase || '';
+    const mapelTersedia = allMapel.filter(m => {
+      if (fasaKelas && m.fase && !m.fase.includes(fasaKelas)) return false;
+      return true;
+    });
+
+    // Cek guru mana yang bentrok di slot ini
+    const bentrokGuru = new Set();
+    Object.entries(slotsHariIni).forEach(([key, d]) => {
+      // Cek apakah slot ini overlap dengan slot target
+      const slotLain = (jamBakuData[rosterHariAktif]||[]).find(s => String(s.urutan) === String(d.slot_urutan));
+      if (slotLain && String(d.slot_urutan) === String(slotUrutan)) {
+        // Slot yang sama tapi kelas berbeda → guru bentrok
+        if (d.id_guru) bentrokGuru.add(d.id_guru);
+      }
+    });
+
+    const judulModal = isi
+      ? `✏️ Edit Slot — Jam ${slotUrutan} · ${rombel?.nama_kelas}`
+      : `➕ Isi Slot — Jam ${slotUrutan} · ${rombel?.nama_kelas} · ${slot?.jam_mulai}–${slot?.jam_selesai}`;
+
+    let mapelHtml = mapelTersedia.map(m => {
+      const guruList = (m.id_guru_list||[]).map(gid => {
+        const g = cacheGuru[gid];
+        const bentrok = bentrokGuru.has(gid);
+        return { gid, nama: g?.nama_lengkap||gid, kode: g?.kode_guru||'?', bentrok };
+      });
+      const guruAktif = guruList.filter(g => !g.bentrok);
+      const dipilih   = isi?.id_mapel === m.id ? 'dipilih' : '';
+      return `<div class="roster-mapel-item ${dipilih}" onclick="rosterPilihMapel('${m.id}')">
+        <span class="roster-mapel-kode">${m.kode_mapel}</span>
+        <div style="flex:1">
+          <div class="roster-mapel-nama">${m.nama_mapel}</div>
+          <div class="roster-mapel-guru">
+            ${guruList.length === 0
+              ? '<span style="color:var(--merah)">Belum ada guru pengampu</span>'
+              : guruList.map(g => `<span style="${g.bentrok?'color:var(--merah);text-decoration:line-through':''}">${g.kode} ${g.nama.split(',')[0]}</span>`).join(' · ')
+            }
+          </div>
+        </div>
+        <span class="roster-mapel-jp">${m.jp_per_minggu||'?'}JP</span>
+      </div>`;
+    }).join('') || '<div style="padding:20px;text-align:center;color:var(--abu)">Belum ada mata pelajaran. Tambahkan dulu di menu Mata Pelajaran.</div>';
+
+    const hapusBtn = isi
+      ? `<button onclick="rosterHapusSlot()" style="background:var(--merah);color:white;border:none;border-radius:9px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">🗑 Hapus</button>`
+      : '';
+
+    const durHtml = `<div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;color:var(--teks-muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;">Durasi</label>
+      <select id="roster-dur-sel" class="filter-select">
+        <option value="1" ${isi?.durasi_jp===1?'selected':''}>1 JP (${slot?.jam_mulai}–${slot?.jam_selesai})</option>
+        <option value="2" ${isi?.durasi_jp===2?'selected':''}>2 JP</option>
+        <option value="3" ${isi?.durasi_jp===3?'selected':''}>3 JP</option>
+      </select>
+    </div>`;
+
+    const html = `<div class="roster-modal-overlay" id="roster-modal" onclick="if(event.target===this)document.getElementById('roster-modal').remove()">
+      <div class="roster-modal">
+        <div class="roster-modal-judul">${judulModal}</div>
+        ${durHtml}
+        <div style="font-size:11px;font-weight:700;color:var(--teks-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Pilih Mata Pelajaran</div>
+        <div id="roster-mapel-list">${mapelHtml}</div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button id="roster-simpan-btn" disabled onclick="rosterSimpanSlot()" style="flex:1;background:var(--oranye);color:white;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;opacity:0.5">💾 Simpan</button>
+          ${hapusBtn}
+          <button onclick="document.getElementById('roster-modal').remove()" style="background:var(--abu-bg);border:1px solid var(--border);border-radius:9px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Batal</button>
+        </div>
+        <div id="roster-bentrok-warn" style="color:var(--merah);font-size:12px;margin-top:8px;font-weight:600;display:none;">⚠ Guru dipilih bentrok di jam ini!</div>
+      </div>
+    </div>`;
+    document.getElementById('roster-modal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  let rosterMapelDipilih = null;
+
+  window.rosterPilihMapel = function(mapelId) {
+    rosterMapelDipilih = mapelId;
+    document.querySelectorAll('.roster-mapel-item').forEach(el => el.classList.remove('dipilih'));
+    event.currentTarget.classList.add('dipilih');
+    document.getElementById('roster-simpan-btn').disabled = false;
+    document.getElementById('roster-simpan-btn').style.opacity = '1';
+  };
+
+  window.rosterSimpanSlot = async function() {
+    if (!rosterMapelDipilih) return;
+    const mapel   = allMapel.find(m => m.id === rosterMapelDipilih);
+    const durasi  = parseInt(document.getElementById('roster-dur-sel').value) || 1;
+    const { rombelId, slotUrutan, slotKey } = rosterSlotTarget;
+    const smt     = document.getElementById('roster-filter-smt').value;
+    const tahun   = document.getElementById('roster-filter-tahun').value;
+    const rombel  = allRombel.find(r => r.id === rombelId);
+
+    // Pilih guru pertama yang tidak bentrok
+    const slotsHariIni = rosterData[rosterHariAktif] || {};
+    const guruSibuk = new Set(
+      Object.values(slotsHariIni)
+        .filter(d => String(d.slot_urutan) === String(slotUrutan))
+        .map(d => d.id_guru)
+    );
+    const guruPilih = (mapel?.id_guru_list||[]).find(gid => !guruSibuk.has(gid));
+
+    if (!guruPilih && (mapel?.id_guru_list||[]).length > 0) {
+      document.getElementById('roster-bentrok-warn').style.display = 'block';
+      return;
+    }
+
+    const data = {
+      hari:         rosterHariAktif,
+      id_rombel:    rombelId,
+      nama_kelas:   rombel?.nama_kelas || '',
+      slot_urutan:  parseInt(slotUrutan),
+      id_mapel:     rosterMapelDipilih,
+      kode_mapel:   mapel?.kode_mapel || '',
+      nama_mapel:   mapel?.nama_mapel || '',
+      id_guru:      guruPilih || '',
+      kode_guru:    guruPilih ? (cacheGuru[guruPilih]?.kode_guru||'') : '',
+      durasi_jp:    durasi,
+      semester:     smt,
+      tahun_ajaran: tahun,
+    };
+
+    try {
+      const { addDoc, doc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const newSlotKey = rombelId + '_' + slotUrutan;
+
+      // Hapus dokumen lama kalau edit
+      if (slotKey) {
+        const old = (rosterData[rosterHariAktif]||{})[slotKey];
+        if (old?.docId) await deleteDoc(doc(db, 'Jadwal_Pelajaran', old.docId));
+      }
+
+      // Simpan baru
+      const ref = await addDoc(collection(db, 'Jadwal_Pelajaran'), data);
+      if (!rosterData[rosterHariAktif]) rosterData[rosterHariAktif] = {};
+      rosterData[rosterHariAktif][newSlotKey] = { docId: ref.id, ...data };
+
+      document.getElementById('roster-modal')?.remove();
+      rosterMapelDipilih = null;
+      rosterRenderGrid();
+      tampilToast('✅ Roster berhasil disimpan!');
+    } catch(e) {
+      tampilToast('❌ Gagal: ' + e.message);
+    }
+  };
+
+  window.rosterHapusSlot = async function() {
+    const { slotKey } = rosterSlotTarget;
+    if (!slotKey) return;
+    const isi = (rosterData[rosterHariAktif]||{})[slotKey];
+    if (!isi?.docId) return;
+    try {
+      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      await deleteDoc(doc(db, 'Jadwal_Pelajaran', isi.docId));
+      delete rosterData[rosterHariAktif][slotKey];
+      document.getElementById('roster-modal')?.remove();
+      rosterRenderGrid();
+      tampilToast('✅ Slot roster dihapus!');
+    } catch(e) { tampilToast('❌ Gagal hapus: ' + e.message); }
+  };
+
+  // ── EKSPOR ROSTER EXCEL ──
+  window.eksporRosterExcel = function() {
+    const smt   = document.getElementById('roster-filter-smt').value;
+    const tahun = document.getElementById('roster-filter-tahun').value;
+    const rows  = [];
+    hariRoster.forEach(hari => {
+      const slots  = (jamBakuData[hari]||[]).filter(s => s.jenis==='KBM');
+      const rombels = [...allRombel].sort((a,b) => a.nama_kelas.localeCompare(b.nama_kelas));
+      let kbmKe = 0;
+      slots.forEach(slot => {
+        kbmKe++;
+        rombels.forEach(r => {
+          const isi = (rosterData[hari]||{})[r.id+'_'+slot.urutan];
+          rows.push({
+            'Hari': hari, 'Jam Ke': kbmKe,
+            'Jam Mulai': slot.jam_mulai, 'Jam Selesai': slot.jam_selesai,
+            'Kelas': r.nama_kelas, 'Fase': r.fase||'',
+            'Kode Mapel': isi?.kode_mapel||'',
+            'Mata Pelajaran': isi?.nama_mapel||'',
+            'Kode Guru': isi?.kode_guru||'',
+            'Guru': isi?.id_guru ? (cacheGuru[isi.id_guru]?.nama_lengkap||'') : '',
+            'Durasi JP': isi?.durasi_jp||'',
+            'Semester': smt, 'Tahun Ajaran': tahun,
+          });
+        });
+      });
+    });
+    if (!rows.length) { tampilToast('⚠ Belum ada data roster!'); return; }
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:10},{wch:8},{wch:10},{wch:10},{wch:8},{wch:6},{wch:12},{wch:24},{wch:10},{wch:28},{wch:8},{wch:10},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Roster');
+    XLSX.writeFile(wb, 'Roster_SMAN5_' + smt + '_' + tahun.replace('/','_') + '.xlsx');
+    tampilToast('✅ Roster berhasil diekspor ke Excel!');
+  };
 
   // ══════════════════════════════════════
   // MATA PELAJARAN — CRUD
@@ -3066,6 +3493,13 @@
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
   window.initJamBaku = initJamBaku;
+  window.rosterMuat = rosterMuat;
+  window.rosterGantiHari = rosterGantiHari;
+  window.rosterKlikSlot = rosterKlikSlot;
+  window.rosterPilihMapel = rosterPilihMapel;
+  window.rosterSimpanSlot = rosterSimpanSlot;
+  window.rosterHapusSlot = rosterHapusSlot;
+  window.eksporRosterExcel = eksporRosterExcel;
   window.filterMapel = filterMapel;
   window.tampilFormMapel = tampilFormMapel;
   window.simpanMapel = simpanMapel;
