@@ -514,6 +514,20 @@
     .guru-kode { display:inline-block; font-family:"DM Mono",monospace; font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:1px 7px; border-radius:6px; margin-bottom:3px; }
     .guru-mapel-list { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
     .guru-mapel-tag { font-size:10px; padding:1px 7px; background:var(--biru-muda); color:var(--biru-tua); border-radius:10px; font-weight:500; }
+    .kal-card { background:var(--putih); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px; }
+    .kal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    .kal-field { display:flex; flex-direction:column; gap:4px; }
+    .kal-label { font-size:11px; font-weight:700; color:var(--teks-muted); text-transform:uppercase; letter-spacing:0.5px; }
+    .kal-input { padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; font-size:13px; font-family:"Plus Jakarta Sans",sans-serif; color:var(--teks); background:var(--abu-bg); outline:none; transition:border-color 0.2s; }
+    .kal-input:focus { border-color:var(--oranye); background:white; }
+    .kal-semester-tabs { display:flex; gap:6px; margin-bottom:16px; }
+    .kal-tab { padding:7px 20px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); font-family:"Plus Jakarta Sans",sans-serif; transition:all 0.15s; }
+    .kal-tab.aktif { background:var(--biru-tua); border-color:var(--biru-tua); color:white; }
+    .kal-info-box { background:var(--biru-muda); border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; color:var(--biru-tua); margin-bottom:14px; line-height:1.7; }
+    .kal-stat { background:var(--abu-bg); border-radius:var(--radius-sm); padding:12px 16px; display:flex; flex-direction:column; gap:3px; }
+    .kal-stat-val { font-size:24px; font-weight:800; color:var(--teks); font-family:"DM Mono",monospace; }
+    .kal-stat-lbl { font-size:11px; color:var(--abu); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+    .kal-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
     .jb-hari-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
     .jb-tab { padding:7px 18px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); transition:all 0.15s; font-family:"Plus Jakarta Sans",sans-serif; }
     .jb-tab.aktif { background:#E07020; border-color:#B85510; color:white; }
@@ -605,6 +619,9 @@
     <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('jambaku', this)">
       <span class="nav-ikon">⏰</span> Jam Baku
+    </button>
+    <button class="nav-item" onclick="gantiPage('kalender', this)">
+      <span class="nav-ikon">📅</span> Kalender Akademik
     </button>
   </nav>
 
@@ -872,6 +889,76 @@
     </div>
   </div>
 
+  <!-- PAGE: KALENDER AKADEMIK -->
+  <div class="page" id="page-kalender">
+
+    <div class="kal-info-box">
+      <strong>ℹ️ Kalender Akademik</strong> menjadi dasar perhitungan <strong>persentase realisasi jam mengajar</strong> di semua laporan.
+      Formula: <strong>% Realisasi = (JP terisi ÷ (max_jp_minggu × minggu_efektif)) × 100%</strong>
+    </div>
+
+    <div class="kal-semester-tabs">
+      <button class="kal-tab aktif" onclick="kalGantiSmt('ganjil', this)">Semester Ganjil</button>
+      <button class="kal-tab" onclick="kalGantiSmt('genap', this)">Semester Genap</button>
+    </div>
+
+    <div class="kal-card">
+      <div class="section-judul" style="margin-bottom:14px;">📅 Data Semester <span id="kal-smt-label">Ganjil</span></div>
+
+      <div class="kal-grid">
+        <div class="kal-field">
+          <label class="kal-label">Tahun Ajaran *</label>
+          <input type="text" class="kal-input" id="kal-tahun" placeholder="2025/2026">
+        </div>
+        <div class="kal-field">
+          <label class="kal-label">Semester</label>
+          <input type="text" class="kal-input" id="kal-smt-nama" readonly style="background:var(--abu-bg);color:var(--abu)">
+        </div>
+        <div class="kal-field">
+          <label class="kal-label">Tanggal Mulai Efektif *</label>
+          <input type="date" class="kal-input" id="kal-mulai" onchange="kalHitung()">
+        </div>
+        <div class="kal-field">
+          <label class="kal-label">Tanggal Selesai Efektif *</label>
+          <input type="date" class="kal-input" id="kal-selesai" onchange="kalHitung()">
+        </div>
+        <div class="kal-field">
+          <label class="kal-label">Jumlah Minggu Efektif *</label>
+          <input type="number" class="kal-input" id="kal-minggu" placeholder="18" min="1" max="26" onchange="kalHitung()">
+        </div>
+        <div class="kal-field">
+          <label class="kal-label">Jumlah Hari Libur (hari)</label>
+          <input type="number" class="kal-input" id="kal-libur" placeholder="0" min="0" onchange="kalHitung()">
+        </div>
+      </div>
+
+      <div class="kal-field" style="margin-bottom:14px;">
+        <label class="kal-label">Catatan / Keterangan</label>
+        <input type="text" class="kal-input" id="kal-catatan" placeholder="Contoh: Termasuk UTS minggu ke-9, UAS minggu ke-18">
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanKalender()">💾 Simpan Kalender</button>
+        <button class="btn-ekspor" style="background:var(--abu-bg);color:var(--teks);border:1px solid var(--border);" onclick="kalMuatDariFirestore()">🔄 Muat dari Firestore</button>
+      </div>
+
+      <div class="kal-stat-grid" id="kal-stat-grid">
+        <div class="kal-stat"><div class="kal-stat-val" id="kal-s-minggu">—</div><div class="kal-stat-lbl">Minggu efektif</div></div>
+        <div class="kal-stat"><div class="kal-stat-val" id="kal-s-hari">—</div><div class="kal-stat-lbl">Hari KBM</div></div>
+        <div class="kal-stat"><div class="kal-stat-val" id="kal-s-target24">—</div><div class="kal-stat-lbl">Target JP (24/minggu)</div></div>
+        <div class="kal-stat"><div class="kal-stat-val" id="kal-s-target18">—</div><div class="kal-stat-lbl">Target JP (18/minggu)</div></div>
+      </div>
+    </div>
+
+    <div class="kal-card">
+      <div class="section-judul" style="margin-bottom:12px;">📊 Ringkasan Kalender Tersimpan</div>
+      <div id="kal-ringkasan">
+        <div style="text-align:center;padding:24px;color:var(--abu);font-size:13px;">Klik "Muat dari Firestore" untuk melihat data yang tersimpan</div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- PAGE: JAM BAKU -->
   <div class="page" id="page-jambaku">
     <div class="jb-info">
@@ -999,6 +1086,7 @@
     if (page === 'jadwal')   renderJadwal();
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
     if (page === 'jambaku')  { if(!jbSudahMuat) initJamBaku(); else { jbRenderTabel(); jbRenderPreview(); } }
+    if (page === 'kalender') initKalender();
   };
 
   // ── INIT ──
@@ -1155,6 +1243,23 @@
     const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     const smstr = now.getMonth() < 6 ? 1 : 2;
     const smstrMulai = smstr === 1 ? `${now.getFullYear()}-01` : `${now.getFullYear()}-07`;
+
+    // Ambil kalender akademik aktif
+    const bulanSmt = sekarang.getMonth();
+    const smtAktif = bulanSmt >= 6 ? 'ganjil' : 'genap';
+    let mingguEfektif = 18; // default
+    let tglMulaiSmt = null;
+    try {
+      const tahunStr = sekarang.getFullYear() + '/' + (sekarang.getFullYear()+1);
+      const kalSnap  = await getDocs(collection(db, 'Kalender_Akademik'));
+      kalSnap.docs.forEach(d => {
+        const dd = d.data();
+        if (dd.semester === smtAktif) {
+          mingguEfektif = dd.minggu_efektif || 18;
+          tglMulaiSmt   = dd.tanggal_mulai || null;
+        }
+      });
+    } catch(e) {}
 
     document.getElementById('lap-minggu').textContent =
       allAgenda.filter(a => a.tanggal && new Date(a.tanggal) >= mingguLalu).length;
@@ -1339,6 +1444,134 @@
 
 
 
+
+
+  // ══════════════════════════════════════
+  // KALENDER AKADEMIK
+  // ══════════════════════════════════════
+  let kalSmtAktif = 'ganjil';
+  let kalData = { ganjil: null, genap: null };
+
+  window.kalGantiSmt = function(smt, el) {
+    kalSmtAktif = smt;
+    document.querySelectorAll('.kal-tab').forEach(t => t.classList.remove('aktif'));
+    el.classList.add('aktif');
+    document.getElementById('kal-smt-label').textContent = smt === 'ganjil' ? 'Ganjil' : 'Genap';
+    document.getElementById('kal-smt-nama').value = smt === 'ganjil' ? 'Ganjil' : 'Genap';
+    kalIsiForms(kalData[smt]);
+  };
+
+  function kalIsiForms(data) {
+    document.getElementById('kal-tahun').value   = data?.tahun_ajaran || '';
+    document.getElementById('kal-mulai').value   = data?.tanggal_mulai || '';
+    document.getElementById('kal-selesai').value = data?.tanggal_selesai || '';
+    document.getElementById('kal-minggu').value  = data?.minggu_efektif || '';
+    document.getElementById('kal-libur').value   = data?.hari_libur || 0;
+    document.getElementById('kal-catatan').value = data?.catatan || '';
+    kalHitung();
+  }
+
+  window.kalHitung = function() {
+    const minggu = parseInt(document.getElementById('kal-minggu').value) || 0;
+    const libur  = parseInt(document.getElementById('kal-libur').value) || 0;
+    const mulai  = document.getElementById('kal-mulai').value;
+    const selesai = document.getElementById('kal-selesai').value;
+
+    let hariKBM = 0;
+    if (mulai && selesai) {
+      const ms = new Date(selesai) - new Date(mulai);
+      const totalHari = Math.floor(ms / (1000*60*60*24)) + 1;
+      const totalMinggu = Math.ceil(totalHari / 7);
+      const sabtuMinggu = totalMinggu * 2;
+      hariKBM = Math.max(0, totalHari - sabtuMinggu - libur);
+    }
+
+    document.getElementById('kal-s-minggu').textContent  = minggu || '—';
+    document.getElementById('kal-s-hari').textContent    = hariKBM || '—';
+    document.getElementById('kal-s-target24').textContent = minggu ? minggu * 24 : '—';
+    document.getElementById('kal-s-target18').textContent = minggu ? minggu * 18 : '—';
+  };
+
+  window.simpanKalender = async function() {
+    const tahun  = document.getElementById('kal-tahun').value.trim();
+    const mulai  = document.getElementById('kal-mulai').value;
+    const selesai = document.getElementById('kal-selesai').value;
+    const minggu = parseInt(document.getElementById('kal-minggu').value);
+
+    if (!tahun)   { tampilToast('⚠ Tahun ajaran wajib diisi!'); return; }
+    if (!mulai)   { tampilToast('⚠ Tanggal mulai wajib diisi!'); return; }
+    if (!selesai) { tampilToast('⚠ Tanggal selesai wajib diisi!'); return; }
+    if (!minggu)  { tampilToast('⚠ Jumlah minggu efektif wajib diisi!'); return; }
+    if (new Date(selesai) <= new Date(mulai)) { tampilToast('⚠ Tanggal selesai harus setelah tanggal mulai!'); return; }
+
+    const data = {
+      tahun_ajaran:    tahun,
+      semester:        kalSmtAktif,
+      tanggal_mulai:   mulai,
+      tanggal_selesai: selesai,
+      minggu_efektif:  minggu,
+      hari_libur:      parseInt(document.getElementById('kal-libur').value) || 0,
+      catatan:         document.getElementById('kal-catatan').value.trim(),
+      updated_at:      new Date().toISOString(),
+    };
+
+    try {
+      const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      // Pakai ID tetap: tahunajaran_semester agar mudah dicari
+      const docId = tahun.replace('/','_') + '_' + kalSmtAktif;
+      await setDoc(doc(db, 'Kalender_Akademik', docId), data);
+      kalData[kalSmtAktif] = data;
+      tampilToast('✅ Kalender ' + (kalSmtAktif==='ganjil'?'Ganjil':'Genap') + ' ' + tahun + ' berhasil disimpan!');
+      kalTampilRingkasan();
+    } catch(e) { tampilToast('❌ Gagal simpan: ' + e.message); }
+  };
+
+  window.kalMuatDariFirestore = async function() {
+    try {
+      const snap = await getDocs(collection(db, 'Kalender_Akademik'));
+      kalData = { ganjil: null, genap: null };
+      snap.docs.forEach(d => {
+        const dd = d.data();
+        kalData[dd.semester] = dd;
+      });
+      kalIsiForms(kalData[kalSmtAktif]);
+      kalTampilRingkasan();
+      tampilToast('✅ Data kalender berhasil dimuat!');
+    } catch(e) { tampilToast('❌ Gagal muat: ' + e.message); }
+  };
+
+  function kalTampilRingkasan() {
+    const wrap = document.getElementById('kal-ringkasan');
+    const smtList = [
+      { key:'ganjil', label:'Ganjil', data: kalData.ganjil },
+      { key:'genap',  label:'Genap',  data: kalData.genap  },
+    ];
+
+    wrap.innerHTML = smtList.map(({ label, data: d }) => {
+      if (!d) return `<div style="padding:10px 14px;border:0.5px solid var(--border);border-radius:9px;font-size:12px;color:var(--abu);margin-bottom:8px;">
+        Semester ${label} — belum ada data</div>`;
+      const target24 = (d.minggu_efektif||0) * 24;
+      const target18 = (d.minggu_efektif||0) * 18;
+      return `<div style="padding:14px 16px;border:0.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <strong style="font-size:13px">Semester ${label} — ${d.tahun_ajaran}</strong>
+          <span style="font-size:11px;color:var(--abu)">${d.tanggal_mulai} s/d ${d.tanggal_selesai}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div class="kal-stat"><div class="kal-stat-val">${d.minggu_efektif}</div><div class="kal-stat-lbl">Minggu efektif</div></div>
+          <div class="kal-stat"><div class="kal-stat-val">${target24}</div><div class="kal-stat-lbl">Target JP (24/mgg)</div></div>
+          <div class="kal-stat"><div class="kal-stat-val">${target18}</div><div class="kal-stat-lbl">Target JP (18/mgg)</div></div>
+        </div>
+        ${d.catatan ? `<div style="font-size:11px;color:var(--teks-muted);margin-top:8px;">📝 ${d.catatan}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Init kalender - dipanggil saat gantiPage ke kalender
+  async function initKalender() {
+    document.getElementById('kal-smt-nama').value = 'Ganjil';
+    await kalMuatDariFirestore();
+  }
 
   // ══════════════════════════════════════
   // UPDATE GURU VIA EXCEL (kode_guru, bidang_studi, max_jam)
@@ -2313,6 +2546,11 @@
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
   window.initJamBaku = initJamBaku;
+  window.initKalender = initKalender;
+  window.kalMuatDariFirestore = kalMuatDariFirestore;
+  window.kalHitung = kalHitung;
+  window.kalGantiSmt = kalGantiSmt;
+  window.simpanKalender = simpanKalender;
   window.jbRenderTabel = jbRenderTabel;
   window.jbRenderPreview = jbRenderPreview;
   window.logout      = logout;
