@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Portal Guru — Egenda Kelas SMAN 5 Sarolangun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hijau: #1a7a4a;
+      --hijau-muda: #e8f5ee;
+      --hijau-gelap: #0f5233;
+      --aksen: #f0a500;
+      --putih: #ffffff;
+      --abu-terang: #f4f6f4;
+      --abu: #8a9a8d;
+      --teks: #1a2e1f;
+      --teks-muted: #5a7060;
+      --border: #d4e0d7;
+      --merah: #c0392b;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--abu-terang);
+      color: var(--teks);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HALAMAN LOGIN ── */
+    #hal-login {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(160deg, #0f5233 0%, #1a7a4a 50%, #2eac6a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hal-login::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    #hal-login::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-icon {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #1a7a4a, #2eac6a);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(26,122,74,0.35);
+    }
+
+    .logo-icon svg { width: 32px; height: 32px; fill: white; }
+
+    .logo-nama {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--teks);
+      line-height: 1.2;
+    }
+
+    .logo-sub {
+      font-size: 12px;
+      color: var(--abu);
+      margin-top: 3px;
+    }
+
+    .login-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teks-muted);
+      margin-bottom: 12px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* PIN INPUT */
+    .pin-wrap {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .pin-kotak {
+      width: 60px; height: 68px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-size: 28px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      text-align: center;
+      color: var(--hijau-gelap);
+      background: var(--abu-terang);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      -webkit-text-security: disc;
+    }
+
+    .pin-kotak:focus {
+      border-color: var(--hijau);
+      box-shadow: 0 0 0 4px rgba(26,122,74,0.15);
+      background: white;
+    }
+
+    .pin-kotak.isi {
+      border-color: var(--hijau);
+      background: var(--hijau-muda);
+    }
+
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .numpad-btn {
+      height: 52px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      font-size: 20px;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+      color: var(--teks);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .numpad-btn:active { background: var(--hijau-muda); transform: scale(0.95); }
+    .numpad-btn.hapus { font-size: 16px; color: var(--merah); border-color: #fddcdc; }
+    .numpad-btn.kosong { visibility: hidden; }
+
+    .btn-login {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #1a7a4a, #2eac6a);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-login:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-login:not(:disabled):active { transform: scale(0.98); }
+
+    .pesan-error {
+      text-align: center;
+      color: var(--merah);
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 18px;
+      font-weight: 500;
+    }
+
+    /* ── HALAMAN UTAMA ── */
+    #hal-utama { display: none; min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%);
+      padding: 20px 20px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 32px;
+      background: var(--abu-terang);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .header-judul {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+    }
+
+    .header-nama {
+      font-size: 18px;
+      color: white;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .btn-keluar {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .tanggal-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* KONTEN */
+    .konten {
+      padding: 20px 16px 32px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* STATUS HARI INI */
+    .status-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status-dot {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .status-dot.belum { background: #fff3e0; }
+    .status-dot.sudah { background: var(--hijau-muda); }
+
+    .status-info { flex: 1; }
+    .status-label { font-size: 11px; color: var(--abu); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-nilai { font-size: 15px; font-weight: 700; color: var(--teks); margin-top: 2px; }
+
+    /* SECTION LABEL */
+    .sec-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--teks-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+
+    /* JADWAL CARD */
+    .jadwal-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+    .jadwal-item {
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .jadwal-item:hover, .jadwal-item.aktif {
+      border-color: var(--hijau);
+      box-shadow: 0 0 0 3px rgba(26,122,74,0.1);
+    }
+
+    .jadwal-item.sudah-isi {
+      border-color: #b7dfc8;
+      background: #f5fbf7;
+    }
+
+    .jadwal-jam {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--abu);
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .jadwal-tengah { flex: 1; }
+    .jadwal-mapel { font-size: 14px; font-weight: 700; color: var(--teks); }
+    .jadwal-kelas { font-size: 12px; color: var(--teks-muted); margin-top: 2px; }
+
+    .jadwal-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .jadwal-badge.sudah { background: var(--hijau-muda); color: var(--hijau-gelap); }
+    .jadwal-badge.belum { background: #fff3e0; color: #b45309; }
+
+    /* FORM INPUT AGENDA */
+    .form-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      animation: slideUp 0.3s ease;
+    }
+
+    .form-judul {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--teks);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-grup { margin-bottom: 14px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--teks-muted); margin-bottom: 6px; display: block; }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--teks);
+      background: var(--abu-terang);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--hijau);
+      box-shadow: 0 0 0 3px rgba(26,122,74,0.12);
+      background: white;
+    }
+
+    .form-textarea { resize: none; height: 80px; line-height: 1.5; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* KEHADIRAN */
+    .kehadiran-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .kehadiran-item {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .kehadiran-item label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--abu);
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .kehadiran-item input {
+      width: 100%;
+      text-align: center;
+      padding: 6px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: var(--teks);
+      background: var(--abu-terang);
+      outline: none;
+    }
+
+    .kehadiran-item input:focus {
+      border-color: var(--hijau);
+      background: white;
+    }
+
+    .kehadiran-item.hadir { border-color: #b7dfc8; }
+    .kehadiran-item.hadir label { color: var(--hijau); }
+    .kehadiran-item.alfa { border-color: #f5c6c6; }
+    .kehadiran-item.alfa label { color: var(--merah); }
+    .kehadiran-item.izin { border-color: #fde8b0; }
+    .kehadiran-item.izin label { color: #b45309; }
+    .kehadiran-item.sakit { border-color: #c8d8f8; }
+    .kehadiran-item.sakit label { color: #1d4ed8; }
+
+    /* TOMBOL */
+    .btn-simpan {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #1a7a4a, #2eac6a);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    .btn-simpan:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-simpan:not(:disabled):active { transform: scale(0.98); }
+
+    .btn-batal {
+      width: 100%;
+      height: 44px;
+      background: transparent;
+      color: var(--teks-muted);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* SUKSES TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--hijau-gelap);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 9999;
+      white-space: nowrap;
+    }
+
+    .toast.tampil { transform: translateX(-50%) translateY(0); }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      display: none;
+    }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--hijau);
+      border-radius: 50%;
+      animation: putar 0.7s linear infinite;
+    }
+
+    @keyframes putar { to { transform: rotate(360deg); } }
+
+    /* RIWAYAT */
+    .riwayat-item {
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+
+    .riwayat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .riwayat-mapel { font-size: 13px; font-weight: 700; color: var(--teks); }
+    .riwayat-tgl { font-size: 11px; color: var(--abu); font-family: 'DM Mono', monospace; }
+    .riwayat-materi { font-size: 12px; color: var(--teks-muted); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--abu);
+    }
+
+    .empty-state .ikon { font-size: 40px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; line-height: 1.6; }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: white;
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      background: transparent;
+      color: var(--abu);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-btn.aktif {
+      background: var(--hijau);
+      color: white;
+    }
+
+    .tab-konten { display: none; }
+    .tab-konten.aktif { display: block; }
+
+    @media (max-width: 360px) {
+      .pin-kotak { width: 54px; height: 62px; font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HALAMAN LOGIN ══ -->
+<div id="hal-login">
+  <div class="login-card">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 3a3 3 0 110 6 3 3 0 010-6zm5 11H7v-.5c0-2 2.5-3.5 5-3.5s5 1.5 5 3.5V17z"/></svg>
+      </div>
+      <div class="logo-nama">Egenda Kelas</div>
+      <div class="logo-sub">SMAN 5 Sarolangun</div>
+    </div>
+
+    <div class="login-label">Masukkan PIN Anda</div>
+
+    <div class="pin-wrap" id="pin-tampil">
+      <input class="pin-kotak" id="p1" type="password" maxlength="1" inputmode="numeric" readonly>
+      <input class="pin-kotak" id="p2" type="password" maxlength="1" inputmode="numeric" readonly>
+      <input class="pin-kotak" id="p3" type="password" maxlength="1" inputmode="numeric" readonly>
+      <input class="pin-kotak" id="p4" type="password" maxlength="1" inputmode="numeric" readonly>
+    </div>
+
+    <div class="numpad">
+      <button class="numpad-btn" onclick="inputPin('1')">1</button>
+      <button class="numpad-btn" onclick="inputPin('2')">2</button>
+      <button class="numpad-btn" onclick="inputPin('3')">3</button>
+      <button class="numpad-btn" onclick="inputPin('4')">4</button>
+      <button class="numpad-btn" onclick="inputPin('5')">5</button>
+      <button class="numpad-btn" onclick="inputPin('6')">6</button>
+      <button class="numpad-btn" onclick="inputPin('7')">7</button>
+      <button class="numpad-btn" onclick="inputPin('8')">8</button>
+      <button class="numpad-btn" onclick="inputPin('9')">9</button>
+      <button class="numpad-btn kosong"></button>
+      <button class="numpad-btn" onclick="inputPin('0')">0</button>
+      <button class="numpad-btn hapus" onclick="hapusPin()">⌫</button>
+    </div>
+
+    <button class="btn-login" id="btn-login" disabled onclick="prosesLogin()">Masuk</button>
+    <div class="pesan-error" id="pesan-error"></div>
+  </div>
+</div>
+
+<!-- ══ HALAMAN UTAMA ══ -->
+<div id="hal-utama">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-judul">Selamat datang,</div>
+        <div class="header-nama" id="nama-guru">—</div>
+      </div>
+      <button class="btn-keluar" onclick="keluar()">Keluar</button>
+    </div>
+    <div class="tanggal-chip">
+      📅 <span id="teks-tanggal">—</span>
+    </div>
+  </div>
+
+  <div class="konten">
+
+    <!-- STATUS HARI INI -->
+    <div class="status-card">
+      <div class="status-dot" id="status-dot">📋</div>
+      <div class="status-info">
+        <div class="status-label">Agenda hari ini</div>
+        <div class="status-nilai" id="status-nilai">Memuat...</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn aktif" onclick="gantiTab('jadwal')">Jadwal Hari Ini</button>
+      <button class="tab-btn" onclick="gantiTab('riwayat')">Riwayat</button>
+    </div>
+
+    <!-- TAB JADWAL -->
+    <div class="tab-konten aktif" id="tab-jadwal">
+      <div class="sec-label">Pilih kelas untuk isi agenda</div>
+      <div class="jadwal-list" id="jadwal-list">
+        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat jadwal...</p></div>
+      </div>
+
+      <!-- FORM AGENDA (tersembunyi, muncul saat pilih jadwal) -->
+      <div id="form-agenda" style="display:none;">
+        <div class="form-card">
+          <div class="form-judul">
+            📝 <span id="form-judul-teks">Isi Agenda</span>
+          </div>
+
+          <div class="form-grup">
+            <label class="form-label">Materi Pokok *</label>
+            <input type="text" class="form-input" id="inp-materi" placeholder="Contoh: Persamaan Linear Satu Variabel">
+          </div>
+
+          <div class="form-grup">
+            <label class="form-label">Sub Materi</label>
+            <input type="text" class="form-input" id="inp-submateri" placeholder="Contoh: Pengenalan variabel dan konstanta">
+          </div>
+
+          <div class="form-row">
+            <div class="form-grup">
+              <label class="form-label">Metode Pembelajaran *</label>
+              <select class="form-select" id="inp-metode">
+                <option value="">Pilih metode</option>
+                <option>Ceramah</option>
+                <option>Diskusi</option>
+                <option>Tanya Jawab</option>
+                <option>Demonstrasi</option>
+                <option>Praktikum</option>
+                <option>Project Based</option>
+                <option>Problem Based</option>
+                <option>Kooperatif</option>
+                <option>Inkuiri</option>
+              </select>
+            </div>
+            <div class="form-grup">
+              <label class="form-label">Media Ajar *</label>
+              <select class="form-select" id="inp-media">
+                <option value="">Pilih media</option>
+                <option>Papan tulis</option>
+                <option>PPT / Slide</option>
+                <option>Video</option>
+                <option>Modul / LKS</option>
+                <option>Buku Teks</option>
+                <option>Alat Peraga</option>
+                <option>Laptop / Proyektor</option>
+                <option>Internet</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grup">
+            <label class="form-label">Data Kehadiran Siswa</label>
+            <div class="kehadiran-grid">
+              <div class="kehadiran-item hadir">
+                <label>✅ Hadir</label>
+                <input type="number" id="inp-hadir" value="0" min="0">
+              </div>
+              <div class="kehadiran-item alfa">
+                <label>❌ Alfa</label>
+                <input type="number" id="inp-alfa" value="0" min="0">
+              </div>
+              <div class="kehadiran-item izin">
+                <label>📄 Izin</label>
+                <input type="number" id="inp-izin" value="0" min="0">
+              </div>
+              <div class="kehadiran-item sakit">
+                <label>🏥 Sakit</label>
+                <input type="number" id="inp-sakit" value="0" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grup">
+            <label class="form-label">Catatan (opsional)</label>
+            <textarea class="form-textarea" id="inp-catatan" placeholder="Contoh: Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
+          </div>
+
+          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()">
+            💾 Simpan Agenda
+          </button>
+          <button class="btn-batal" onclick="tutupForm()">Batal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB RIWAYAT -->
+    <div class="tab-konten" id="tab-riwayat">
+      <div class="sec-label">Riwayat 30 hari terakhir</div>
+      <div id="riwayat-list">
+        <div class="empty-state"><div class="ikon">📂</div><p>Memuat riwayat...</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST NOTIFIKASI -->
+<div class="toast" id="toast">✅ Agenda berhasil disimpan!</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, query, where, getDocs,
+    addDoc, orderBy, limit, Timestamp, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ── KONFIGURASI FIREBASE ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+    authDomain: "agedasmanli.firebaseapp.com",
+    projectId: "agedasmanli",
+    storageBucket: "agedasmanli.firebasestorage.app",
+    messagingSenderId: "969562298791",
+    appId: "1:969562298791:web:320a29a007c74739217e82"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ── STATE ──
+  let guruAktif = null;
+  let jadwalDipilih = null;
+  let pinMasuk = '';
+
+  // ── NAMA HARI ──
+  const namaHari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+  function formatTanggal(d) {
+    return `${namaHari[d.getDay()]}, ${d.getDate()} ${namaBulan[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function tanggalString(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // ── TAMPILKAN TANGGAL ──
+  const sekarang = new Date();
+  document.getElementById('teks-tanggal').textContent = formatTanggal(sekarang);
+  const hariIni = namaHari[sekarang.getDay()];
+
+  // ── EXPOSE FUNGSI KE GLOBAL ──
+  window.inputPin = inputPin;
+  window.hapusPin = hapusPin;
+  window.prosesLogin = prosesLogin;
+  window.keluar = keluar;
+  window.gantiTab = gantiTab;
+  window.simpanAgenda = simpanAgenda;
+  window.tutupForm = tutupForm;
+  window.pilihJadwal = pilihJadwal;
+
+  // ── PIN INPUT ──
+  function inputPin(angka) {
+    if (pinMasuk.length >= 4) return;
+    pinMasuk += angka;
+    updateTampilPin();
+    if (pinMasuk.length === 4) {
+      document.getElementById('btn-login').disabled = false;
+    }
+  }
+
+  function hapusPin() {
+    pinMasuk = pinMasuk.slice(0, -1);
+    document.getElementById('btn-login').disabled = true;
+    document.getElementById('pesan-error').textContent = '';
+    updateTampilPin();
+  }
+
+  function updateTampilPin() {
+    const ids = ['p1','p2','p3','p4'];
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.value = pinMasuk[i] ? '●' : '';
+      el.classList.toggle('isi', i < pinMasuk.length);
+    });
+  }
+
+  // ── LOGIN ──
+  async function prosesLogin() {
+    tampilLoading(true);
+    document.getElementById('pesan-error').textContent = '';
+    try {
+      const q = query(
+        collection(db, 'Data_Guru'),
+        where('pin_login', '==', pinMasuk),
+        where('status_aktif', '==', true)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        document.getElementById('pesan-error').textContent = 'PIN salah. Silakan coba lagi.';
+        resetPin();
+      } else {
+        guruAktif = { id: snap.docs[0].id, ...snap.docs[0].data() };
+        masukDashboard();
+      }
+    } catch(e) {
+      document.getElementById('pesan-error').textContent = 'Koneksi gagal. Periksa internet Anda.';
+    }
+    tampilLoading(false);
+  }
+
+  function resetPin() {
+    pinMasuk = '';
+    updateTampilPin();
+    document.getElementById('btn-login').disabled = true;
+  }
+
+  // ── DASHBOARD ──
+  async function masukDashboard() {
+    document.getElementById('hal-login').style.display = 'none';
+    document.getElementById('hal-utama').style.display = 'block';
+    document.getElementById('nama-guru').textContent = guruAktif.nama_lengkap;
+    await muatJadwal();
+    await muatRiwayat();
+  }
+
+  // ── MUAT JADWAL HARI INI ──
+  async function muatJadwal() {
+    tampilLoading(true);
+    const listEl = document.getElementById('jadwal-list');
+    listEl.innerHTML = '';
+
+    try {
+      // Ambil jadwal guru hari ini — coba koleksi Jadwal_Pelajaran dulu
+      let koleksi = 'Jadwal_Pelajaran';
+      const q = query(
+        collection(db, koleksi),
+        where('id_guru', '==', guruAktif.id),
+        where('hari', '==', hariIni)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        listEl.innerHTML = `<div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal mengajar hari ini.</p></div>`;
+        document.getElementById('status-nilai').textContent = 'Tidak ada jadwal';
+        document.getElementById('status-dot').textContent = '🏖️';
+        tampilLoading(false);
+        return;
+      }
+
+      // Cek agenda yang sudah diisi hari ini
+      const tanggal = tanggalString(sekarang);
+      const qAgenda = query(
+        collection(db, 'Agenda_Harian'),
+        where('id_guru', '==', guruAktif.id),
+        where('tanggal', '==', tanggal)
+      );
+      const snapAgenda = await getDocs(qAgenda);
+      const sudahIsi = new Set(snapAgenda.docs.map(d => d.data().id_jadwal));
+
+      let totalJadwal = snap.docs.length;
+      let totalIsi = 0;
+
+      snap.docs.sort((a,b) => (a.data().jam_ke||0) - (b.data().jam_ke||0)).forEach(docSnap => {
+        const j = docSnap.data();
+        const sudah = sudahIsi.has(docSnap.id);
+        if (sudah) totalIsi++;
+
+        const el = document.createElement('div');
+        el.className = `jadwal-item${sudah ? ' sudah-isi' : ''}`;
+        el.onclick = () => sudah ? null : pilihJadwal(docSnap.id, j);
+        el.innerHTML = `
+          <div class="jadwal-jam">Jam<br><strong>${j.jam_ke||'?'}</strong></div>
+          <div class="jadwal-tengah">
+            <div class="jadwal-mapel">${j.mata_pelajaran || j.mapel || '—'}</div>
+            <div class="jadwal-kelas">${j.kelas} · ${j.jam_mulai||''} – ${j.jam_selesai||''}</div>
+          </div>
+          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Sudah' : 'Belum'}</span>
+        `;
+        listEl.appendChild(el);
+      });
+
+      // Update status
+      const sisaBelum = totalJadwal - totalIsi;
+      document.getElementById('status-nilai').textContent =
+        totalIsi === totalJadwal
+          ? `Semua ${totalJadwal} agenda sudah diisi ✓`
+          : `${totalIsi}/${totalJadwal} terisi · ${sisaBelum} belum`;
+      document.getElementById('status-dot').textContent = totalIsi === totalJadwal ? '✅' : '📋';
+      document.getElementById('status-dot').className = `status-dot ${totalIsi === totalJadwal ? 'sudah' : 'belum'}`;
+
+    } catch(e) {
+      listEl.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat jadwal.<br>${e.message}</p></div>`;
+    }
+    tampilLoading(false);
+  }
+
+  // ── PILIH JADWAL ──
+  window.pilihJadwal = function(idJadwal, data) {
+    jadwalDipilih = { id: idJadwal, ...data };
+    document.getElementById('form-judul-teks').textContent =
+      `${data.mata_pelajaran || data.mapel} — ${data.kelas}`;
+    document.getElementById('form-agenda').style.display = 'block';
+    document.getElementById('inp-materi').value = '';
+    document.getElementById('inp-submateri').value = '';
+    document.getElementById('inp-metode').value = '';
+    document.getElementById('inp-media').value = '';
+    document.getElementById('inp-hadir').value = '0';
+    document.getElementById('inp-alfa').value = '0';
+    document.getElementById('inp-izin').value = '0';
+    document.getElementById('inp-sakit').value = '0';
+    document.getElementById('inp-catatan').value = '';
+    document.getElementById('form-agenda').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── SIMPAN AGENDA ──
+  async function simpanAgenda() {
+    const materi = document.getElementById('inp-materi').value.trim();
+    const metode = document.getElementById('inp-metode').value;
+    const media  = document.getElementById('inp-media').value;
+
+    if (!materi) { alert('Materi pokok wajib diisi!'); return; }
+    if (!metode) { alert('Pilih metode pembelajaran!'); return; }
+    if (!media)  { alert('Pilih media ajar!'); return; }
+
+    tampilLoading(true);
+    document.getElementById('btn-simpan').disabled = true;
+
+    try {
+      const data = {
+        id_guru:      guruAktif.id,
+        id_jadwal:    jadwalDipilih.id,
+        tanggal:      tanggalString(sekarang),
+        timestamp_input: new Date().toISOString(),
+        kelas:        jadwalDipilih.kelas,
+        mapel:        jadwalDipilih.mata_pelajaran || jadwalDipilih.mapel,
+        materi_pokok: materi,
+        sub_materi:   document.getElementById('inp-submateri').value.trim(),
+        metode:       metode,
+        media_ajar:   media,
+        jumlah_hadir: parseInt(document.getElementById('inp-hadir').value) || 0,
+        jumlah_alfa:  parseInt(document.getElementById('inp-alfa').value) || 0,
+        jumlah_izin:  parseInt(document.getElementById('inp-izin').value) || 0,
+        jumlah_sakit: parseInt(document.getElementById('inp-sakit').value) || 0,
+        catatan:      document.getElementById('inp-catatan').value.trim(),
+        status_hadir: 'hadir'
+      };
+
+      await addDoc(collection(db, 'Agenda_Harian'), data);
+      tampilToast('✅ Agenda berhasil disimpan!');
+      tutupForm();
+      await muatJadwal();
+      await muatRiwayat();
+    } catch(e) {
+      alert('Gagal menyimpan: ' + e.message);
+    }
+
+    tampilLoading(false);
+    document.getElementById('btn-simpan').disabled = false;
+  }
+
+  function tutupForm() {
+    document.getElementById('form-agenda').style.display = 'none';
+    jadwalDipilih = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── RIWAYAT ──
+  async function muatRiwayat() {
+    const el = document.getElementById('riwayat-list');
+    el.innerHTML = '';
+    try {
+      const q = query(
+        collection(db, 'Agenda_Harian'),
+        where('id_guru', '==', guruAktif.id),
+        orderBy('timestamp_input', 'desc'),
+        limit(30)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        el.innerHTML = `<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.</p></div>`;
+        return;
+      }
+      snap.docs.forEach(d => {
+        const r = d.data();
+        const div = document.createElement('div');
+        div.className = 'riwayat-item';
+        div.innerHTML = `
+          <div class="riwayat-top">
+            <span class="riwayat-mapel">${r.mapel} — ${r.kelas}</span>
+            <span class="riwayat-tgl">${r.tanggal}</span>
+          </div>
+          <div class="riwayat-materi">${r.materi_pokok}</div>
+        `;
+        el.appendChild(div);
+      });
+    } catch(e) {
+      el.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat riwayat.</p></div>`;
+    }
+  }
+
+  // ── TABS ──
+  function gantiTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
+    document.querySelectorAll('.tab-konten').forEach(t => t.classList.remove('aktif'));
+    event.target.classList.add('aktif');
+    document.getElementById('tab-' + tab).classList.add('aktif');
+  }
+
+  // ── KELUAR ──
+  function keluar() {
+    guruAktif = null;
+    jadwalDipilih = null;
+    resetPin();
+    document.getElementById('hal-utama').style.display = 'none';
+    document.getElementById('hal-login').style.display = 'flex';
+    document.getElementById('pesan-error').textContent = '';
+  }
+
+  // ── HELPERS ──
+  function tampilLoading(tampil) {
+    document.getElementById('loading').style.display = tampil ? 'flex' : 'none';
+  }
+
+  let toastTimer;
+  function tampilToast(pesan) {
+    const t = document.getElementById('toast');
+    t.textContent = pesan;
+    t.classList.add('tampil');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('tampil'), 3000);
+  }
+</script>
+</body>
+</html>

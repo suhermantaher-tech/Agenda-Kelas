@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Egenda Kelas — SMAN 5 Sarolangun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(160deg, #0f5233, #1a7a4a, #2eac6a);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .kartu {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    }
+    .ikon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #1a7a4a, #2eac6a);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(26,122,74,0.3);
+    }
+    .ikon svg { width: 36px; height: 36px; fill: white; }
+    h1 { font-size: 22px; font-weight: 700; color: #1a2e1f; margin-bottom: 4px; }
+    p { font-size: 13px; color: #5a7060; margin-bottom: 32px; }
+    .menu { display: flex; flex-direction: column; gap: 10px; }
+    .menu a {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1.5px solid #d4e0d7;
+      text-decoration: none;
+      color: #1a2e1f;
+      font-weight: 600;
+      font-size: 14px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .menu a:hover { border-color: #1a7a4a; background: #f0faf4; }
+    .menu a .ico { font-size: 22px; }
+    .menu a .desc { font-size: 11px; color: #8a9a8d; font-weight: 400; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="kartu">
+    <div class="ikon">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+    </div>
+    <h1>Egenda Kelas</h1>
+    <p>SMA Negeri 5 Sarolangun · Pilih portal sesuai peran Anda</p>
+    <div class="menu">
+      <a href="portal-guru/">
+        <span class="ico">👨‍🏫</span>
+        <div>
+          <div>Portal Guru</div>
+          <div class="desc">Input agenda harian · Login PIN</div>
+        </div>
+      </a>
+      <a href="monitor-tv/">
+        <span class="ico">📺</span>
+        <div>
+          <div>Monitor Ruang Guru</div>
+          <div class="desc">Layar real-time status kelas</div>
+        </div>
+      </a>
+      <a href="dashboard-admin/">
+        <span class="ico">⚙️</span>
+        <div>
+          <div>Dashboard Admin</div>
+          <div class="desc">Laporan & manajemen data</div>
+        </div>
+      </a>
+      <a href="dashboard-kepsek/">
+        <span class="ico">📊</span>
+        <div>
+          <div>Portal Kepala Sekolah</div>
+          <div class="desc">Ringkasan eksekutif</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
