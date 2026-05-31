@@ -491,7 +491,7 @@
   setInterval(updateJam, 1000);
 
   const sekarang = new Date();
-  const hariIni  = 'Senin';
+  const hariIni  = 'Senin";
   const tanggalStr = `${sekarang.getFullYear()}-${String(sekarang.getMonth()+1).padStart(2,'0')}-${String(sekarang.getDate()).padStart(2,'0')}`;
 
   document.getElementById('hari-chip').textContent = hariIni;
@@ -645,11 +645,25 @@
                sudahIsiRombelSlot.has(rombelMap[s.id_rombel]?.id + '_' + s.slot_urutan);
       }
 
-      // Untuk setiap rombel, cek berapa slot sudah terisi
+      // Untuk setiap rombel, hitung berdasarkan SESI unik (bukan slot)
+      // Satu sesi = satu entri agenda yang bisa mencakup beberapa JP
       const jadwalList = rombelList.map(r => {
-        const totalSlot  = r.slots.length;
-        const terisiSlot = r.slots.filter(s => slotSudahTerisi(s)).length;
-        // Ambil mapel pertama yang belum terisi atau yang sudah terisi
+        // Dapatkan agenda yang masuk untuk rombel ini
+        const agendaRombel = agendaDocs.filter(a =>
+          a.id_rombel === r.id ||
+          (a.kelas && (a.kelas === r.namaKelas || a.kelas === r.id))
+        );
+
+        // Hitung sesi unik berdasarkan mapel yang berbeda di hari ini
+        // Setiap mapel unik = 1 sesi (karena guru input sekali per mapel)
+        const sesiTerisi = new Set(agendaRombel.map(a => a.id_jadwal || (a.id_rombel+'_'+a.slot_urutan))).size;
+
+        // Total sesi = jumlah mapel unik yang dijadwalkan untuk kelas ini
+        const mapelUnik = new Set(r.slots.map(s => s.id_mapel)).size;
+        const totalSesi  = mapelUnik || r.slots.length;
+        const terisiSlot = Math.min(sesiTerisi, totalSesi);
+
+        // Ambil slot yang belum ada agendanya
         const slotAktif  = r.slots.find(s => !slotSudahTerisi(s)) || r.slots[0];
         return {
           id:        r.id,
@@ -660,7 +674,7 @@
             jam_ke:        slotAktif?.slot_urutan || '',
             jam_mulai:     slotAktif?.jam_mulai || '',
             jam_selesai:   slotAktif?.jam_selesai || '',
-            _totalSlot:    totalSlot,
+            _totalSlot:    totalSesi,
             _terisiSlot:   terisiSlot,
             _semua:        sudahIsiSet,
             _slots:        r.slots,
