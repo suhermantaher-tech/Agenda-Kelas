@@ -480,6 +480,27 @@
     .toast.tampil { transform: translateX(-50%) translateY(0); }
 
 
+
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9990; padding: 24px;
+    }
+    .modal-box {
+      background: white; border-radius: 20px;
+      padding: 28px; max-width: 560px; width: 100%;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+    }
+    .modal-judul { font-size: 16px; font-weight: 800; color: var(--teks); margin-bottom: 16px; display:flex;align-items:center;gap:8px; }
+    .modal-tabel { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+    .modal-tabel th { background: var(--abu-bg); padding: 8px 12px; text-align:left; font-weight:700; color:var(--teks-muted); border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; }
+    .modal-tabel td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--teks); }
+    .modal-tabel tr:last-child td { border-bottom: none; }
+    .modal-tabel code { background: var(--abu-bg); padding: 2px 6px; border-radius: 4px; font-family: DM Mono,monospace; font-size:11px; color:var(--oranye-gelap); }
+    .modal-note { font-size:12px; color:var(--teks-muted); background:var(--oranye-terang); border-radius:8px; padding:10px 12px; line-height:1.6; margin-bottom:16px; }
+    .btn-modal-tutup { padding:8px 20px; background:var(--oranye); color:white; border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; font-family: Plus Jakarta Sans,sans-serif; }
     .form-lbl {
       font-size: 11px; font-weight: 700;
       color: var(--teks-muted);
@@ -716,9 +737,15 @@
 
   <!-- PAGE: GURU -->
   <div class="page" id="page-guru">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
       <div class="section-judul" style="margin:0">👨‍🏫 Daftar Guru</div>
-      <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="tampilFormGuru(null)">+ Tambah Guru</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor btn-excel" onclick="eksporGuruExcel()">📊 Unduh Excel</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-guru-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-guru-file" accept=".xlsx,.xls" style="display:none" onchange="importGuruExcel(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatGuru()">📋 Info Format</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormGuru(null)">+ Tambah Guru</button>
+      </div>
     </div>
     <div id="form-guru-wrap" style="display:none;margin-bottom:20px;">
       <div class="tabel-card" style="padding:20px;">
@@ -744,9 +771,15 @@
 
   <!-- PAGE: JADWAL -->
   <div class="page" id="page-jadwal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
       <div class="section-judul" style="margin:0">🗓 Jadwal Pelajaran</div>
-      <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="tampilFormJadwal(null)">+ Tambah Jadwal</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor btn-excel" onclick="eksporJadwalExcel()">📊 Unduh Excel</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-jadwal-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-jadwal-file" accept=".xlsx,.xls" style="display:none" onchange="importJadwalExcel(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatJadwal()">📋 Info Format</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormJadwal(null)">+ Tambah Jadwal</button>
+      </div>
     </div>
     <div id="form-jadwal-wrap" style="display:none;margin-bottom:20px;">
       <div class="tabel-card" style="padding:20px;">
@@ -1197,6 +1230,327 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('tampil'), 3000);
   }
+
+
+
+  // ══════════════════════════════════════
+  // IMPORT EXCEL — DATA GURU
+  // ══════════════════════════════════════
+  window.importGuruExcel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = ''; // reset agar bisa upload file sama lagi
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type: 'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        if (!rows.length) { tampilToast('⚠ File Excel kosong!'); return; }
+
+        // Validasi kolom wajib
+        const sample = rows[0];
+        const wajib  = ['Nama Lengkap', 'PIN Login'];
+        const missing = wajib.filter(k => !(k in sample));
+        if (missing.length) {
+          tampilModalHasil('❌ Kolom tidak sesuai',
+            `Kolom berikut tidak ditemukan di file Excel: <strong>${missing.join(', ')}</strong><br><br>
+            Pastikan header kolom persis: <code>Nama Lengkap</code>, <code>PIN Login</code>, <code>NIP</code>, <code>No. HP</code>, <code>Status Aktif</code>`,
+            [], 'error');
+          return;
+        }
+
+        // Cek PIN duplikat antar baris Excel sendiri
+        const pinDiFile = rows.map(r => String(r['PIN Login']||'').trim());
+        const pinDuplikat = pinDiFile.filter((p,i) => pinDiFile.indexOf(p) !== i);
+
+        let berhasil = 0, gagal = [], skip = [];
+
+        for (const row of rows) {
+          const nama = String(row['Nama Lengkap']||'').trim();
+          const pin  = String(row['PIN Login']||'').trim();
+          const nip  = String(row['NIP']||'').trim();
+          const hp   = String(row['No. HP']||'').trim();
+          const aktif = String(row['Status Aktif']||'Ya').trim().toLowerCase();
+
+          if (!nama) { gagal.push(`Baris kosong: nama tidak ada`); continue; }
+          if (!pin || pin.length !== 4 || isNaN(pin)) {
+            gagal.push(`${nama}: PIN "${pin}" tidak valid (harus 4 digit angka)`); continue;
+          }
+          if (pinDuplikat.includes(pin)) {
+            gagal.push(`${nama}: PIN "${pin}" duplikat dalam file`); continue;
+          }
+
+          // Cek PIN sudah ada di Firestore
+          const pinAda = Object.values(cacheGuru).find(g => g.pin_login === pin);
+          if (pinAda) {
+            skip.push(`${nama}: PIN "${pin}" sudah digunakan ${pinAda.nama_lengkap}`); continue;
+          }
+
+          try {
+            const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const data = {
+              nama_lengkap: nama, nip, pin_login: pin, no_hp: hp,
+              status_aktif: aktif === 'ya' || aktif === 'true' || aktif === '1'
+            };
+            const ref = await addDoc(collection(db, 'Data_Guru'), data);
+            cacheGuru[ref.id] = data;
+            berhasil++;
+          } catch(e) {
+            gagal.push(`${nama}: ${e.message}`);
+          }
+        }
+
+        renderGuru();
+        isiFilterGuru();
+        tampilModalHasil(
+          `✅ Import Selesai — ${berhasil} guru berhasil ditambahkan`,
+          berhasil > 0 ? `<strong>${berhasil}</strong> data guru berhasil disimpan ke Firestore.` : '',
+          [...(gagal.length ? ['<strong>Gagal:</strong>', ...gagal] : []),
+           ...(skip.length  ? ['<strong>Dilewati (PIN sudah ada):</strong>', ...skip] : [])],
+          berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) {
+        tampilToast('❌ Gagal membaca file Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // ══════════════════════════════════════
+  // IMPORT EXCEL — JADWAL PELAJARAN
+  // ══════════════════════════════════════
+  window.importJadwalExcel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type: 'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        if (!rows.length) { tampilToast('⚠ File Excel kosong!'); return; }
+
+        const sample = rows[0];
+        const wajib  = ['Nama Guru', 'Hari', 'Kelas', 'Mata Pelajaran'];
+        const missing = wajib.filter(k => !(k in sample));
+        if (missing.length) {
+          tampilModalHasil('❌ Kolom tidak sesuai',
+            `Kolom tidak ditemukan: <strong>${missing.join(', ')}</strong><br><br>
+            Header wajib: <code>Nama Guru</code>, <code>Hari</code>, <code>Kelas</code>, <code>Mata Pelajaran</code>`,
+            [], 'error');
+          return;
+        }
+
+        const hariValid = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        let berhasil = 0, gagal = [];
+
+        // Buat map nama guru → id
+        const namaToId = {};
+        Object.entries(cacheGuru).forEach(([id, g]) => {
+          namaToId[g.nama_lengkap.toLowerCase()] = id;
+        });
+
+        for (const row of rows) {
+          const namaGuru = String(row['Nama Guru']||'').trim();
+          const hari     = String(row['Hari']||'').trim();
+          const kelas    = String(row['Kelas']||'').trim();
+          const mapel    = String(row['Mata Pelajaran']||'').trim();
+
+          if (!namaGuru || !hari || !kelas || !mapel) {
+            gagal.push(`Baris tidak lengkap: ${namaGuru||'(kosong)'}`); continue;
+          }
+
+          // Cari id guru
+          const idGuru = namaToId[namaGuru.toLowerCase()];
+          if (!idGuru) {
+            gagal.push(`Guru "${namaGuru}" tidak ditemukan di Data Guru`); continue;
+          }
+
+          // Validasi hari
+          const hariKapital = hari.charAt(0).toUpperCase() + hari.slice(1).toLowerCase();
+          if (!hariValid.includes(hariKapital)) {
+            gagal.push(`${namaGuru} - ${kelas}: Hari "${hari}" tidak valid`); continue;
+          }
+
+          try {
+            const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const data = {
+              id_guru:        idGuru,
+              hari:           hariKapital,
+              kelas,
+              mata_pelajaran: mapel,
+              jam_ke:         parseInt(row['Jam Ke']||1) || 1,
+              jam_mulai:      String(row['Jam Mulai']||''),
+              jam_selesai:    String(row['Jam Selesai']||''),
+              semester:       String(row['Semester']||'Ganjil'),
+              tahun_ajaran:   String(row['Tahun Ajaran']||'2025/2026'),
+            };
+            const ref = await addDoc(collection(db, 'Jadwal_Pelajaran'), data);
+            allJadwal.push({ id: ref.id, ...data });
+            berhasil++;
+          } catch(e) {
+            gagal.push(`${namaGuru} - ${kelas}: ${e.message}`);
+          }
+        }
+
+        renderJadwal();
+        tampilModalHasil(
+          `✅ Import Selesai — ${berhasil} jadwal berhasil ditambahkan`,
+          berhasil > 0 ? `<strong>${berhasil}</strong> jadwal berhasil disimpan ke Firestore.` : '',
+          gagal.length ? ['<strong>Gagal/Dilewati:</strong>', ...gagal] : [],
+          berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) {
+        tampilToast('❌ Gagal membaca file Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // ── MODAL HASIL IMPORT ──
+  function tampilModalHasil(judul, pesan, detailList, tipe) {
+    const warna = tipe === 'success' ? 'var(--hijau)' : 'var(--merah)';
+    const detailHtml = detailList.length
+      ? `<div style="background:var(--abu-bg);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;margin:10px 0;">
+          ${detailList.map(d => `<div style="font-size:12px;color:var(--teks-muted);padding:2px 0;border-bottom:1px solid var(--border)">${d}</div>`).join('')}
+        </div>` : '';
+    const html = `<div class="modal-overlay" id="modal-hasil" onclick="if(event.target===this)document.getElementById('modal-hasil').remove()">
+      <div class="modal-box">
+        <div class="modal-judul" style="color:${warna}">${judul}</div>
+        ${pesan ? `<p style="font-size:13px;color:var(--teks-muted);margin-bottom:8px;line-height:1.6">${pesan}</p>` : ''}
+        ${detailHtml}
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-hasil').remove()">Tutup</button>
+      </div>
+    </div>`;
+    // Remove existing modal if any
+    const old = document.getElementById('modal-hasil');
+    if (old) old.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+  }
+
+  // ── EKSPOR GURU EXCEL ──
+  window.eksporGuruExcel = function() {
+    const rows = Object.entries(cacheGuru).map(([id, g]) => ({
+      'ID Dokumen':    id,
+      'Nama Lengkap':  g.nama_lengkap || '',
+      'NIP':           g.nip || '',
+      'PIN Login':     g.pin_login || '',
+      'No. HP':        g.no_hp || '',
+      'Status Aktif':  g.status_aktif ? 'Ya' : 'Tidak',
+    }));
+    if (!rows.length) { tampilToast('⚠ Belum ada data guru'); return; }
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:30},{wch:20},{wch:10},{wch:16},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
+    XLSX.writeFile(wb, 'Data_Guru_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
+    tampilToast('✅ File Excel Data Guru berhasil diunduh!');
+  };
+
+  // ── EKSPOR JADWAL EXCEL ──
+  window.eksporJadwalExcel = function() {
+    if (!allJadwal.length) { tampilToast('⚠ Belum ada data jadwal'); return; }
+    const urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const sorted = [...allJadwal].sort((a,b) => {
+      const hi = urutan.indexOf(a.hari), hj = urutan.indexOf(b.hari);
+      if (hi !== hj) return hi - hj;
+      return (a.jam_ke||0) - (b.jam_ke||0);
+    });
+    const rows = sorted.map(j => ({
+      'ID Dokumen':     j.id,
+      'ID Guru':        j.id_guru || '',
+      'Nama Guru':      (cacheGuru[j.id_guru] || {}).nama_lengkap || '',
+      'Hari':           j.hari || '',
+      'Kelas':          j.kelas || '',
+      'Mata Pelajaran': j.mata_pelajaran || j.mapel || '',
+      'Jam Ke':         j.jam_ke || '',
+      'Jam Mulai':      j.jam_mulai || '',
+      'Jam Selesai':    j.jam_selesai || '',
+      'Semester':       j.semester || '',
+      'Tahun Ajaran':   j.tahun_ajaran || '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:28},{wch:28},{wch:10},{wch:12},{wch:22},{wch:8},{wch:10},{wch:10},{wch:10},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Jadwal Pelajaran');
+    XLSX.writeFile(wb, 'Jadwal_Pelajaran_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
+    tampilToast('✅ File Excel Jadwal berhasil diunduh!');
+  };
+
+  // ── INFO FORMAT GURU ──
+  window.infoFormatGuru = function() {
+    const html = `<div class="modal-overlay" id="modal-info" onclick="if(event.target===this)document.getElementById('modal-info').remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Format Data Guru di Firestore</div>
+        <div class="modal-note">
+          ℹ️ Data guru disimpan di koleksi <strong>Data_Guru</strong> di Firebase Firestore.
+          Gunakan form "Tambah Guru" untuk menambah data, atau isi langsung via Firebase Console.
+        </div>
+        <table class="modal-tabel">
+          <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar</td></tr>
+            <tr><td><code>nip</code></td><td>string</td><td>197001012000011001</td><td>NIP 18 digit (opsional)</td></tr>
+            <tr><td><code>pin_login</code></td><td>string</td><td>1234</td><td>PIN 4 digit, harus unik tiap guru</td></tr>
+            <tr><td><code>no_hp</code></td><td>string</td><td>08123456789</td><td>Nomor WhatsApp aktif (opsional)</td></tr>
+            <tr><td><code>status_aktif</code></td><td>boolean</td><td>true</td><td>true = aktif, false = nonaktif</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-note">⚠️ PIN harus berupa 4 digit angka dan tidak boleh sama antar guru. Contoh: 1001, 1002, 1003, dst.</div>
+        <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
+          📥 <strong>Cara Import dari Excel:</strong><br>
+          1. Klik tombol <strong>Unduh Excel</strong> untuk mendapat file contoh (jika sudah ada data)<br>
+          2. Atau buat file Excel baru dengan kolom: <code>Nama Lengkap</code>, <code>PIN Login</code>, <code>NIP</code>, <code>No. HP</code>, <code>Status Aktif</code><br>
+          3. Isi data guru per baris, lalu klik <strong>Import Excel</strong> dan pilih file tersebut
+        </div>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-info').remove()">Tutup</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  // ── INFO FORMAT JADWAL ──
+  window.infoFormatJadwal = function() {
+    const html = `<div class="modal-overlay" id="modal-info-jadwal" onclick="if(event.target===this)document.getElementById('modal-info-jadwal').remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Format Data Jadwal di Firestore</div>
+        <div class="modal-note">
+          ℹ️ Data jadwal disimpan di koleksi <strong>Jadwal_Pelajaran</strong> di Firebase Firestore.
+          Gunakan form "Tambah Jadwal" di atas, atau isi via Firebase Console.
+        </div>
+        <table class="modal-tabel">
+          <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>id_guru</code></td><td>string</td><td>xYz123abc...</td><td>ID dokumen guru dari Data_Guru</td></tr>
+            <tr><td><code>hari</code></td><td>string</td><td>Senin</td><td>Senin / Selasa / Rabu / Kamis / Jumat / Sabtu</td></tr>
+            <tr><td><code>kelas</code></td><td>string</td><td>X IPA 1</td><td>Nama kelas lengkap</td></tr>
+            <tr><td><code>mata_pelajaran</code></td><td>string</td><td>Matematika</td><td>Nama mata pelajaran</td></tr>
+            <tr><td><code>jam_ke</code></td><td>number</td><td>1</td><td>Urutan jam pelajaran (1–12)</td></tr>
+            <tr><td><code>jam_mulai</code></td><td>string</td><td>07:00</td><td>Format HH:MM (24 jam)</td></tr>
+            <tr><td><code>jam_selesai</code></td><td>string</td><td>07:45</td><td>Format HH:MM (24 jam)</td></tr>
+            <tr><td><code>semester</code></td><td>string</td><td>Ganjil</td><td>Ganjil atau Genap</td></tr>
+            <tr><td><code>tahun_ajaran</code></td><td>string</td><td>2025/2026</td><td>Format YYYY/YYYY</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-note">⚠️ Nilai <strong>hari</strong> harus diawali huruf kapital: <strong>Senin</strong>, bukan senin atau SENIN. Ini penting agar jadwal terbaca di Portal Guru dan Monitor TV.</div>
+        <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
+          📥 <strong>Cara Import dari Excel:</strong><br>
+          1. Pastikan data guru sudah diisi terlebih dahulu di menu <strong>Data Guru</strong><br>
+          2. Buat file Excel dengan kolom: <code>Nama Guru</code>, <code>Hari</code>, <code>Kelas</code>, <code>Mata Pelajaran</code>, <code>Jam Ke</code>, <code>Jam Mulai</code>, <code>Jam Selesai</code>, <code>Semester</code>, <code>Tahun Ajaran</code><br>
+          3. Kolom <strong>Nama Guru</strong> harus sama persis dengan nama di Data Guru<br>
+          4. Klik <strong>Import Excel</strong> dan pilih file tersebut
+        </div>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-info-jadwal').remove()">Tutup</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
 
   // ── FORM GURU ──
   let editGuruId = null;
