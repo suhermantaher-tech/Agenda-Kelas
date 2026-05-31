@@ -1866,12 +1866,12 @@
       // Buat pilihan guru per mapel
       const guruOpsi = guruList.length === 0
         ? '<span style="color:var(--merah);font-size:11px">Belum ada guru pengampu</span>'
-        : `<div class="roster-guru-opsi" id="guru-opsi-${m.id}" style="display:${dipilih?'flex':'none'};flex-wrap:wrap;gap:5px;margin-top:6px;">
+        : `<div class="roster-guru-opsi" id="guru-opsi-${m.id}" style="display:${dipilih?'flex':'none'};flex-wrap:wrap;gap:5px;margin-top:6px;" onclick="event.stopPropagation()">
             ${guruList.map(g => `
-              <label style="display:inline-flex;align-items:center;gap:4px;cursor:${g.bentrok?'not-allowed':'pointer'};opacity:${g.bentrok?'0.4':'1'}">
-                <input type="radio" name="roster-guru-pick" value="${g.gid}" ${isi?.id_guru===g.gid?'checked':''} ${g.bentrok?'disabled':''} onchange="rosterPilihGuru('${g.gid}')">
-                <span style="font-size:11px;font-weight:600;font-family:DM Mono,monospace">${g.kode}</span>
-                <span style="font-size:11px;">${g.nama.split(',')[0]}</span>
+              <label onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;cursor:${g.bentrok?'not-allowed':'pointer'};opacity:${g.bentrok?'0.4':'1'};padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:white;">
+                <input type="radio" name="roster-guru-pick" value="${g.gid}" ${isi?.id_guru===g.gid?'checked':''} ${g.bentrok?'disabled':''} onclick="event.stopPropagation()" onchange="rosterPilihGuru('${g.gid}')">
+                <span style="font-size:11px;font-weight:700;font-family:DM Mono,monospace;color:var(--biru-tua)">${g.kode}</span>
+                <span style="font-size:11px;color:var(--teks)">${g.nama.split(',')[0]}</span>
                 ${g.bentrok?'<span style="font-size:10px;color:var(--merah)">(bentrok)</span>':''}
               </label>`).join('')}
           </div>`;
@@ -1956,10 +1956,8 @@
 
   window.rosterPilihGuru = function(guruId) {
     rosterGuruDipilih = guruId;
-    // Pastikan tombol simpan aktif
     document.getElementById('roster-simpan-btn').disabled = false;
     document.getElementById('roster-simpan-btn').style.opacity = '1';
-    event.stopPropagation();
   };
 
   window.rosterSimpanSlot = async function() {
