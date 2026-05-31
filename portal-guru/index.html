@@ -999,7 +999,7 @@
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const sekarang  = new Date();
-  const hariIni   = "Senin";
+  const hariIni   = 'Senin';
 
   document.getElementById('teks-tanggal').textContent =
     `${namaHari[sekarang.getDay()]}, ${sekarang.getDate()} ${namaBulan[sekarang.getMonth()]} ${sekarang.getFullYear()}`;
@@ -1009,8 +1009,6 @@
   }
 
   // expose ke global
-  Object.assign(window, { inputPin, hapusPin, prosesLogin, keluar, gantiTab, simpanAgenda, tutupForm, pilihJadwal });
-
   // ── PIN ──
   function inputPin(a) {
     if (pinMasuk.length >= 4) return;
@@ -1289,6 +1287,15 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('tampil'), 3200);
   }
+  // ── EXPOSE KE GLOBAL ──
+  window.inputPin    = inputPin;
+  window.hapusPin    = hapusPin;
+  window.prosesLogin = prosesLogin;
+  window.keluar      = keluar;
+  window.gantiTab    = gantiTab;
+  window.simpanAgenda = simpanAgenda;
+  window.tutupForm   = tutupForm;
+  window.pilihJadwal = pilihJadwal;
 </script>
 </body>
 </html>
