@@ -91,6 +91,19 @@
 
     .divider { border-top: 1px solid #1A2E44; }
 
+    /* SLIDER FOTO */
+    .slider-wrap { overflow: hidden; position: relative; background: #0F1C2C; border-radius: 10px; }
+    .slider-track { display: flex; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .slider-item { min-width: 100%; position: relative; }
+    .slider-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+    .slider-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 12px 14px 10px; border-radius: 0 0 10px 10px; }
+    .slider-caption { font-size: 12px; font-weight: 500; color: white; }
+    .slider-dots { display: flex; justify-content: center; gap: 5px; margin-top: 6px; }
+    .slider-dot { width: 6px; height: 6px; border-radius: 50%; background: #1A2E44; transition: background 0.3s; cursor: pointer; }
+    .slider-dot.aktif { background: #E07020; }
+    .slider-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #546E7A; font-size: 12px; gap: 8px; }
+    .slider-placeholder i { font-size: 32px; opacity: 0.5; }
+
     /* TICKER */
     .ticker { position: fixed; bottom: 0; left: 0; right: 0; background: #B85510; padding: 5px 20px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 12px; z-index: 99; }
     .ticker-lbl { background: white; color: #B85510; padding: 1px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; flex-shrink: 0; }
@@ -212,7 +225,7 @@
   setInterval(updateJam, 1000);
 
   const now        = new Date();
-  const hariIni    = 'Senin';
+  const hariIni    = namaHari[now.getDay()];
   const tanggalStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
   document.getElementById('hari-chip').textContent = hariIni;
@@ -426,6 +439,94 @@
     document.getElementById('ticker-txt').textContent = txt;
   }
 
+  // ── SLIDER FOTO ──
+  // Daftar foto — tambahkan path foto ke array ini
+  // Letakkan foto di folder: shared/foto/ di repo GitHub
+  const daftarFoto = [
+    { src: '../shared/foto/foto1.jpg', caption: 'Kegiatan Belajar Mengajar' },
+    { src: '../shared/foto/foto2.jpg', caption: 'Upacara Bendera' },
+    { src: '../shared/foto/foto3.jpg', caption: 'Ekstrakurikuler' },
+    { src: '../shared/foto/foto4.jpg', caption: 'Prestasi Siswa' },
+    { src: '../shared/foto/foto5.jpg', caption: 'SMAN 5 Sarolangun' },
+  ];
+
+  let sliderIdx = 0;
+  let sliderTimer = null;
+
+  function initSlider() {
+    const track = document.getElementById('slider-track');
+    const dots  = document.getElementById('slider-dots');
+    const wrap  = document.getElementById('slider-wrap');
+    if (!track || !daftarFoto.length) return;
+
+    // Cek foto yang tersedia
+    const fotoTersedia = [];
+    let loaded = 0;
+
+    daftarFoto.forEach((f, i) => {
+      const img = new Image();
+      img.onload = () => {
+        fotoTersedia.push({ ...f, idx: i });
+        loaded++;
+        if (loaded === daftarFoto.length) buildSlider(fotoTersedia.sort((a,b) => a.idx-b.idx));
+      };
+      img.onerror = () => {
+        loaded++;
+        if (loaded === daftarFoto.length) {
+          if (fotoTersedia.length > 0) buildSlider(fotoTersedia.sort((a,b) => a.idx-b.idx));
+          else showPlaceholder();
+        }
+      };
+      img.src = f.src;
+    });
+  }
+
+  function buildSlider(fotos) {
+    if (!fotos.length) { showPlaceholder(); return; }
+    const track = document.getElementById('slider-track');
+    const dots  = document.getElementById('slider-dots');
+
+    track.innerHTML = fotos.map(f => `
+      <div class="slider-item">
+        <img class="slider-img" src="${f.src}" alt="${f.caption}" style="height:180px">
+        <div class="slider-overlay"><div class="slider-caption">${f.caption}</div></div>
+      </div>`).join('');
+
+    dots.innerHTML = fotos.map((_,i) =>
+      `<div class="slider-dot ${i===0?'aktif':''}" onclick="goSlide(${i})"></div>`
+    ).join('');
+
+    sliderIdx = 0;
+    clearInterval(sliderTimer);
+    sliderTimer = setInterval(() => {
+      sliderIdx = (sliderIdx + 1) % fotos.length;
+      goSlide(sliderIdx);
+    }, 5000);
+  }
+
+  function showPlaceholder() {
+    const wrap = document.getElementById('slider-wrap');
+    wrap.innerHTML = `<div class="slider-placeholder" style="height:180px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/>
+      </svg>
+      <div>Tambahkan foto ke folder <code style="color:#E07020">shared/foto/</code></div>
+      <div style="font-size:10px">foto1.jpg, foto2.jpg, ... foto5.jpg</div>
+    </div>`;
+    document.getElementById('slider-dots').innerHTML = '';
+  }
+
+  window.goSlide = function(idx) {
+    sliderIdx = idx;
+    const track = document.getElementById('slider-track');
+    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+    document.querySelectorAll('.slider-dot').forEach((d,i) => {
+      d.classList.toggle('aktif', i === idx);
+    });
+  };
+
+  initSlider();
   init();
 </script>
 </body>

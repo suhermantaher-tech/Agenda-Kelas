@@ -999,7 +999,7 @@
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const sekarang  = new Date();
-  const hariIni   = 'Senin';
+  const hariIni   = namaHari[sekarang.getDay()];
 
   document.getElementById('teks-tanggal').textContent =
     `${namaHari[sekarang.getDay()]}, ${sekarang.getDate()} ${namaBulan[sekarang.getMonth()]} ${sekarang.getFullYear()}`;
