@@ -2798,16 +2798,19 @@
   // ── EKSPOR GURU EXCEL ──
   window.eksporGuruExcel = function() {
     const rows = Object.entries(cacheGuru).map(([id, g]) => ({
-      'ID Dokumen':    id,
-      'Nama Lengkap':  g.nama_lengkap || '',
-      'NIP':           g.nip || '',
-      'PIN Login':     g.pin_login || '',
-      'No. HP':        g.no_hp || '',
-      'Status Aktif':  g.status_aktif ? 'Ya' : 'Tidak',
+      'ID Dokumen':     id,
+      'Nama Lengkap':   g.nama_lengkap || '',
+      'Kode Guru':      g.kode_guru || '',
+      'NIP':            g.nip || '',
+      'PIN Login':      g.pin_login || '',
+      'No. HP':         g.no_hp || '',
+      'Bidang Studi':   Array.isArray(g.bidang_studi) ? g.bidang_studi.join(', ') : (g.bidang_studi||''),
+      'Maks JP Minggu': g.max_jam_minggu || '',
+      'Status Aktif':   g.status_aktif ? 'Ya' : 'Tidak',
     }));
     if (!rows.length) { tampilToast('⚠ Belum ada data guru'); return; }
     const ws = XLSX.utils.json_to_sheet(rows);
-    ws['!cols'] = [{wch:28},{wch:30},{wch:20},{wch:10},{wch:16},{wch:12}];
+    ws['!cols'] = [{wch:28},{wch:30},{wch:10},{wch:20},{wch:10},{wch:16},{wch:32},{wch:14},{wch:12}];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
     XLSX.writeFile(wb, 'Data_Guru_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
