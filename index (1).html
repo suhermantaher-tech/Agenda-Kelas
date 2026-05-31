@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — Egenda Kelas SMAN 5 Sarolangun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --oranye: #E07020;
+      --oranye-gelap: #B85510;
+      --oranye-terang: #FFF0E0;
+      --hijau: #2E7D32;
+      --hijau-muda: #E8F5E9;
+      --biru-tua: #1A3A5C;
+      --biru-muda: #E3EEF8;
+      --merah: #C62828;
+      --abu-bg: #F5F6FA;
+      --abu: #8A9BAE;
+      --teks: #1A2332;
+      --teks-muted: #5A6A7E;
+      --border: #E2E8F0;
+      --putih: #FFFFFF;
+      --sidebar-w: 240px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--abu-bg);
+      color: var(--teks);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--biru-tua);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      background: linear-gradient(135deg, #0f2540, #1A3A5C);
+      padding: 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .sb-logo-wrap {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #ffb347, #e07020, #2E7D32);
+      padding: 2px;
+      flex-shrink: 0;
+    }
+
+    .sb-logo-inner {
+      width: 100%; height: 100%;
+      border-radius: 7px;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2px; overflow: hidden;
+    }
+
+    .sb-logo-inner img { width: 100%; height: 100%; object-fit: contain; }
+
+    .sb-nama { font-size: 13px; font-weight: 800; color: white; line-height: 1.2; }
+    .sb-sub { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    .sidebar-nav { flex: 1; padding: 12px 8px; }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 8px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 2px;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-item.aktif { background: var(--oranye); color: white; }
+    .nav-item .nav-ikon { font-size: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .admin-info {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .admin-avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--oranye);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white;
+      flex-shrink: 0;
+    }
+
+    .admin-nama { font-size: 12px; font-weight: 700; color: white; }
+    .admin-role { font-size: 10px; color: rgba(255,255,255,0.5); }
+
+    .btn-logout {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 8px 12px;
+      background: rgba(255,255,255,0.08);
+      border: none; border-radius: 8px;
+      color: rgba(255,255,255,0.65);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; margin-top: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+
+    .topbar-judul { font-size: 16px; font-weight: 800; color: var(--teks); }
+    .topbar-sub { font-size: 12px; color: var(--abu); margin-top: 1px; }
+
+    .topbar-kanan { display: flex; align-items: center; gap: 10px; }
+
+    .filter-wrap {
+      display: flex; gap: 8px; align-items: center;
+    }
+
+    .filter-input, .filter-select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--teks);
+      background: var(--abu-bg);
+      outline: none;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+      border-color: var(--oranye);
+    }
+
+    .btn-ekspor {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 9px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-ekspor:active { transform: scale(0.97); }
+    .btn-excel { background: #217346; color: white; }
+    .btn-pdf   { background: var(--merah); color: white; }
+
+    /* KONTEN HALAMAN */
+    .page { display: none; padding: 24px 28px; }
+    .page.aktif { display: block; }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 60px; height: 60px;
+      border-radius: 0 14px 0 60px;
+      opacity: 0.08;
+    }
+
+    .kpi-card.oranye::after { background: var(--oranye); }
+    .kpi-card.hijau::after  { background: var(--hijau); }
+    .kpi-card.biru::after   { background: var(--biru-tua); }
+    .kpi-card.merah::after  { background: var(--merah); }
+
+    .kpi-ikon {
+      font-size: 24px; margin-bottom: 10px;
+    }
+
+    .kpi-val {
+      font-size: 32px; font-weight: 800;
+      color: var(--teks); line-height: 1;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .kpi-label {
+      font-size: 12px; color: var(--abu);
+      font-weight: 600; margin-top: 4px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .kpi-sub {
+      font-size: 12px; font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .kpi-sub.naik  { color: var(--hijau); }
+    .kpi-sub.turun { color: var(--merah); }
+
+    /* SECTION */
+    .section-judul {
+      font-size: 15px; font-weight: 800;
+      color: var(--teks); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* CHART */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .chart-card canvas { max-height: 240px; }
+
+    /* TABEL */
+    .tabel-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .tabel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--abu);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--abu-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--teks);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--abu-bg); }
+
+    .badge-tabel {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .badge-hijau { background: var(--hijau-muda); color: var(--hijau); }
+    .badge-oranye { background: var(--oranye-terang); color: var(--oranye-gelap); }
+    .badge-merah  { background: #FFEBEE; color: var(--merah); }
+
+    /* MANAJEMEN GURU */
+    .guru-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .guru-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .guru-avatar {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--oranye-terang), #FFD0A0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800;
+      color: var(--oranye-gelap);
+      flex-shrink: 0;
+    }
+
+    .guru-nama { font-size: 13px; font-weight: 700; color: var(--teks); }
+    .guru-nip  { font-size: 11px; color: var(--abu); font-family: 'DM Mono', monospace; margin-top: 2px; }
+    .guru-pin  { font-size: 11px; color: var(--abu); margin-top: 2px; }
+
+    .guru-status {
+      margin-left: auto;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .guru-status.aktif { background: var(--hijau-muda); color: var(--hijau); }
+    .guru-status.nonaktif { background: #FFEBEE; color: var(--merah); }
+
+    /* LOADING INLINE */
+    .loading-inline {
+      text-align: center; padding: 40px;
+      color: var(--abu); font-size: 14px;
+    }
+
+    /* LOGIN OVERLAY */
+    #login-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(160deg, #0f2540, #1A3A5C, #0D1B2A);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 24px;
+      padding: 36px 32px;
+      max-width: 380px; width: 100%;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    }
+
+    .login-box-header {
+      text-align: center; margin-bottom: 28px;
+    }
+
+    .login-logo-wrap {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fff5e0, #ffb347, #e07020, #2E7D32, #1A3A5C);
+      padding: 3px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .login-logo-inner {
+      width: 100%; height: 100%;
+      border-radius: 15px;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      padding: 4px; overflow: hidden;
+    }
+
+    .login-logo-inner img { width: 100%; height: 100%; object-fit: contain; }
+
+    .login-judul { font-size: 18px; font-weight: 800; color: var(--teks); }
+    .login-sub   { font-size: 12px; color: var(--abu); margin-top: 4px; }
+
+    .login-grup { margin-bottom: 14px; }
+    .login-label { font-size: 12px; font-weight: 700; color: var(--teks-muted); margin-bottom: 6px; display: block; }
+
+    .login-input {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--teks);
+      background: var(--abu-bg);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus { border-color: var(--oranye); background: white; }
+
+    .btn-login-admin {
+      width: 100%; height: 50px;
+      background: linear-gradient(135deg, #B85510, #E07020);
+      color: white; border: none;
+      border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 0 4px 14px rgba(224,112,32,0.35);
+      transition: opacity 0.2s;
+    }
+
+    .btn-login-admin:hover { opacity: 0.9; }
+    .login-error { color: var(--merah); font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; font-weight: 600; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--biru-tua); color: white;
+      padding: 12px 24px; border-radius: 12px;
+      font-size: 14px; font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.4s cubic-bezier(0.34,1.4,0.64,1);
+      z-index: 9998; white-space: nowrap;
+    }
+    .toast.tampil { transform: translateX(-50%) translateY(0); }
+
+
+
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9990; padding: 24px;
+    }
+    .modal-box {
+      background: white; border-radius: 20px;
+      padding: 28px; max-width: 560px; width: 100%;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+    }
+    .modal-judul { font-size: 16px; font-weight: 800; color: var(--teks); margin-bottom: 16px; display:flex;align-items:center;gap:8px; }
+    .modal-tabel { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+    .modal-tabel th { background: var(--abu-bg); padding: 8px 12px; text-align:left; font-weight:700; color:var(--teks-muted); border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; }
+    .modal-tabel td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--teks); }
+    .modal-tabel tr:last-child td { border-bottom: none; }
+    .modal-tabel code { background: var(--abu-bg); padding: 2px 6px; border-radius: 4px; font-family: DM Mono,monospace; font-size:11px; color:var(--oranye-gelap); }
+    .modal-note { font-size:12px; color:var(--teks-muted); background:var(--oranye-terang); border-radius:8px; padding:10px 12px; line-height:1.6; margin-bottom:16px; }
+    .btn-modal-tutup { padding:8px 20px; background:var(--oranye); color:white; border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; font-family: Plus Jakarta Sans,sans-serif; }
+    .form-lbl {
+      font-size: 11px; font-weight: 700;
+      color: var(--teks-muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .chart-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN OVERLAY ── -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-box-header">
+      <div class="login-logo-wrap">
+        <div class="login-logo-inner">
+          <img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="login-judul">Dashboard Admin</div>
+      <div class="login-sub">Egenda Kelas · SMAN 5 Sarolangun</div>
+    </div>
+    <div class="login-grup">
+      <label class="login-label">Email Admin</label>
+      <input type="email" class="login-input" id="inp-email" placeholder="admin@sman5srg.sch.id">
+    </div>
+    <div class="login-grup">
+      <label class="login-label">Password</label>
+      <input type="password" class="login-input" id="inp-password" placeholder="••••••••">
+    </div>
+    <button class="btn-login-admin" onclick="loginAdmin()">Masuk ke Dashboard →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="sb-logo-wrap">
+        <div class="sb-logo-inner">
+          <img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div>
+        <div class="sb-nama">Egenda Kelas</div>
+        <div class="sb-sub">Dashboard Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Menu Utama</div>
+    <button class="nav-item aktif" onclick="gantiPage('beranda', this)">
+      <span class="nav-ikon">📊</span> Beranda
+    </button>
+    <button class="nav-item" onclick="gantiPage('agenda', this)">
+      <span class="nav-ikon">📋</span> Data Agenda
+    </button>
+    <button class="nav-item" onclick="gantiPage('laporan', this)">
+      <span class="nav-ikon">📈</span> Laporan
+    </button>
+    <div class="nav-label" style="margin-top:8px;">Manajemen</div>
+    <button class="nav-item" onclick="gantiPage('guru', this)">
+      <span class="nav-ikon">👨‍🏫</span> Data Guru
+    </button>
+    <button class="nav-item" onclick="gantiPage('jadwal', this)">
+      <span class="nav-ikon">🗓</span> Jadwal Pelajaran
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div class="admin-nama" id="sb-admin-nama">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">🚪 Keluar</button>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-judul" id="topbar-judul">Beranda</div>
+      <div class="topbar-sub" id="topbar-sub">Ringkasan data hari ini</div>
+    </div>
+    <div class="topbar-kanan">
+      <div class="filter-wrap">
+        <input type="date" class="filter-input" id="filter-dari" title="Dari tanggal">
+        <input type="date" class="filter-input" id="filter-sampai" title="Sampai tanggal">
+        <select class="filter-select" id="filter-guru">
+          <option value="">Semua Guru</option>
+        </select>
+        <button class="btn-ekspor btn-excel" onclick="eksporExcel()">📊 Excel</button>
+        <button class="btn-ekspor btn-pdf" onclick="eksporPDF()">📄 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: BERANDA -->
+  <div class="page aktif" id="page-beranda">
+
+    <div class="kpi-grid">
+      <div class="kpi-card oranye">
+        <div class="kpi-ikon">📋</div>
+        <div class="kpi-val" id="kpi-total-agenda">0</div>
+        <div class="kpi-label">Total Agenda Bulan Ini</div>
+      </div>
+      <div class="kpi-card hijau">
+        <div class="kpi-ikon">👨‍🏫</div>
+        <div class="kpi-val" id="kpi-total-guru">0</div>
+        <div class="kpi-label">Total Guru Aktif</div>
+      </div>
+      <div class="kpi-card biru">
+        <div class="kpi-ikon">✅</div>
+        <div class="kpi-val" id="kpi-pct">0%</div>
+        <div class="kpi-label">Kelengkapan Hari Ini</div>
+      </div>
+      <div class="kpi-card merah">
+        <div class="kpi-ikon">⚠️</div>
+        <div class="kpi-val" id="kpi-belum">0</div>
+        <div class="kpi-label">Kelas Belum Terisi</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="section-judul">📈 Tren Agenda 7 Hari Terakhir</div>
+        <canvas id="chart-tren"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="section-judul">📊 Metode Pembelajaran</div>
+        <canvas id="chart-metode"></canvas>
+      </div>
+    </div>
+
+    <div class="tabel-card">
+      <div class="tabel-header">
+        <div class="section-judul" style="margin:0">📋 Agenda Terbaru</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Guru</th>
+            <th>Kelas</th>
+            <th>Mata Pelajaran</th>
+            <th>Materi</th>
+            <th>Hadir</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-terbaru">
+          <tr><td colspan="6" class="loading-inline">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE: AGENDA -->
+  <div class="page" id="page-agenda">
+    <div class="tabel-card">
+      <div class="tabel-header">
+        <div class="section-judul" style="margin:0">📋 Semua Data Agenda</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Guru</th>
+            <th>Kelas</th>
+            <th>Mata Pelajaran</th>
+            <th>Materi Pokok</th>
+            <th>Metode</th>
+            <th>Hadir</th>
+            <th>Alfa</th>
+            <th>Izin</th>
+            <th>Sakit</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-agenda">
+          <tr><td colspan="10" class="loading-inline">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE: LAPORAN -->
+  <div class="page" id="page-laporan">
+    <div class="kpi-grid">
+      <div class="kpi-card oranye">
+        <div class="kpi-ikon">📅</div>
+        <div class="kpi-val" id="lap-minggu">0</div>
+        <div class="kpi-label">Agenda Minggu Ini</div>
+      </div>
+      <div class="kpi-card hijau">
+        <div class="kpi-ikon">📆</div>
+        <div class="kpi-val" id="lap-bulan">0</div>
+        <div class="kpi-label">Agenda Bulan Ini</div>
+      </div>
+      <div class="kpi-card biru">
+        <div class="kpi-ikon">📚</div>
+        <div class="kpi-val" id="lap-semester">0</div>
+        <div class="kpi-label">Agenda Semester Ini</div>
+      </div>
+      <div class="kpi-card merah">
+        <div class="kpi-ikon">🗓️</div>
+        <div class="kpi-val" id="lap-tahun">0</div>
+        <div class="kpi-label">Agenda Tahun Ini</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="section-judul">📊 Rekapitulasi Per Guru (Bulan Ini)</div>
+        <canvas id="chart-guru"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="section-judul">📈 Kehadiran Rata-rata</div>
+        <canvas id="chart-kehadiran"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: GURU -->
+  <div class="page" id="page-guru">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">👨‍🏫 Daftar Guru</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor btn-excel" onclick="eksporGuruExcel()">📊 Unduh Excel</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-guru-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-guru-file" accept=".xlsx,.xls" style="display:none" onchange="importGuruExcel(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatGuru()">📋 Info Format</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormGuru(null)">+ Tambah Guru</button>
+      </div>
+    </div>
+    <div id="form-guru-wrap" style="display:none;margin-bottom:20px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-guru-judul" style="margin-bottom:12px;">➕ Tambah Guru Baru</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">NIP</label><input type="text" class="filter-input" id="fg-nip" placeholder="197001012000011001" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
+          <div><label class="form-lbl">No. HP</label><input type="text" class="filter-input" id="fg-hp" placeholder="08123456789" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Status</label><select class="filter-select" id="fg-status" style="width:100%;margin-top:4px"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanGuru()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:#f0f0f0;color:var(--teks);" onclick="tutupFormGuru()">Batal</button>
+        </div>
+        <div id="guru-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
+    <div class="guru-grid" id="guru-grid">
+      <div class="loading-inline">Memuat data guru...</div>
+    </div>
+  </div>
+
+  <!-- PAGE: JADWAL -->
+  <div class="page" id="page-jadwal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">🗓 Jadwal Pelajaran</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor btn-excel" onclick="eksporJadwalExcel()">📊 Unduh Excel</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-jadwal-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-jadwal-file" accept=".xlsx,.xls" style="display:none" onchange="importJadwalExcel(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatJadwal()">📋 Info Format</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormJadwal(null)">+ Tambah Jadwal</button>
+      </div>
+    </div>
+    <div id="form-jadwal-wrap" style="display:none;margin-bottom:20px;">
+      <div class="tabel-card" style="padding:20px;">
+        <div class="section-judul" id="form-jadwal-judul" style="margin-bottom:12px;">➕ Tambah Jadwal Baru</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div><label class="form-lbl">Guru *</label><select class="filter-select" id="fj-guru" style="width:100%;margin-top:4px"><option value="">Pilih guru</option></select></div>
+          <div><label class="form-lbl">Hari *</label><select class="filter-select" id="fj-hari" style="width:100%;margin-top:4px"><option value="">Pilih hari</option><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option></select></div>
+          <div><label class="form-lbl">Kelas *</label><input type="text" class="filter-input" id="fj-kelas" placeholder="Contoh: X IPA 1" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Mata Pelajaran *</label><input type="text" class="filter-input" id="fj-mapel" placeholder="Contoh: Matematika" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Ke</label><input type="number" class="filter-input" id="fj-jam-ke" placeholder="1" min="1" max="12" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Mulai</label><input type="time" class="filter-input" id="fj-jam-mulai" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Jam Selesai</label><input type="time" class="filter-input" id="fj-jam-selesai" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Semester</label><select class="filter-select" id="fj-semester" style="width:100%;margin-top:4px"><option>Ganjil</option><option>Genap</option></select></div>
+          <div><label class="form-lbl">Tahun Ajaran</label><input type="text" class="filter-input" id="fj-tahun" placeholder="2025/2026" style="width:100%;margin-top:4px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanJadwal()">💾 Simpan</button>
+          <button class="btn-ekspor" style="background:#f0f0f0;color:var(--teks);" onclick="tutupFormJadwal()">Batal</button>
+        </div>
+        <div id="jadwal-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+      </div>
+    </div>
+    <div class="tabel-card">
+      <div class="tabel-header">
+        <div class="section-judul" style="margin:0">🗓 Daftar Jadwal</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Hari</th>
+            <th>Kelas</th>
+            <th>Mata Pelajaran</th>
+            <th>Guru</th>
+            <th>Jam Ke</th>
+            <th>Waktu</th>
+            <th>Semester</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-jadwal">
+          <tr><td colspan="7" class="loading-inline">Memuat jadwal...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, query, where,
+    getDocs, orderBy, limit
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+    authDomain: "agedasmanli.firebaseapp.com",
+    projectId: "agedasmanli",
+    storageBucket: "agedasmanli.firebasestorage.app",
+    messagingSenderId: "969562298791",
+    appId: "1:969562298791:web:320a29a007c74739217e82"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getFirestore(app);
+  const auth = getAuth(app);
+
+  // Cache
+  let cacheGuru = {}, allAgenda = [], allJadwal = [];
+  let chartTren, chartMetode, chartGuru, chartKehadiran;
+
+  const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const sekarang  = new Date();
+
+
+  // ── AUTH ──
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('sb-admin-nama').textContent = user.email.split('@')[0];
+      initDashboard();
+    } else {
+      document.getElementById('login-overlay').style.display = 'flex';
+    }
+  });
+
+  async function loginAdmin() {
+    const email = document.getElementById('inp-email').value.trim();
+    const pass  = document.getElementById('inp-password').value;
+    document.getElementById('login-error').textContent = '';
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      document.getElementById('login-error').textContent = 'Email atau password salah.';
+    }
+  }
+
+  async function logout() {
+    await signOut(auth);
+  }
+
+  // ── NAVIGASI ──
+  window.gantiPage = function(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('aktif'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('aktif'));
+    document.getElementById('page-'+page).classList.add('aktif');
+    btn.classList.add('aktif');
+
+    const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', jadwal:'Jadwal Pelajaran' };
+    const sub   = { beranda:'Ringkasan data hari ini', agenda:'Semua data agenda KBM', laporan:'Rekap mingguan, bulanan, semester, tahunan', guru:'Daftar dan status guru', jadwal:'Jadwal KBM per hari' };
+    document.getElementById('topbar-judul').textContent = judul[page]||page;
+    document.getElementById('topbar-sub').textContent   = sub[page]||'';
+
+    if (page === 'laporan')  renderLaporan();
+    if (page === 'guru')     renderGuru();
+    if (page === 'jadwal')   renderJadwal();
+    if (page === 'agenda')   renderTabelAgenda(allAgenda);
+  };
+
+  // ── INIT ──
+  async function initDashboard() {
+    await muatGuru();
+    await muatAgenda();
+    await muatJadwal();
+    renderBeranda();
+    isiFilterGuru();
+    isiFilterTanggal();
+  }
+
+  async function muatGuru() {
+    const snap = await getDocs(collection(db,'Data_Guru'));
+    snap.docs.forEach(d => { cacheGuru[d.id] = d.data(); });
+    document.getElementById('kpi-total-guru').textContent =
+      Object.values(cacheGuru).filter(g => g.status_aktif).length;
+  }
+
+  async function muatAgenda() {
+    const snap = await getDocs(query(
+      collection(db,'Agenda_Harian'),
+      orderBy('timestamp_input','desc'),
+      limit(500)
+    ));
+    allAgenda = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function muatJadwal() {
+    const snap = await getDocs(collection(db,'Jadwal_Pelajaran'));
+    allJadwal = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  // ── BERANDA ──
+  async function renderBeranda() {
+    const tanggal = fmtTgl(sekarang);
+    const bulanIni = `${sekarang.getFullYear()}-${String(sekarang.getMonth()+1).padStart(2,'0')}`;
+    const hariIni  = namaHari[sekarang.getDay()];
+
+    // KPI bulan ini
+    const agendaBulan = allAgenda.filter(a => a.tanggal && a.tanggal.startsWith(bulanIni));
+    document.getElementById('kpi-total-agenda').textContent = agendaBulan.length;
+
+    // KPI hari ini
+    const jadwalHariIni = allJadwal.filter(j => j.hari === hariIni);
+    const agendaHariIni = allAgenda.filter(a => a.tanggal === tanggal);
+    const sudahIsi = new Set(agendaHariIni.map(a => a.id_jadwal));
+    const total    = jadwalHariIni.length;
+    const terisi   = jadwalHariIni.filter(j => sudahIsi.has(j.id)).length;
+    const belum    = total - terisi;
+    const pct      = total > 0 ? Math.round((terisi/total)*100) : 0;
+
+    document.getElementById('kpi-pct').textContent   = pct + '%';
+    document.getElementById('kpi-belum').textContent = belum;
+
+    // Tabel terbaru
+    renderTabelTerbaru(allAgenda.slice(0, 10));
+
+    // Chart tren 7 hari
+    renderChartTren();
+    renderChartMetode();
+  }
+
+  function renderTabelTerbaru(data) {
+    const tbody = document.getElementById('tabel-terbaru');
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="6" class="loading-inline">Belum ada data agenda.</td></tr>`; return; }
+    tbody.innerHTML = data.map(a => {
+      const guru = cacheGuru[a.id_guru];
+      const namaGuru = guru ? guru.nama_lengkap : '—';
+      return `<tr>
+        <td><span style="font-family:'DM Mono',monospace;font-size:12px">${a.tanggal||'—'}</span></td>
+        <td>${namaGuru}</td>
+        <td><span class="badge-tabel badge-oranye">${a.kelas||'—'}</span></td>
+        <td>${a.mapel||'—'}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.materi_pokok||'—'}</td>
+        <td><strong>${a.jumlah_hadir||0}</strong></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderTabelAgenda(data) {
+    const tbody = document.getElementById('tabel-agenda');
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="10" class="loading-inline">Tidak ada data.</td></tr>`; return; }
+    tbody.innerHTML = data.map(a => {
+      const guru = cacheGuru[a.id_guru];
+      const namaGuru = guru ? guru.nama_lengkap : '—';
+      return `<tr>
+        <td><span style="font-family:'DM Mono',monospace;font-size:12px">${a.tanggal||'—'}</span></td>
+        <td>${namaGuru}</td>
+        <td><span class="badge-tabel badge-oranye">${a.kelas||'—'}</span></td>
+        <td>${a.mapel||'—'}</td>
+        <td>${a.materi_pokok||'—'}</td>
+        <td><span class="badge-tabel badge-hijau">${a.metode||'—'}</span></td>
+        <td>${a.jumlah_hadir||0}</td>
+        <td>${a.jumlah_alfa||0}</td>
+        <td>${a.jumlah_izin||0}</td>
+        <td>${a.jumlah_sakit||0}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderChartTren() {
+    const labels = [], data = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(sekarang); d.setDate(d.getDate()-i);
+      const tgl = fmtTgl(d);
+      labels.push(`${d.getDate()}/${d.getMonth()+1}`);
+      data.push(allAgenda.filter(a => a.tanggal === tgl).length);
+    }
+    if (chartTren) chartTren.destroy();
+    chartTren = new Chart(document.getElementById('chart-tren'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Jumlah Agenda',
+          data,
+          backgroundColor: 'rgba(224,112,32,0.7)',
+          borderColor: '#E07020',
+          borderWidth: 2,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      }
+    });
+  }
+
+  function renderChartMetode() {
+    const metodeCount = {};
+    allAgenda.forEach(a => {
+      if (a.metode) metodeCount[a.metode] = (metodeCount[a.metode]||0) + 1;
+    });
+    const labels = Object.keys(metodeCount).slice(0,6);
+    const data   = labels.map(l => metodeCount[l]);
+    const colors = ['#E07020','#2E7D32','#1A3A5C','#F9A825','#C62828','#546E7A'];
+    if (chartMetode) chartMetode.destroy();
+    chartMetode = new Chart(document.getElementById('chart-metode'), {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2 }] },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 8 } } }
+      }
+    });
+  }
+
+  function renderLaporan() {
+    const now = new Date();
+    const mingguLalu = new Date(now); mingguLalu.setDate(now.getDate()-7);
+    const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const smstr = now.getMonth() < 6 ? 1 : 2;
+    const smstrMulai = smstr === 1 ? `${now.getFullYear()}-01` : `${now.getFullYear()}-07`;
+
+    document.getElementById('lap-minggu').textContent =
+      allAgenda.filter(a => a.tanggal && new Date(a.tanggal) >= mingguLalu).length;
+    document.getElementById('lap-bulan').textContent =
+      allAgenda.filter(a => a.tanggal && a.tanggal.startsWith(bulanIni)).length;
+    document.getElementById('lap-semester').textContent =
+      allAgenda.filter(a => a.tanggal && a.tanggal >= smstrMulai).length;
+    document.getElementById('lap-tahun').textContent =
+      allAgenda.filter(a => a.tanggal && a.tanggal.startsWith(String(now.getFullYear()))).length;
+
+    // Chart per guru
+    const guruCount = {};
+    const agendaBulan = allAgenda.filter(a => a.tanggal && a.tanggal.startsWith(bulanIni));
+    agendaBulan.forEach(a => {
+      const g = cacheGuru[a.id_guru];
+      const nama = g ? g.nama_lengkap.split(' ')[0] : 'Lainnya';
+      guruCount[nama] = (guruCount[nama]||0) + 1;
+    });
+    const guruLabels = Object.keys(guruCount).slice(0,8);
+    const guruData   = guruLabels.map(l => guruCount[l]);
+    if (chartGuru) chartGuru.destroy();
+    chartGuru = new Chart(document.getElementById('chart-guru'), {
+      type: 'bar',
+      data: {
+        labels: guruLabels,
+        datasets: [{ label: 'Agenda', data: guruData, backgroundColor: '#1A3A5C', borderRadius: 6 }]
+      },
+      options: {
+        responsive: true, indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      }
+    });
+
+    // Chart kehadiran
+    const totalHadir  = allAgenda.reduce((s,a) => s+(a.jumlah_hadir||0),0);
+    const totalAlfa   = allAgenda.reduce((s,a) => s+(a.jumlah_alfa||0),0);
+    const totalIzin   = allAgenda.reduce((s,a) => s+(a.jumlah_izin||0),0);
+    const totalSakit  = allAgenda.reduce((s,a) => s+(a.jumlah_sakit||0),0);
+    if (chartKehadiran) chartKehadiran.destroy();
+    chartKehadiran = new Chart(document.getElementById('chart-kehadiran'), {
+      type: 'pie',
+      data: {
+        labels: ['Hadir','Alfa','Izin','Sakit'],
+        datasets: [{ data: [totalHadir,totalAlfa,totalIzin,totalSakit],
+          backgroundColor: ['#2E7D32','#C62828','#F9A825','#1A3A5C'], borderWidth: 2 }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  function renderGuru() {
+    const grid = document.getElementById('guru-grid');
+    const gurList = Object.entries(cacheGuru);
+    if (!gurList.length) { grid.innerHTML = `<div class="loading-inline">Belum ada data guru.</div>`; return; }
+    grid.innerHTML = gurList.map(([id, g]) => {
+      const inisial = (g.nama_lengkap||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+      return `<div class="guru-card">
+        <div class="guru-avatar">${inisial}</div>
+        <div style="flex:1">
+          <div class="guru-nama">${g.nama_lengkap||'—'}</div>
+          <div class="guru-nip">${g.nip||'—'}</div>
+          <div class="guru-pin">PIN: ${'●'.repeat((g.pin_login||'').length)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="guru-status ${g.status_aktif?'aktif':'nonaktif'}">${g.status_aktif?'Aktif':'Nonaktif'}</span>
+          <button onclick="editGuru('${id}')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderJadwal() {
+    const tbody = document.getElementById('tabel-jadwal');
+    if (!allJadwal.length) { tbody.innerHTML = `<tr><td colspan="7" class="loading-inline">Belum ada jadwal.</td></tr>`; return; }
+    const urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const sorted = [...allJadwal].sort((a,b) => {
+      const hi = urutan.indexOf(a.hari), hj = urutan.indexOf(b.hari);
+      if (hi !== hj) return hi - hj;
+      return (a.jam_ke||0) - (b.jam_ke||0);
+    });
+    tbody.innerHTML = sorted.map(j => {
+      const guru = cacheGuru[j.id_guru];
+      const namaGuru = guru ? guru.nama_lengkap : '—';
+      return `<tr>
+        <td><span class="badge-tabel badge-oranye">${j.hari}</span></td>
+        <td><strong>${j.kelas}</strong></td>
+        <td>${j.mata_pelajaran||j.mapel||'—'}</td>
+        <td>${namaGuru}</td>
+        <td style="text-align:center">${j.jam_ke||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px">${j.jam_mulai||''}–${j.jam_selesai||''}</td>
+        <td>${j.semester||'—'}</td>
+        <td><button onclick="editJadwal('${j.id}')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer;color:var(--oranye);font-weight:700">✏️ Edit</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── FILTER ──
+  function isiFilterGuru() {
+    const sel = document.getElementById('filter-guru');
+    Object.entries(cacheGuru).forEach(([id, g]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = g.nama_lengkap;
+      sel.appendChild(opt);
+    });
+  }
+
+  function isiFilterTanggal() {
+    const tgl = fmtTgl(sekarang);
+    const awal = new Date(sekarang); awal.setDate(1);
+    document.getElementById('filter-dari').value = fmtTgl(awal);
+    document.getElementById('filter-sampai').value = tgl;
+  }
+
+  function getFilteredAgenda() {
+    const dari   = document.getElementById('filter-dari').value;
+    const sampai = document.getElementById('filter-sampai').value;
+    const guru   = document.getElementById('filter-guru').value;
+    return allAgenda.filter(a => {
+      if (dari   && a.tanggal < dari)   return false;
+      if (sampai && a.tanggal > sampai) return false;
+      if (guru   && a.id_guru !== guru) return false;
+      return true;
+    });
+  }
+
+  // ── EKSPOR EXCEL ──
+  window.eksporExcel = function() {
+    const data = getFilteredAgenda();
+    if (!data.length) { tampilToast('⚠ Tidak ada data untuk diekspor'); return; }
+    const rows = data.map(a => ({
+      Tanggal:       a.tanggal||'',
+      Guru:          (cacheGuru[a.id_guru]||{}).nama_lengkap||'',
+      Kelas:         a.kelas||'',
+      'Mata Pelajaran': a.mapel||'',
+      'Materi Pokok':a.materi_pokok||'',
+      'Sub Materi':  a.sub_materi||'',
+      Metode:        a.metode||'',
+      'Media Ajar':  a.media_ajar||'',
+      Hadir:         a.jumlah_hadir||0,
+      Alfa:          a.jumlah_alfa||0,
+      Izin:          a.jumlah_izin||0,
+      Sakit:         a.jumlah_sakit||0,
+      Catatan:       a.catatan||'',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Agenda');
+    XLSX.writeFile(wb, `Agenda_Kelas_SMAN5_${fmtTgl(sekarang)}.xlsx`);
+    tampilToast('✅ File Excel berhasil diunduh!');
+  };
+
+  // ── EKSPOR PDF (print) ──
+  window.eksporPDF = function() {
+    window.print();
+  };
+
+  // ── HELPERS ──
+  function fmtTgl(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  let toastTimer;
+  function tampilToast(pesan) {
+    const t = document.getElementById('toast');
+    t.textContent = pesan;
+    t.classList.add('tampil');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('tampil'), 3000);
+  }
+
+
+
+  // ══════════════════════════════════════
+  // IMPORT EXCEL — DATA GURU
+  // ══════════════════════════════════════
+  window.importGuruExcel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = ''; // reset agar bisa upload file sama lagi
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type: 'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        if (!rows.length) { tampilToast('⚠ File Excel kosong!'); return; }
+
+        // Validasi kolom wajib
+        const sample = rows[0];
+        const wajib  = ['Nama Lengkap', 'PIN Login'];
+        const missing = wajib.filter(k => !(k in sample));
+        if (missing.length) {
+          tampilModalHasil('❌ Kolom tidak sesuai',
+            `Kolom berikut tidak ditemukan di file Excel: <strong>${missing.join(', ')}</strong><br><br>
+            Pastikan header kolom persis: <code>Nama Lengkap</code>, <code>PIN Login</code>, <code>NIP</code>, <code>No. HP</code>, <code>Status Aktif</code>`,
+            [], 'error');
+          return;
+        }
+
+        // Cek PIN duplikat antar baris Excel sendiri
+        const pinDiFile = rows.map(r => String(r['PIN Login']||'').trim());
+        const pinDuplikat = pinDiFile.filter((p,i) => pinDiFile.indexOf(p) !== i);
+
+        let berhasil = 0, gagal = [], skip = [];
+
+        for (const row of rows) {
+          const nama = String(row['Nama Lengkap']||'').trim();
+          const pin  = String(row['PIN Login']||'').trim();
+          const nip  = String(row['NIP']||'').trim();
+          const hp   = String(row['No. HP']||'').trim();
+          const aktif = String(row['Status Aktif']||'Ya').trim().toLowerCase();
+
+          if (!nama) { gagal.push(`Baris kosong: nama tidak ada`); continue; }
+          if (!pin || pin.length !== 4 || isNaN(pin)) {
+            gagal.push(`${nama}: PIN "${pin}" tidak valid (harus 4 digit angka)`); continue;
+          }
+          if (pinDuplikat.includes(pin)) {
+            gagal.push(`${nama}: PIN "${pin}" duplikat dalam file`); continue;
+          }
+
+          // Cek PIN sudah ada di Firestore
+          const pinAda = Object.values(cacheGuru).find(g => g.pin_login === pin);
+          if (pinAda) {
+            skip.push(`${nama}: PIN "${pin}" sudah digunakan ${pinAda.nama_lengkap}`); continue;
+          }
+
+          try {
+            const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const data = {
+              nama_lengkap: nama, nip, pin_login: pin, no_hp: hp,
+              status_aktif: aktif === 'ya' || aktif === 'true' || aktif === '1'
+            };
+            const ref = await addDoc(collection(db, 'Data_Guru'), data);
+            cacheGuru[ref.id] = data;
+            berhasil++;
+          } catch(e) {
+            gagal.push(`${nama}: ${e.message}`);
+          }
+        }
+
+        renderGuru();
+        isiFilterGuru();
+        tampilModalHasil(
+          `✅ Import Selesai — ${berhasil} guru berhasil ditambahkan`,
+          berhasil > 0 ? `<strong>${berhasil}</strong> data guru berhasil disimpan ke Firestore.` : '',
+          [...(gagal.length ? ['<strong>Gagal:</strong>', ...gagal] : []),
+           ...(skip.length  ? ['<strong>Dilewati (PIN sudah ada):</strong>', ...skip] : [])],
+          berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) {
+        tampilToast('❌ Gagal membaca file Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // ══════════════════════════════════════
+  // IMPORT EXCEL — JADWAL PELAJARAN
+  // ══════════════════════════════════════
+  window.importJadwalExcel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type: 'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+        if (!rows.length) { tampilToast('⚠ File Excel kosong!'); return; }
+
+        const sample = rows[0];
+        const wajib  = ['Nama Guru', 'Hari', 'Kelas', 'Mata Pelajaran'];
+        const missing = wajib.filter(k => !(k in sample));
+        if (missing.length) {
+          tampilModalHasil('❌ Kolom tidak sesuai',
+            `Kolom tidak ditemukan: <strong>${missing.join(', ')}</strong><br><br>
+            Header wajib: <code>Nama Guru</code>, <code>Hari</code>, <code>Kelas</code>, <code>Mata Pelajaran</code>`,
+            [], 'error');
+          return;
+        }
+
+        const hariValid = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        let berhasil = 0, gagal = [];
+
+        // Buat map nama guru → id
+        const namaToId = {};
+        Object.entries(cacheGuru).forEach(([id, g]) => {
+          namaToId[g.nama_lengkap.toLowerCase()] = id;
+        });
+
+        for (const row of rows) {
+          const namaGuru = String(row['Nama Guru']||'').trim();
+          const hari     = String(row['Hari']||'').trim();
+          const kelas    = String(row['Kelas']||'').trim();
+          const mapel    = String(row['Mata Pelajaran']||'').trim();
+
+          if (!namaGuru || !hari || !kelas || !mapel) {
+            gagal.push(`Baris tidak lengkap: ${namaGuru||'(kosong)'}`); continue;
+          }
+
+          // Cari id guru
+          const idGuru = namaToId[namaGuru.toLowerCase()];
+          if (!idGuru) {
+            gagal.push(`Guru "${namaGuru}" tidak ditemukan di Data Guru`); continue;
+          }
+
+          // Validasi hari
+          const hariKapital = hari.charAt(0).toUpperCase() + hari.slice(1).toLowerCase();
+          if (!hariValid.includes(hariKapital)) {
+            gagal.push(`${namaGuru} - ${kelas}: Hari "${hari}" tidak valid`); continue;
+          }
+
+          try {
+            const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            const data = {
+              id_guru:        idGuru,
+              hari:           hariKapital,
+              kelas,
+              mata_pelajaran: mapel,
+              jam_ke:         parseInt(row['Jam Ke']||1) || 1,
+              jam_mulai:      String(row['Jam Mulai']||''),
+              jam_selesai:    String(row['Jam Selesai']||''),
+              semester:       String(row['Semester']||'Ganjil'),
+              tahun_ajaran:   String(row['Tahun Ajaran']||'2025/2026'),
+            };
+            const ref = await addDoc(collection(db, 'Jadwal_Pelajaran'), data);
+            allJadwal.push({ id: ref.id, ...data });
+            berhasil++;
+          } catch(e) {
+            gagal.push(`${namaGuru} - ${kelas}: ${e.message}`);
+          }
+        }
+
+        renderJadwal();
+        tampilModalHasil(
+          `✅ Import Selesai — ${berhasil} jadwal berhasil ditambahkan`,
+          berhasil > 0 ? `<strong>${berhasil}</strong> jadwal berhasil disimpan ke Firestore.` : '',
+          gagal.length ? ['<strong>Gagal/Dilewati:</strong>', ...gagal] : [],
+          berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) {
+        tampilToast('❌ Gagal membaca file Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // ── MODAL HASIL IMPORT ──
+  function tampilModalHasil(judul, pesan, detailList, tipe) {
+    const warna = tipe === 'success' ? 'var(--hijau)' : 'var(--merah)';
+    const detailHtml = detailList.length
+      ? `<div style="background:var(--abu-bg);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;margin:10px 0;">
+          ${detailList.map(d => `<div style="font-size:12px;color:var(--teks-muted);padding:2px 0;border-bottom:1px solid var(--border)">${d}</div>`).join('')}
+        </div>` : '';
+    const html = `<div class="modal-overlay" id="modal-hasil" onclick="if(event.target===this)document.getElementById('modal-hasil').remove()">
+      <div class="modal-box">
+        <div class="modal-judul" style="color:${warna}">${judul}</div>
+        ${pesan ? `<p style="font-size:13px;color:var(--teks-muted);margin-bottom:8px;line-height:1.6">${pesan}</p>` : ''}
+        ${detailHtml}
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-hasil').remove()">Tutup</button>
+      </div>
+    </div>`;
+    // Remove existing modal if any
+    const old = document.getElementById('modal-hasil');
+    if (old) old.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+  }
+
+  // ── EKSPOR GURU EXCEL ──
+  window.eksporGuruExcel = function() {
+    const rows = Object.entries(cacheGuru).map(([id, g]) => ({
+      'ID Dokumen':    id,
+      'Nama Lengkap':  g.nama_lengkap || '',
+      'NIP':           g.nip || '',
+      'PIN Login':     g.pin_login || '',
+      'No. HP':        g.no_hp || '',
+      'Status Aktif':  g.status_aktif ? 'Ya' : 'Tidak',
+    }));
+    if (!rows.length) { tampilToast('⚠ Belum ada data guru'); return; }
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:30},{wch:20},{wch:10},{wch:16},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
+    XLSX.writeFile(wb, 'Data_Guru_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
+    tampilToast('✅ File Excel Data Guru berhasil diunduh!');
+  };
+
+  // ── EKSPOR JADWAL EXCEL ──
+  window.eksporJadwalExcel = function() {
+    if (!allJadwal.length) { tampilToast('⚠ Belum ada data jadwal'); return; }
+    const urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const sorted = [...allJadwal].sort((a,b) => {
+      const hi = urutan.indexOf(a.hari), hj = urutan.indexOf(b.hari);
+      if (hi !== hj) return hi - hj;
+      return (a.jam_ke||0) - (b.jam_ke||0);
+    });
+    const rows = sorted.map(j => ({
+      'ID Dokumen':     j.id,
+      'ID Guru':        j.id_guru || '',
+      'Nama Guru':      (cacheGuru[j.id_guru] || {}).nama_lengkap || '',
+      'Hari':           j.hari || '',
+      'Kelas':          j.kelas || '',
+      'Mata Pelajaran': j.mata_pelajaran || j.mapel || '',
+      'Jam Ke':         j.jam_ke || '',
+      'Jam Mulai':      j.jam_mulai || '',
+      'Jam Selesai':    j.jam_selesai || '',
+      'Semester':       j.semester || '',
+      'Tahun Ajaran':   j.tahun_ajaran || '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [{wch:28},{wch:28},{wch:28},{wch:10},{wch:12},{wch:22},{wch:8},{wch:10},{wch:10},{wch:10},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Jadwal Pelajaran');
+    XLSX.writeFile(wb, 'Jadwal_Pelajaran_SMAN5_' + fmtTgl(sekarang) + '.xlsx');
+    tampilToast('✅ File Excel Jadwal berhasil diunduh!');
+  };
+
+  // ── INFO FORMAT GURU ──
+  window.infoFormatGuru = function() {
+    const html = `<div class="modal-overlay" id="modal-info" onclick="if(event.target===this)document.getElementById('modal-info').remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Format Data Guru di Firestore</div>
+        <div class="modal-note">
+          ℹ️ Data guru disimpan di koleksi <strong>Data_Guru</strong> di Firebase Firestore.
+          Gunakan form "Tambah Guru" untuk menambah data, atau isi langsung via Firebase Console.
+        </div>
+        <table class="modal-tabel">
+          <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar</td></tr>
+            <tr><td><code>nip</code></td><td>string</td><td>197001012000011001</td><td>NIP 18 digit (opsional)</td></tr>
+            <tr><td><code>pin_login</code></td><td>string</td><td>1234</td><td>PIN 4 digit, harus unik tiap guru</td></tr>
+            <tr><td><code>no_hp</code></td><td>string</td><td>08123456789</td><td>Nomor WhatsApp aktif (opsional)</td></tr>
+            <tr><td><code>status_aktif</code></td><td>boolean</td><td>true</td><td>true = aktif, false = nonaktif</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-note">⚠️ PIN harus berupa 4 digit angka dan tidak boleh sama antar guru. Contoh: 1001, 1002, 1003, dst.</div>
+        <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
+          📥 <strong>Cara Import dari Excel:</strong><br>
+          1. Klik tombol <strong>Unduh Excel</strong> untuk mendapat file contoh (jika sudah ada data)<br>
+          2. Atau buat file Excel baru dengan kolom: <code>Nama Lengkap</code>, <code>PIN Login</code>, <code>NIP</code>, <code>No. HP</code>, <code>Status Aktif</code><br>
+          3. Isi data guru per baris, lalu klik <strong>Import Excel</strong> dan pilih file tersebut
+        </div>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-info').remove()">Tutup</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  // ── INFO FORMAT JADWAL ──
+  window.infoFormatJadwal = function() {
+    const html = `<div class="modal-overlay" id="modal-info-jadwal" onclick="if(event.target===this)document.getElementById('modal-info-jadwal').remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Format Data Jadwal di Firestore</div>
+        <div class="modal-note">
+          ℹ️ Data jadwal disimpan di koleksi <strong>Jadwal_Pelajaran</strong> di Firebase Firestore.
+          Gunakan form "Tambah Jadwal" di atas, atau isi via Firebase Console.
+        </div>
+        <table class="modal-tabel">
+          <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>id_guru</code></td><td>string</td><td>xYz123abc...</td><td>ID dokumen guru dari Data_Guru</td></tr>
+            <tr><td><code>hari</code></td><td>string</td><td>Senin</td><td>Senin / Selasa / Rabu / Kamis / Jumat / Sabtu</td></tr>
+            <tr><td><code>kelas</code></td><td>string</td><td>X IPA 1</td><td>Nama kelas lengkap</td></tr>
+            <tr><td><code>mata_pelajaran</code></td><td>string</td><td>Matematika</td><td>Nama mata pelajaran</td></tr>
+            <tr><td><code>jam_ke</code></td><td>number</td><td>1</td><td>Urutan jam pelajaran (1–12)</td></tr>
+            <tr><td><code>jam_mulai</code></td><td>string</td><td>07:00</td><td>Format HH:MM (24 jam)</td></tr>
+            <tr><td><code>jam_selesai</code></td><td>string</td><td>07:45</td><td>Format HH:MM (24 jam)</td></tr>
+            <tr><td><code>semester</code></td><td>string</td><td>Ganjil</td><td>Ganjil atau Genap</td></tr>
+            <tr><td><code>tahun_ajaran</code></td><td>string</td><td>2025/2026</td><td>Format YYYY/YYYY</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-note">⚠️ Nilai <strong>hari</strong> harus diawali huruf kapital: <strong>Senin</strong>, bukan senin atau SENIN. Ini penting agar jadwal terbaca di Portal Guru dan Monitor TV.</div>
+        <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
+          📥 <strong>Cara Import dari Excel:</strong><br>
+          1. Pastikan data guru sudah diisi terlebih dahulu di menu <strong>Data Guru</strong><br>
+          2. Buat file Excel dengan kolom: <code>Nama Guru</code>, <code>Hari</code>, <code>Kelas</code>, <code>Mata Pelajaran</code>, <code>Jam Ke</code>, <code>Jam Mulai</code>, <code>Jam Selesai</code>, <code>Semester</code>, <code>Tahun Ajaran</code><br>
+          3. Kolom <strong>Nama Guru</strong> harus sama persis dengan nama di Data Guru<br>
+          4. Klik <strong>Import Excel</strong> dan pilih file tersebut
+        </div>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-info-jadwal').remove()">Tutup</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  // ── FORM GURU ──
+  let editGuruId = null;
+
+  window.tampilFormGuru = function(id) {
+    editGuruId = id;
+    document.getElementById('form-guru-wrap').style.display = 'block';
+    document.getElementById('guru-form-error').textContent = '';
+    if (id && cacheGuru[id]) {
+      const g = cacheGuru[id];
+      document.getElementById('form-guru-judul').textContent = '✏️ Edit Data Guru';
+      document.getElementById('fg-nama').value   = g.nama_lengkap || '';
+      document.getElementById('fg-nip').value    = g.nip || '';
+      document.getElementById('fg-pin').value    = g.pin_login || '';
+      document.getElementById('fg-hp').value     = g.no_hp || '';
+      document.getElementById('fg-status').value = String(g.status_aktif !== false);
+    } else {
+      document.getElementById('form-guru-judul').textContent = '➕ Tambah Guru Baru';
+      document.getElementById('fg-nama').value = '';
+      document.getElementById('fg-nip').value  = '';
+      document.getElementById('fg-pin').value  = '';
+      document.getElementById('fg-hp').value   = '';
+      document.getElementById('fg-status').value = 'true';
+    }
+    document.getElementById('form-guru-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormGuru = function() {
+    document.getElementById('form-guru-wrap').style.display = 'none';
+    editGuruId = null;
+  };
+
+  window.simpanGuru = async function() {
+    const nama = document.getElementById('fg-nama').value.trim();
+    const pin  = document.getElementById('fg-pin').value.trim();
+    const errEl = document.getElementById('guru-form-error');
+    errEl.textContent = '';
+    if (!nama) { errEl.textContent = 'Nama lengkap wajib diisi!'; return; }
+    if (!pin || pin.length !== 4 || isNaN(pin)) { errEl.textContent = 'PIN harus 4 digit angka!'; return; }
+
+    // Cek PIN duplikat
+    const pinExist = Object.entries(cacheGuru).find(([id, g]) => g.pin_login === pin && id !== editGuruId);
+    if (pinExist) { errEl.textContent = 'PIN sudah digunakan guru lain!'; return; }
+
+    const data = {
+      nama_lengkap: nama,
+      nip:          document.getElementById('fg-nip').value.trim(),
+      pin_login:    pin,
+      no_hp:        document.getElementById('fg-hp').value.trim(),
+      status_aktif: document.getElementById('fg-status').value === 'true'
+    };
+
+    try {
+      if (editGuruId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Data_Guru', editGuruId), data);
+        cacheGuru[editGuruId] = data;
+        tampilToast('✅ Data guru berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Data_Guru'), data);
+        cacheGuru[ref.id] = data;
+        tampilToast('✅ Guru baru berhasil ditambahkan!');
+      }
+      tutupFormGuru();
+      renderGuru();
+      isiFilterGuru();
+    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
+  };
+
+  // ── FORM JADWAL ──
+  let editJadwalId = null;
+
+  window.tampilFormJadwal = function(id) {
+    editJadwalId = id;
+    // Isi dropdown guru
+    const sel = document.getElementById('fj-guru');
+    sel.innerHTML = '<option value="">Pilih guru</option>';
+    Object.entries(cacheGuru).forEach(([gid, g]) => {
+      if (g.status_aktif !== false) {
+        const opt = document.createElement('option');
+        opt.value = gid;
+        opt.textContent = g.nama_lengkap;
+        sel.appendChild(opt);
+      }
+    });
+    document.getElementById('form-jadwal-wrap').style.display = 'block';
+    document.getElementById('jadwal-form-error').textContent = '';
+    if (id) {
+      const j = allJadwal.find(x => x.id === id);
+      if (j) {
+        document.getElementById('form-jadwal-judul').textContent = '✏️ Edit Jadwal';
+        document.getElementById('fj-guru').value      = j.id_guru || '';
+        document.getElementById('fj-hari').value      = j.hari || '';
+        document.getElementById('fj-kelas').value     = j.kelas || '';
+        document.getElementById('fj-mapel').value     = j.mata_pelajaran || j.mapel || '';
+        document.getElementById('fj-jam-ke').value    = j.jam_ke || '';
+        document.getElementById('fj-jam-mulai').value = j.jam_mulai || '';
+        document.getElementById('fj-jam-selesai').value = j.jam_selesai || '';
+        document.getElementById('fj-semester').value  = j.semester || 'Ganjil';
+        document.getElementById('fj-tahun').value     = j.tahun_ajaran || '2025/2026';
+      }
+    } else {
+      document.getElementById('form-jadwal-judul').textContent = '➕ Tambah Jadwal Baru';
+      ['fj-guru','fj-hari','fj-kelas','fj-mapel','fj-jam-ke','fj-jam-mulai','fj-jam-selesai'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('fj-tahun').value = '2025/2026';
+    }
+    document.getElementById('form-jadwal-wrap').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.tutupFormJadwal = function() {
+    document.getElementById('form-jadwal-wrap').style.display = 'none';
+    editJadwalId = null;
+  };
+
+  window.simpanJadwal = async function() {
+    const guru  = document.getElementById('fj-guru').value;
+    const hari  = document.getElementById('fj-hari').value;
+    const kelas = document.getElementById('fj-kelas').value.trim();
+    const mapel = document.getElementById('fj-mapel').value.trim();
+    const errEl = document.getElementById('jadwal-form-error');
+    errEl.textContent = '';
+    if (!guru)  { errEl.textContent = 'Pilih guru!'; return; }
+    if (!hari)  { errEl.textContent = 'Pilih hari!'; return; }
+    if (!kelas) { errEl.textContent = 'Kelas wajib diisi!'; return; }
+    if (!mapel) { errEl.textContent = 'Mata pelajaran wajib diisi!'; return; }
+
+    const data = {
+      id_guru:       guru,
+      hari,
+      kelas,
+      mata_pelajaran: mapel,
+      jam_ke:        parseInt(document.getElementById('fj-jam-ke').value) || 1,
+      jam_mulai:     document.getElementById('fj-jam-mulai').value,
+      jam_selesai:   document.getElementById('fj-jam-selesai').value,
+      semester:      document.getElementById('fj-semester').value,
+      tahun_ajaran:  document.getElementById('fj-tahun').value || '2025/2026'
+    };
+
+    try {
+      if (editJadwalId) {
+        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Jadwal_Pelajaran', editJadwalId), data);
+        const idx = allJadwal.findIndex(x => x.id === editJadwalId);
+        if (idx >= 0) allJadwal[idx] = { id: editJadwalId, ...data };
+        tampilToast('✅ Jadwal berhasil diperbarui!');
+      } else {
+        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        const ref = await addDoc(collection(db, 'Jadwal_Pelajaran'), data);
+        allJadwal.push({ id: ref.id, ...data });
+        tampilToast('✅ Jadwal baru berhasil ditambahkan!');
+      }
+      tutupFormJadwal();
+      renderJadwal();
+    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
+  };
+
+  window.editGuru = function(id) { tampilFormGuru(id); };
+  window.editJadwal = function(id) { tampilFormJadwal(id); };
+
+  // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
+  window.loginAdmin  = loginAdmin;
+  window.logout      = logout;
+  window.gantiPage   = gantiPage;
+  window.eksporExcel = eksporExcel;
+  window.eksporPDF   = eksporPDF;
+</script>
+</body>
+</html>

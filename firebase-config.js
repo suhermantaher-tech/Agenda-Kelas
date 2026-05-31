@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor Kelas — SMAN 5 Sarolangun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --oranye: #E07020;
+      --oranye-gelap: #B85510;
+      --hijau: #2E7D32;
+      --hijau-muda: #43A047;
+      --merah: #C62828;
+      --merah-muda: #E53935;
+      --biru-tua: #1A3A5C;
+      --abu: #90A4AE;
+      --kuning: #F9A825;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0D1B2A;
+      color: white;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0f2d4a, #1A3A5C);
+      border-bottom: 3px solid var(--oranye);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .header-kiri {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-wrap {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fff5e0, #ffb347, #e07020, #2E7D32, #1A3A5C);
+      padding: 2.5px;
+      flex-shrink: 0;
+    }
+
+    .logo-inner {
+      width: 100%; height: 100%;
+      border-radius: 10px;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3px; overflow: hidden;
+    }
+
+    .logo-inner img { width: 100%; height: 100%; object-fit: contain; }
+
+    .header-teks {}
+    .header-nama { font-size: 18px; font-weight: 800; color: white; line-height: 1.1; }
+    .header-sub { font-size: 12px; color: var(--abu); font-weight: 500; }
+
+    .header-tengah {
+      flex: 1;
+      text-align: center;
+    }
+
+    .monitor-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--oranye);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .header-kanan {
+      text-align: right;
+      min-width: 160px;
+    }
+
+    .jam-digital {
+      font-family: 'DM Mono', monospace;
+      font-size: 28px;
+      font-weight: 500;
+      color: white;
+      line-height: 1;
+    }
+
+    .tanggal-digital {
+      font-size: 12px;
+      color: var(--abu);
+      margin-top: 3px;
+    }
+
+    /* ── SUMMARY BAR ── */
+    .summary-bar {
+      background: #111E2E;
+      border-bottom: 1px solid #1E3448;
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .sum-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sum-dot {
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .sum-dot.hijau { background: var(--hijau-muda); }
+    .sum-dot.merah { background: var(--merah-muda); }
+    .sum-dot.abu   { background: #546E7A; }
+
+    .sum-label { font-size: 13px; color: var(--abu); }
+    .sum-val   { font-size: 20px; font-weight: 800; color: white; margin-left: 4px; }
+
+    .sum-divider { width: 1px; height: 32px; background: #1E3448; }
+
+    .progress-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: #1E3448;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--hijau-muda), #66BB6A);
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+
+    .progress-pct {
+      font-family: 'DM Mono', monospace;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--hijau-muda);
+      min-width: 44px;
+      text-align: right;
+    }
+
+    .hari-chip {
+      background: var(--oranye);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      margin-left: auto;
+    }
+
+    /* ── GRID KELAS ── */
+    .grid-wrap {
+      padding: 16px 24px;
+      height: calc(100vh - 130px);
+      overflow-y: auto;
+    }
+
+    .grid-kelas {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    /* KARTU KELAS */
+    .kartu-kelas {
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kartu-kelas::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+
+    /* SUDAH ISI */
+    .kartu-kelas.sudah {
+      background: linear-gradient(145deg, #1B3A24, #1E4A28);
+      border: 1px solid #2E6B34;
+    }
+
+    .kartu-kelas.sudah::before { background: linear-gradient(90deg, var(--hijau), var(--hijau-muda)); }
+
+    /* BELUM ISI */
+    .kartu-kelas.belum {
+      background: linear-gradient(145deg, #3A1A1A, #4A1E1E);
+      border: 1px solid #6B2E2E;
+    }
+
+    .kartu-kelas.belum::before { background: linear-gradient(90deg, var(--merah), var(--merah-muda)); }
+    .kartu-kelas.belum { animation: denyut 3s ease-in-out infinite; }
+
+    @keyframes denyut {
+      0%, 100% { border-color: #6B2E2E; }
+      50%       { border-color: #E53935; }
+    }
+
+    /* TIDAK ADA JADWAL */
+    .kartu-kelas.kosong {
+      background: #111E2E;
+      border: 1px dashed #1E3448;
+      opacity: 0.5;
+    }
+
+    .kartu-kelas.kosong::before { background: #1E3448; }
+
+    .kelas-nama {
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .kelas-mapel {
+      font-size: 11px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kelas-guru {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kelas-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .status-badge.sudah {
+      background: rgba(67,160,71,0.25);
+      color: #81C784;
+      border: 1px solid rgba(67,160,71,0.4);
+    }
+
+    .status-badge.belum {
+      background: rgba(229,57,53,0.25);
+      color: #EF9A9A;
+      border: 1px solid rgba(229,57,53,0.4);
+    }
+
+    .status-badge.kosong {
+      background: rgba(144,164,174,0.15);
+      color: #607D8B;
+    }
+
+    .jam-info {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .ikon-status {
+      font-size: 22px;
+      position: absolute;
+      top: 14px; right: 14px;
+    }
+
+    /* LOADING */
+    .loading-screen {
+      position: fixed; inset: 0;
+      background: #0D1B2A;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 999;
+    }
+
+    .loading-spinner {
+      width: 48px; height: 48px;
+      border: 3px solid #1E3448;
+      border-top-color: var(--oranye);
+      border-radius: 50%;
+      animation: putar 0.8s linear infinite;
+    }
+
+    @keyframes putar { to { transform: rotate(360deg); } }
+    .loading-teks { font-size: 14px; color: var(--abu); font-weight: 500; }
+
+    /* TICKER */
+    .ticker {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--oranye-gelap);
+      padding: 6px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ticker-label {
+      background: white;
+      color: var(--oranye-gelap);
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .ticker-scroll {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      from { transform: translateX(100%); }
+      to   { transform: translateX(-100%); }
+    }
+
+    /* EMPTY */
+    .empty-grid {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--abu);
+    }
+
+    .empty-grid .ikon { font-size: 48px; margin-bottom: 12px; }
+    .empty-grid p { font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-teks">Memuat data kelas...</div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-kiri">
+    <div class="logo-wrap">
+      <div class="logo-inner">
+        <img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+      </div>
+    </div>
+    <div class="header-teks">
+      <div class="header-nama">SMAN 5 Sarolangun</div>
+      <div class="header-sub">Kreatif &amp; Berkarakter</div>
+    </div>
+  </div>
+  <div class="header-tengah">
+    <div class="monitor-title">📺 Monitor Agenda Kelas</div>
+  </div>
+  <div class="header-kanan">
+    <div class="jam-digital" id="jam">--:--:--</div>
+    <div class="tanggal-digital" id="tanggal">--</div>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar">
+  <div class="sum-item">
+    <div class="sum-dot hijau"></div>
+    <span class="sum-label">Sudah Terisi</span>
+    <span class="sum-val" id="jml-sudah">0</span>
+  </div>
+  <div class="sum-divider"></div>
+  <div class="sum-item">
+    <div class="sum-dot merah"></div>
+    <span class="sum-label">Belum Terisi</span>
+    <span class="sum-val" id="jml-belum">0</span>
+  </div>
+  <div class="sum-divider"></div>
+  <div class="sum-item">
+    <div class="sum-dot abu"></div>
+    <span class="sum-label">Total Kelas</span>
+    <span class="sum-val" id="jml-total">0</span>
+  </div>
+  <div class="sum-divider"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-pct" id="progress-pct">0%</div>
+  </div>
+  <span class="hari-chip" id="hari-chip">—</span>
+</div>
+
+<!-- GRID KELAS -->
+<div class="grid-wrap">
+  <div class="grid-kelas" id="grid-kelas">
+    <div class="empty-grid"><div class="ikon">⏳</div><p>Memuat jadwal...</p></div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span class="ticker-label">INFO</span>
+  <div class="ticker-scroll">
+    <span class="ticker-text" id="ticker-text">Sistem Monitor Agenda Kelas · SMAN 5 Sarolangun · Kreatif &amp; Berkarakter · Data diperbarui secara otomatis setiap menit</span>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, query, where,
+    getDocs, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+    authDomain: "agedasmanli.firebaseapp.com",
+    projectId: "agedasmanli",
+    storageBucket: "agedasmanli.firebasestorage.app",
+    messagingSenderId: "969562298791",
+    appId: "1:969562298791:web:320a29a007c74739217e82"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+  // ── JAM DIGITAL ──
+  function updateJam() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('jam').textContent = `${h}:${m}:${s}`;
+    document.getElementById('tanggal').textContent =
+      `${namaHari[now.getDay()]}, ${now.getDate()} ${namaBulan[now.getMonth()]} ${now.getFullYear()}`;
+  }
+  updateJam();
+  setInterval(updateJam, 1000);
+
+  const sekarang = new Date();
+  const hariIni  = namaHari[sekarang.getDay()];
+  const tanggalStr = `${sekarang.getFullYear()}-${String(sekarang.getMonth()+1).padStart(2,'0')}-${String(sekarang.getDate()).padStart(2,'0')}`;
+
+  document.getElementById('hari-chip').textContent = hariIni;
+
+  // ── CACHE DATA GURU ──
+  let cacheGuru = {};
+
+  async function muatDataGuru() {
+    const snap = await getDocs(collection(db, 'Data_Guru'));
+    snap.docs.forEach(d => { cacheGuru[d.id] = d.data().nama_lengkap; });
+  }
+
+  // ── RENDER GRID ──
+  function renderGrid(jadwalList, sudahIsiSet) {
+    const grid = document.getElementById('grid-kelas');
+    grid.innerHTML = '';
+
+    if (jadwalList.length === 0) {
+      grid.innerHTML = `<div class="empty-grid" style="grid-column:1/-1"><div class="ikon">🏖️</div><p>Tidak ada jadwal hari ini</p></div>`;
+      updateSummary(0, 0);
+      return;
+    }
+
+    // Urutkan: belum dulu, lalu sudah
+    jadwalList.sort((a,b) => {
+      const aSudah = sudahIsiSet.has(a.id);
+      const bSudah = sudahIsiSet.has(b.id);
+      if (aSudah !== bSudah) return aSudah ? 1 : -1;
+      return (a.data.kelas||'').localeCompare(b.data.kelas||'');
+    });
+
+    let jmlSudah = 0;
+    jadwalList.forEach(({id, data}) => {
+      const sudah = sudahIsiSet.has(id);
+      if (sudah) jmlSudah++;
+
+      const namaGuru = cacheGuru[data.id_guru] || '—';
+      const mapel = data.mata_pelajaran || data.mapel || '—';
+      const kelas = data.kelas || '—';
+      const jamInfo = data.jam_mulai && data.jam_selesai ? `${data.jam_mulai}–${data.jam_selesai}` : `Jam ${data.jam_ke||'?'}`;
+
+      const kartu = document.createElement('div');
+      kartu.className = `kartu-kelas ${sudah ? 'sudah' : 'belum'}`;
+      kartu.innerHTML = `
+        <div class="ikon-status">${sudah ? '✅' : '🔴'}</div>
+        <div>
+          <div class="kelas-nama">${kelas}</div>
+          <div class="kelas-mapel">${mapel}</div>
+          <div class="kelas-guru">👤 ${namaGuru}</div>
+        </div>
+        <div class="kelas-bottom">
+          <span class="status-badge ${sudah ? 'sudah' : 'belum'}">
+            ${sudah ? '✓ Sudah Diisi' : '⚠ Belum Diisi'}
+          </span>
+          <span class="jam-info">${jamInfo}</span>
+        </div>
+      `;
+      grid.appendChild(kartu);
+    });
+
+    updateSummary(jmlSudah, jadwalList.length);
+    updateTicker(jmlSudah, jadwalList.length, jadwalList, sudahIsiSet);
+  }
+
+  function updateSummary(sudah, total) {
+    const belum = total - sudah;
+    const pct = total > 0 ? Math.round((sudah/total)*100) : 0;
+    document.getElementById('jml-sudah').textContent = sudah;
+    document.getElementById('jml-belum').textContent = belum;
+    document.getElementById('jml-total').textContent = total;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+
+  function updateTicker(sudah, total, jadwalList, sudahIsiSet) {
+    const belumList = jadwalList
+      .filter(({id}) => !sudahIsiSet.has(id))
+      .map(({data}) => `${data.kelas} (${data.mata_pelajaran||data.mapel})`);
+
+    let teks = `📊 Rekap Hari ${hariIni}: ${sudah} dari ${total} kelas sudah mengisi agenda`;
+    if (belumList.length > 0) {
+      teks += ` · ⚠ Belum terisi: ${belumList.join(' · ')}`;
+    } else if (total > 0) {
+      teks += ' · ✅ Semua kelas sudah mengisi agenda hari ini!';
+    }
+    teks += ' · Sistem Monitor Agenda Kelas SMAN 5 Sarolangun';
+    document.getElementById('ticker-text').textContent = teks;
+  }
+
+  // ── MUAT DATA REAL-TIME ──
+  async function init() {
+    await muatDataGuru();
+
+    // Ambil semua jadwal hari ini
+    const qJadwal = query(
+      collection(db, 'Jadwal_Pelajaran'),
+      where('hari', '==', hariIni)
+    );
+    const snapJadwal = await getDocs(qJadwal);
+    const jadwalList = snapJadwal.docs.map(d => ({ id: d.id, data: d.data() }));
+
+    // Real-time listener untuk Agenda_Harian hari ini
+    const qAgenda = query(
+      collection(db, 'Agenda_Harian'),
+      where('tanggal', '==', tanggalStr)
+    );
+
+    onSnapshot(qAgenda, (snap) => {
+      const sudahIsiSet = new Set(snap.docs.map(d => d.data().id_jadwal));
+      renderGrid(jadwalList, sudahIsiSet);
+      document.getElementById('loading').style.display = 'none';
+    }, (err) => {
+      console.error(err);
+      document.getElementById('loading').style.display = 'none';
+    });
+  }
+
+  init();
+</script>
+</body>
+</html>
