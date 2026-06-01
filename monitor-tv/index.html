@@ -138,7 +138,7 @@
 </div>
 
 <!-- INDIKATOR BELL AKTIF -->
-<div id="bell-status" style="position:fixed;bottom:28px;left:16px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;z-index:100;display:none;"></div>
+<div id="bell-status" onclick="toggleBellTest()" style="position:fixed;bottom:28px;left:16px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;z-index:100;display:none;cursor:pointer;" title="Klik untuk test bell"></div>
 
 <div class="hdr">
   <div class="hdr-kiri">
@@ -149,20 +149,20 @@
   <div><div class="jam" id="jam">--:--:--</div><div class="tgl" id="tgl">--</div></div>
 </div>
 
-<!-- TEST BELL PANEL (double-click header untuk tampilkan) -->
-<div id="bell-test-panel" style="display:none;position:fixed;top:56px;right:10px;background:#111E30;border:1px solid #1A2E44;border-radius:12px;padding:12px;z-index:9997;display:none;">
-  <div style="font-size:11px;color:#546E7A;margin-bottom:8px;font-weight:700;">🔔 TEST BELL</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-    <button onclick="bunyikanBell('mulai')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Mulai PBM</button>
-    <button onclick="bunyikanBell('ganti')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Ganti Jam</button>
-    <button onclick="bunyikanBell('istirahat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Istirahat</button>
-    <button onclick="bunyikanBell('masuk')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Masuk</button>
-    <button onclick="bunyikanBell('sholat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Sholat</button>
-    <button onclick="bunyikanBell('pulang')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Pulang</button>
-    <button onclick="bunyikanBell('apel')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Apel</button>
-    <button onclick="bunyikanBell('senam')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Senam</button>
+<!-- TEST BELL PANEL -->
+<div id="bell-test-panel" style="display:none;position:fixed;top:60px;right:12px;background:#111E30;border:1px solid #E07020;border-radius:12px;padding:14px;z-index:9997;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+  <div style="font-size:11px;color:#E07020;margin-bottom:10px;font-weight:700;letter-spacing:1px;">🔔 TEST BELL</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+    <button onclick="window.bunyikanBell('mulai')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Mulai PBM</button>
+    <button onclick="window.bunyikanBell('ganti')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Ganti Jam</button>
+    <button onclick="window.bunyikanBell('istirahat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Istirahat</button>
+    <button onclick="window.bunyikanBell('masuk')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Masuk</button>
+    <button onclick="window.bunyikanBell('sholat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Sholat</button>
+    <button onclick="window.bunyikanBell('pulang')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Pulang</button>
+    <button onclick="window.bunyikanBell('apel')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Apel</button>
+    <button onclick="window.bunyikanBell('senam')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:6px 8px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;">Senam</button>
   </div>
-  <button onclick="document.getElementById('bell-test-panel').style.display='none'" style="width:100%;margin-top:8px;background:transparent;border:1px solid #1A2E44;color:#546E7A;border-radius:7px;padding:4px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Tutup</button>
+  <button onclick="document.getElementById('bell-test-panel').style.display='none'" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid #1A2E44;color:#546E7A;border-radius:7px;padding:5px;font-size:11px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">✕ Tutup</button>
 </div>
 
 <div class="sumbar">
