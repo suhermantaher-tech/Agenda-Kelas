@@ -114,6 +114,12 @@
     .roster-jeda-line { flex:1; height:1px; background:var(--border); }
     .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
     .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+    .kls-hadir-item { display:flex; align-items:center; gap:10px; padding:8px 12px; background:white; border-radius:var(--radius-sm); border:1px solid var(--border); }
+    .kls-hadir-nama { font-size:12px; font-weight:700; color:var(--teks); min-width:48px; }
+    .kls-hadir-pb { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .kls-hadir-pbf { height:100%; border-radius:3px; transition:width 0.5s; }
+    .kls-hadir-angka { font-size:11px; font-weight:700; font-family:"DM Mono",monospace; min-width:50px; text-align:right; }
+    .kls-bolos-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; flex-shrink:0; }
     @keyframes slideUp {
       from { opacity:0; transform: translateY(32px) scale(0.97); }
       to   { opacity:1; transform: translateY(0) scale(1); }
@@ -802,6 +808,12 @@
     .roster-jeda-line { flex:1; height:1px; background:var(--border); }
     .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
     .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+    .kls-hadir-item { display:flex; align-items:center; gap:10px; padding:8px 12px; background:white; border-radius:var(--radius-sm); border:1px solid var(--border); }
+    .kls-hadir-nama { font-size:12px; font-weight:700; color:var(--teks); min-width:48px; }
+    .kls-hadir-pb { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .kls-hadir-pbf { height:100%; border-radius:3px; transition:width 0.5s; }
+    .kls-hadir-angka { font-size:11px; font-weight:700; font-family:"DM Mono",monospace; min-width:50px; text-align:right; }
+    .kls-bolos-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; flex-shrink:0; }
     @keyframes slideUp {
       from { opacity:0; transform:translateX(-50%) translateY(20px); }
       to   { opacity:1; transform:translateX(-50%) translateY(0); }
@@ -910,6 +922,20 @@
 
     <!-- TAB JADWAL -->
     <div class="tab-konten aktif" id="tab-jadwal">
+      <!-- KEHADIRAN SISWA PER KELAS -->
+      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:14px;background:linear-gradient(135deg,rgba(26,58,92,0.08),rgba(224,112,32,0.06));border:1px solid rgba(26,58,92,0.12);border-radius:var(--radius);padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--biru-tua);display:flex;align-items:center;gap:6px;">
+            👥 Kehadiran Siswa Hari Ini
+          </div>
+          <div id="kehadiran-summary" style="font-size:11px;color:var(--teks-muted)">—</div>
+        </div>
+        <div id="kehadiran-per-kelas" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--teks-muted);padding-top:8px;border-top:1px solid rgba(26,58,92,0.1);">
+          ⚠ Siswa merah = tidak hadir saat presensi pagi — perlu dicek di kelas
+        </div>
+      </div>
+
       <div class="sec-label">Pilih kelas untuk isi agenda</div>
       <div class="jadwal-list" id="jadwal-list">
         <div class="empty-state"><div class="ikon">⏳</div><p>Memuat jadwal...</p></div>
@@ -1132,7 +1158,77 @@
   }
 
   // ── JADWAL ──
-    // ── JAM AKTIF & NOTIFIKASI ──
+    // ── KEHADIRAN SISWA PER KELAS ──
+  async function muatKehadiranSiswaGuru() {
+    if (!guruAktif) return;
+
+    try {
+      // Ambil kelas yang diajar guru ini hari ini
+      const snapJadwal = await getDocs(query(
+        collection(db, 'Jadwal_Pelajaran'),
+        where('id_guru', '==', guruAktif.id),
+        where('hari', '==', hariIni)
+      ));
+      if (snapJadwal.empty) return;
+
+      // Kelas unik yang diajar guru ini
+      const kelasGuru = [...new Set(snapJadwal.docs.map(d => d.data().nama_kelas || d.data().kelas).filter(Boolean))];
+
+      // Total siswa per kelas
+      const sSnap = await getDocs(collection(db, 'Data_Siswa'));
+      const totalPerKelas = {};
+      sSnap.docs.forEach(d => {
+        const k = d.data().kelas || '';
+        if (kelasGuru.includes(k)) totalPerKelas[k] = (totalPerKelas[k] || 0) + 1;
+      });
+
+      // Presensi hari ini
+      const pSnap = await getDocs(query(
+        collection(db, 'Presensi_Harian'),
+        where('tanggal', '==', tanggalStr(sekarang))
+      ));
+      const hadirPerKelas = {};
+      pSnap.docs.forEach(d => {
+        const k = d.data().kelas || '';
+        if (kelasGuru.includes(k)) hadirPerKelas[k] = (hadirPerKelas[k] || 0) + 1;
+      });
+
+      if (!Object.keys(totalPerKelas).length) return;
+
+      // Render panel
+      const panel = document.getElementById('panel-kehadiran-siswa');
+      const wrap  = document.getElementById('kehadiran-per-kelas');
+      const sumEl = document.getElementById('kehadiran-summary');
+
+      panel.style.display = 'block';
+
+      const totalH = Object.values(hadirPerKelas).reduce((s,v)=>s+v,0);
+      const totalS = Object.values(totalPerKelas).reduce((s,v)=>s+v,0);
+      sumEl.textContent = `${totalH} dari ${totalS} siswa hadir`;
+
+      wrap.innerHTML = kelasGuru.sort().map(k => {
+        const hadir = hadirPerKelas[k] || 0;
+        const total = totalPerKelas[k] || 0;
+        const bolos = total - hadir;
+        const pct   = total > 0 ? Math.round(hadir/total*100) : 0;
+        const warna = pct >= 90 ? '#2E7D32' : pct >= 75 ? '#F57F17' : '#C62828';
+        const bgBolos = bolos > 0 ? 'background:#FFEBEE;color:#C62828' : 'background:#E8F5E9;color:#2E7D32';
+        return `<div class="kls-hadir-item">
+          <div class="kls-hadir-nama">${k}</div>
+          <div class="kls-hadir-pb"><div class="kls-hadir-pbf" style="width:${pct}%;background:${warna}"></div></div>
+          <div class="kls-hadir-angka" style="color:${warna}">${hadir}/${total}</div>
+          <span class="kls-bolos-badge" style="${bgBolos}">
+            ${bolos > 0 ? `⚠ ${bolos} tidak hadir` : '✓ Lengkap'}
+          </span>
+        </div>`;
+      }).join('');
+
+    } catch(e) {
+      console.log('Kehadiran siswa:', e.message);
+    }
+  }
+
+  // ── JAM AKTIF & NOTIFIKASI ──
   let jamBakuGuru = [];
   let timerJam = null;
   let notifSudahKirim = new Set();
@@ -1414,6 +1510,7 @@
       tampilToast('✅ Agenda berhasil disimpan!');
       tutupForm();
       await muatJadwal();
+      await muatKehadiranSiswaGuru();
       await muatRiwayat();
     } catch(e) { alert('Gagal menyimpan: '+e.message); }
     tampilLoading(false);
