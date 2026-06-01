@@ -6,146 +6,128 @@
   <title>Monitor Agenda Kelas — SMAN 5 Sarolangun</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0D1B2A; color: white; min-height: 100vh; overflow: hidden; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0D1B2A; color: white; display: flex; flex-direction: column; }
 
     /* HEADER */
-    .hdr { background: #111E30; border-bottom: 2px solid #E07020; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .hdr-logo-wrap { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #fff5e0, #ffb347, #E07020, #2E7D32, #1A3A5C); padding: 2.5px; flex-shrink: 0; }
-    .hdr-logo-in { width: 100%; height: 100%; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .hdr { flex-shrink: 0; background: #111E30; border-bottom: 2px solid #E07020; padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .hdr-logo-wrap { width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(135deg,#fff5e0,#ffb347,#E07020,#2E7D32,#1A3A5C); padding: 2px; flex-shrink: 0; }
+    .hdr-logo-in { width: 100%; height: 100%; border-radius: 7px; background: white; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     .hdr-logo-in img { width: 100%; height: 100%; object-fit: contain; }
-    .hdr-kiri { display: flex; align-items: center; gap: 12px; }
-    .hdr-nama { font-size: 15px; font-weight: 700; color: white; }
+    .hdr-kiri { display: flex; align-items: center; gap: 10px; }
+    .hdr-nama { font-size: 14px; font-weight: 700; color: white; }
     .hdr-sub { font-size: 11px; color: #607D8B; }
     .hdr-title { font-size: 12px; font-weight: 700; color: #E07020; letter-spacing: 2px; text-transform: uppercase; }
-    .hdr-kanan { text-align: right; }
-    .jam-digital { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; color: white; line-height: 1; }
-    .tgl-digital { font-size: 11px; color: #607D8B; margin-top: 2px; }
+    .jam-digital { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; color: white; line-height: 1; text-align: right; }
+    .tgl-digital { font-size: 11px; color: #607D8B; margin-top: 2px; text-align: right; }
 
     /* SUMMARY BAR */
-    .sumbar { background: #0F1C2C; border-bottom: 1px solid #1A2E44; padding: 8px 24px; display: flex; align-items: center; gap: 18px; }
-    .sum-item { display: flex; align-items: center; gap: 7px; }
-    .sum-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-    .sum-lbl { font-size: 12px; color: #607D8B; }
-    .sum-val { font-size: 20px; font-weight: 700; color: white; font-family: 'DM Mono', monospace; margin-left: 3px; }
-    .sum-div { width: 1px; height: 28px; background: #1A2E44; }
-    .prog-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
-    .prog-bg { flex: 1; height: 7px; background: #1A2E44; border-radius: 4px; overflow: hidden; }
-    .prog-fill { height: 100%; background: #43A047; border-radius: 4px; transition: width 1s ease; }
-    .prog-pct { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; color: #43A047; min-width: 44px; text-align: right; }
-    .hari-chip { font-size: 12px; color: #E07020; font-weight: 700; background: rgba(224,112,32,0.15); padding: 4px 14px; border-radius: 20px; }
+    .sumbar { flex-shrink: 0; background: #0F1C2C; border-bottom: 1px solid #1A2E44; padding: 6px 24px; display: flex; align-items: center; gap: 16px; height: 40px; }
+    .sum-item { display: flex; align-items: center; gap: 6px; }
+    .sum-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+    .sum-lbl { font-size: 11px; color: #607D8B; }
+    .sum-val { font-size: 18px; font-weight: 700; color: white; font-family: 'DM Mono', monospace; margin-left: 2px; }
+    .sum-div { width: 1px; height: 22px; background: #1A2E44; }
+    .prog-wrap { flex: 1; display: flex; align-items: center; gap: 8px; }
+    .prog-bg { flex: 1; height: 6px; background: #1A2E44; border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; background: #43A047; border-radius: 3px; transition: width 1s ease; }
+    .prog-pct { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: #43A047; min-width: 40px; text-align: right; }
+    .hari-chip { font-size: 11px; color: #E07020; font-weight: 700; background: rgba(224,112,32,0.15); padding: 3px 12px; border-radius: 20px; white-space: nowrap; }
 
-    /* MAIN LAYOUT */
-    .main-layout { display: grid; grid-template-columns: 1fr 260px; height: calc(100vh - 90px); overflow: hidden; }
+    /* MAIN — isi sisa ruang */
+    .main { flex: 1; display: grid; grid-template-columns: 1fr 260px; overflow: hidden; }
 
-    /* KIRI: GRID KELAS */
-    .panel-kiri { padding: 14px 20px; overflow-y: auto; }
-    .sec-lbl { font-size: 10px; font-weight: 700; color: #546E7A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-    .kelas-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    /* KIRI */
+    .panel-kiri { display: flex; flex-direction: column; padding: 10px 16px; gap: 10px; overflow: hidden; }
+    .sec-lbl { font-size: 10px; font-weight: 700; color: #546E7A; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0; }
 
-    /* KARTU KELAS */
-    .kartu { border-radius: 10px; padding: 12px 14px; position: relative; overflow: hidden; cursor: default; }
-    .kartu::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-    .kartu.sudah { background: #162A1E; border: 1px solid #2E6B34; }
-    .kartu.sudah::before { background: #43A047; }
-    .kartu.parsial { background: #1A1E0A; border: 1px solid #5A6B1A; }
-    .kartu.parsial::before { background: #F9A825; }
-    .kartu.belum { background: #2A1616; border: 1px solid #6B2E2E; animation: denyut 2.5s ease-in-out infinite; }
-    .kartu.belum::before { background: #E53935; }
-    @keyframes denyut { 0%,100% { border-color: #6B2E2E; } 50% { border-color: #E53935; } }
+    /* GRID KELAS */
+    .kelas-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; flex-shrink: 0; }
+    .kartu { border-radius: 9px; padding: 10px 12px; position: relative; overflow: hidden; }
+    .kartu::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+    .kartu.sudah { background:#162A1E; border:1px solid #2E6B34; }
+    .kartu.sudah::before { background:#43A047; }
+    .kartu.parsial { background:#1A1E0A; border:1px solid #5A6B1A; }
+    .kartu.parsial::before { background:#F9A825; }
+    .kartu.belum { background:#2A1616; border:1px solid #6B2E2E; animation:denyut 2.5s ease-in-out infinite; }
+    .kartu.belum::before { background:#E53935; }
+    @keyframes denyut { 0%,100%{border-color:#6B2E2E}50%{border-color:#E53935} }
+    .kartu-top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .kartu-nama { font-size:16px; font-weight:700; color:white; }
+    .kartu-ikon { font-size:13px; }
+    .kartu-guru { font-size:10px; color:#90A4AE; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:2px 0 6px; }
+    .mapel-row { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:7px; }
+    .mapel-chip { font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px; }
+    .chip-ok { background:rgba(67,160,71,0.25); color:#81C784; }
+    .chip-no { background:rgba(229,57,53,0.2); color:#EF9A9A; }
+    .kartu-progbar { height:3px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; margin-bottom:4px; }
+    .kartu-progfill { height:100%; border-radius:2px; }
+    .kartu-bot { display:flex; justify-content:space-between; align-items:center; }
+    .kartu-sesi { font-size:9px; color:#546E7A; }
+    .kartu-pct { font-size:11px; font-weight:700; font-family:'DM Mono',monospace; }
 
-    .kartu-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
-    .kartu-nama { font-size: 17px; font-weight: 700; color: white; }
-    .kartu-ikon { font-size: 14px; }
-    .kartu-guru { font-size: 10px; color: #90A4AE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 7px; }
-    .mapel-row { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 8px; }
-    .mapel-chip { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
-    .chip-ok { background: rgba(67,160,71,0.25); color: #81C784; }
-    .chip-no { background: rgba(229,57,53,0.2); color: #EF9A9A; }
-    .chip-all-no { background: rgba(229,57,53,0.15); color: #EF9A9A; }
-    .kartu-progbar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
-    .kartu-progfill { height: 100%; border-radius: 2px; }
-    .kartu-bot { display: flex; justify-content: space-between; align-items: center; }
-    .kartu-sesi { font-size: 10px; color: #546E7A; }
-    .kartu-pct { font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; }
+    /* SLIDER — mengisi sisa ruang sepenuhnya */
+    .slider-section { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .slider-outer { flex: 1; position: relative; border-radius: 10px; overflow: hidden; background: #0F1C2C; min-height: 0; }
+    .slider-track { display: flex; height: 100%; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+    .slider-slide { min-width: 100%; height: 100%; position: relative; flex-shrink: 0; }
+    .slider-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .slider-caption-bar { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.75)); padding: 20px 16px 10px; }
+    .slider-caption-txt { font-size: 13px; font-weight: 500; color: white; }
+    .slider-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #546E7A; }
+    .slider-placeholder svg { opacity: 0.4; }
+    .slider-placeholder p { font-size: 12px; }
+    .slider-dots { display: flex; justify-content: center; gap: 5px; padding: 5px 0; flex-shrink: 0; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #1A2E44; cursor: pointer; transition: background 0.3s; }
+    .dot.on { background: #E07020; }
 
-    /* KANAN: REKAP GURU + DIAGRAM */
-    .panel-kanan { background: #0F1C2C; border-left: 1px solid #1A2E44; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
-
-    /* DIAGRAM BATANG */
-    .bar-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .bar-lbl { font-size: 11px; font-weight: 500; color: #90A4AE; min-width: 36px; font-family: 'DM Mono', monospace; }
-    .bar-bg { flex: 1; height: 18px; background: #1A2E44; border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; min-width: 4px; transition: width 1s ease; }
-    .bar-txt { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.9); }
-    .bar-pct { font-size: 10px; font-weight: 500; font-family: 'DM Mono', monospace; min-width: 32px; text-align: right; }
-
-    /* REKAP GURU */
-    .guru-item { display: flex; align-items: center; gap: 7px; padding: 6px 0; border-bottom: 1px solid #1A2E44; }
-    .guru-item:last-child { border-bottom: none; }
-    .guru-kode { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; background: #1A3A5C; color: #90CAF9; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; min-width: 28px; text-align: center; }
-    .guru-nama-txt { font-size: 11px; color: #CFD8DC; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .guru-prog { width: 48px; height: 4px; background: #1A2E44; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-    .guru-prog-fill { height: 100%; border-radius: 2px; }
-    .guru-pct { font-size: 10px; font-family: 'DM Mono', monospace; min-width: 32px; text-align: right; flex-shrink: 0; }
-
-    .divider { border-top: 1px solid #1A2E44; }
-
-    /* SLIDER FOTO */
-    .slider-wrap { overflow: hidden; position: relative; background: #0F1C2C; border-radius: 10px; }
-    .slider-track { display: flex; transition: transform 0.8s cubic-bezier(0.4,0,0.2,1); height: 100%; }
-    .slider-item { min-width: 100%; height: 100%; position: relative; flex-shrink: 0; }
-    .slider-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
-    .slider-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 12px 14px 10px; border-radius: 0 0 10px 10px; }
-    .slider-caption { font-size: 12px; font-weight: 500; color: white; }
-    .slider-dots { display: flex; justify-content: center; gap: 5px; margin-top: 6px; }
-    .slider-dot { width: 6px; height: 6px; border-radius: 50%; background: #1A2E44; transition: background 0.3s; cursor: pointer; }
-    .slider-dot.aktif { background: #E07020; }
-    .slider-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #546E7A; font-size: 12px; gap: 8px; }
-    .slider-placeholder i { font-size: 32px; opacity: 0.5; }
+    /* KANAN */
+    .panel-kanan { background: #0F1C2C; border-left: 1px solid #1A2E44; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .bar-item { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+    .bar-lbl { font-size:11px; font-weight:500; color:#90A4AE; min-width:36px; font-family:'DM Mono',monospace; }
+    .bar-bg { flex:1; height:16px; background:#1A2E44; border-radius:4px; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:4px; min-width:4px; }
+    .bar-txt { font-size:9px; font-weight:700; color:rgba(255,255,255,0.9); }
+    .bar-pct { font-size:10px; font-weight:500; font-family:'DM Mono',monospace; min-width:30px; text-align:right; }
+    .divider { border-top: 1px solid #1A2E44; flex-shrink: 0; }
+    .guru-item { display:flex; align-items:center; gap:6px; padding:5px 0; border-bottom:1px solid #1A2E44; }
+    .guru-item:last-child { border-bottom:none; }
+    .guru-kode { font-family:'DM Mono',monospace; font-size:10px; font-weight:500; background:#1A3A5C; color:#90CAF9; padding:1px 5px; border-radius:4px; flex-shrink:0; min-width:26px; text-align:center; }
+    .guru-nm { font-size:11px; color:#CFD8DC; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .guru-pb { width:46px; height:4px; background:#1A2E44; border-radius:2px; overflow:hidden; flex-shrink:0; }
+    .guru-pb-fill { height:100%; border-radius:2px; }
+    .guru-pc { font-size:10px; font-family:'DM Mono',monospace; min-width:30px; text-align:right; flex-shrink:0; }
 
     /* TICKER */
-    .ticker { position: fixed; bottom: 0; left: 0; right: 0; background: #B85510; padding: 5px 20px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 12px; z-index: 99; }
-    .ticker-lbl { background: white; color: #B85510; padding: 1px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; flex-shrink: 0; }
-    .ticker-scroll { flex: 1; overflow: hidden; white-space: nowrap; }
-    .ticker-txt { display: inline-block; animation: scroll 35s linear infinite; }
-    @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+    .ticker { flex-shrink:0; background:#B85510; padding:4px 20px; font-size:12px; font-weight:600; color:white; display:flex; align-items:center; gap:10px; height:26px; }
+    .ticker-lbl { background:white; color:#B85510; padding:1px 7px; border-radius:6px; font-size:10px; font-weight:800; flex-shrink:0; }
+    .ticker-scroll { flex:1; overflow:hidden; white-space:nowrap; }
+    .ticker-txt { display:inline-block; animation:scroll 35s linear infinite; }
+    @keyframes scroll { from{transform:translateX(100%)} to{transform:translateX(-100%)} }
 
     /* LOADING */
-    .loading { position: fixed; inset: 0; background: #0D1B2A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 999; }
-    .spinner { width: 44px; height: 44px; border: 3px solid #1A2E44; border-top-color: #E07020; border-radius: 50%; animation: putar 0.8s linear infinite; }
-    @keyframes putar { to { transform: rotate(360deg); } }
-    .loading-txt { font-size: 13px; color: #607D8B; }
+    .loading { position:fixed; inset:0; background:#0D1B2A; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; }
+    .spinner { width:44px; height:44px; border:3px solid #1A2E44; border-top-color:#E07020; border-radius:50%; animation:putar 0.8s linear infinite; }
+    @keyframes putar { to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
 
 <div class="loading" id="loading">
   <div class="spinner"></div>
-  <div class="loading-txt">Memuat data kelas...</div>
+  <p style="font-size:13px;color:#607D8B">Memuat data kelas...</p>
 </div>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-kiri">
-    <div class="hdr-logo-wrap">
-      <div class="hdr-logo-in">
-        <img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
-      </div>
-    </div>
-    <div>
-      <div class="hdr-nama">SMAN 5 Sarolangun</div>
-      <div class="hdr-sub">Kreatif &amp; Berkarakter</div>
-    </div>
+    <div class="hdr-logo-wrap"><div class="hdr-logo-in"><img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'"></div></div>
+    <div><div class="hdr-nama">SMAN 5 Sarolangun</div><div class="hdr-sub">Kreatif &amp; Berkarakter</div></div>
   </div>
   <div class="hdr-title">Monitor Agenda Kelas Real-time</div>
-  <div class="hdr-kanan">
-    <div class="jam-digital" id="jam">--:--:--</div>
-    <div class="tgl-digital" id="tanggal">--</div>
-  </div>
+  <div><div class="jam-digital" id="jam">--:--:--</div><div class="tgl-digital" id="tanggal">--</div></div>
 </div>
 
-<!-- SUMMARY BAR -->
 <div class="sumbar">
   <div class="sum-item"><div class="sum-dot" style="background:#43A047"></div><span class="sum-lbl">Lengkap</span><span class="sum-val" id="jml-lengkap">0</span></div>
   <div class="sum-div"></div>
@@ -153,387 +135,257 @@
   <div class="sum-div"></div>
   <div class="sum-item"><div class="sum-dot" style="background:#E53935"></div><span class="sum-lbl">Belum</span><span class="sum-val" id="jml-belum">0</span></div>
   <div class="sum-div"></div>
-  <div class="sum-item"><div class="sum-dot" style="background:#546E7A"></div><span class="sum-lbl">Total Kelas</span><span class="sum-val" id="jml-total">0</span></div>
+  <div class="sum-item"><div class="sum-dot" style="background:#546E7A"></div><span class="sum-lbl">Total</span><span class="sum-val" id="jml-total">0</span></div>
   <div class="sum-div"></div>
-  <div class="prog-wrap">
-    <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    <div class="prog-pct" id="prog-pct">0%</div>
-  </div>
+  <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div><div class="prog-pct" id="prog-pct">0%</div></div>
   <div class="hari-chip" id="hari-chip">--</div>
 </div>
 
-<!-- MAIN LAYOUT -->
-<div class="main-layout">
-
-  <!-- KIRI: GRID KELAS -->
-  <div class="panel-kiri" style="display:flex;flex-direction:column;gap:12px;">
-    <div>
-      <div class="sec-lbl">Status Agenda per Kelas</div>
-      <div class="kelas-grid" id="kelas-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:40px;color:#546E7A">Memuat jadwal...</div>
-      </div>
+<div class="main">
+  <div class="panel-kiri">
+    <div class="sec-lbl">Status Agenda per Kelas</div>
+    <div class="kelas-grid" id="kelas-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:30px;color:#546E7A">Memuat...</div>
     </div>
-    <div>
+    <div class="slider-section">
       <div class="sec-lbl" style="margin-bottom:6px;">Kegiatan Sekolah</div>
-      <div class="slider-wrap" style="height:170px;" id="slider-wrap">
+      <div class="slider-outer" id="slider-outer">
         <div class="slider-track" id="slider-track"></div>
       </div>
       <div class="slider-dots" id="slider-dots"></div>
     </div>
   </div>
 
-  <!-- KANAN: DIAGRAM + GURU -->
   <div class="panel-kanan">
     <div>
-      <div class="sec-lbl" style="margin-bottom:10px">Progress per Rombel</div>
+      <div class="sec-lbl" style="margin-bottom:8px">Progress per Rombel</div>
       <div id="bar-chart"></div>
     </div>
     <div class="divider"></div>
     <div>
-      <div class="sec-lbl" style="margin-bottom:8px">Capaian Guru Hari Ini</div>
+      <div class="sec-lbl" style="margin-bottom:7px">Capaian Guru Hari Ini</div>
       <div id="guru-list"></div>
     </div>
   </div>
-
 </div>
 
-<!-- TICKER -->
 <div class="ticker">
   <span class="ticker-lbl">INFO</span>
-  <div class="ticker-scroll"><span class="ticker-txt" id="ticker-txt">Sistem Monitor Agenda Kelas SMAN 5 Sarolangun</span></div>
+  <div class="ticker-scroll"><span class="ticker-txt" id="ticker-txt">Sistem Monitor Agenda Kelas SMAN 5 Sarolangun · Kreatif &amp; Berkarakter</span></div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
+  const db = getFirestore(initializeApp({
     apiKey: "AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
     authDomain: "agedasmanli.firebaseapp.com",
     projectId: "agedasmanli",
     storageBucket: "agedasmanli.firebasestorage.app",
     messagingSenderId: "969562298791",
     appId: "1:969562298791:web:320a29a007c74739217e82"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+  }));
 
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-  // JAM DIGITAL
   function updateJam() {
-    const now = new Date();
-    document.getElementById('jam').textContent =
-      `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    document.getElementById('tanggal').textContent =
-      `${namaHari[now.getDay()]}, ${now.getDate()} ${namaBulan[now.getMonth()]} ${now.getFullYear()}`;
+    const n = new Date();
+    document.getElementById('jam').textContent = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+    document.getElementById('tanggal').textContent = `${namaHari[n.getDay()]}, ${n.getDate()} ${namaBulan[n.getMonth()]} ${n.getFullYear()}`;
   }
-  updateJam();
-  setInterval(updateJam, 1000);
+  updateJam(); setInterval(updateJam, 1000);
 
   const now        = new Date();
-  const hariIni    = 'Senin' ;
+  const hariIni    = namaHari[now.getDay()];
   const tanggalStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
   document.getElementById('hari-chip').textContent = hariIni;
 
-  // CACHE
-  let cacheGuru = {}, allMapel = [];
-
-  async function muatCacheGuru() {
-    const snap = await getDocs(collection(db, 'Data_Guru'));
-    snap.docs.forEach(d => { cacheGuru[d.id] = d.data(); });
-  }
-
-  async function muatMapel() {
-    const snap = await getDocs(collection(db, 'Mata_Pelajaran'));
-    allMapel = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
+  let cacheGuru = {};
 
   async function init() {
-    await muatCacheGuru();
-    await muatMapel();
+    const gSnap = await getDocs(collection(db,'Data_Guru'));
+    gSnap.docs.forEach(d => { cacheGuru[d.id] = d.data(); });
 
-    // Ambil roster hari ini
-    const snapJadwal = await getDocs(query(
-      collection(db, 'Jadwal_Pelajaran'),
-      where('hari', '==', hariIni)
-    ));
-
-    // Kelompokkan per rombel
+    const jSnap = await getDocs(query(collection(db,'Jadwal_Pelajaran'), where('hari','==',hariIni)));
     const rombelMap = {};
-    snapJadwal.docs.forEach(d => {
-      const dd  = d.data();
+    jSnap.docs.forEach(d => {
+      const dd = d.data();
       const rid = dd.id_rombel || dd.nama_kelas || dd.kelas;
-      if (!rombelMap[rid]) {
-        rombelMap[rid] = {
-          id: rid,
-          namaKelas: dd.nama_kelas || dd.kelas || rid,
-          slots: []
-        };
-      }
-      rombelMap[rid].slots.push({ docId: d.id, id_rombel: rid, ...dd });
+      if (!rombelMap[rid]) rombelMap[rid] = { id:rid, namaKelas: dd.nama_kelas||dd.kelas||rid, slots:[] };
+      rombelMap[rid].slots.push({ docId:d.id, id_rombel:rid, ...dd });
     });
-
-    const rombelList = Object.values(rombelMap)
-      .sort((a,b) => a.namaKelas.localeCompare(b.namaKelas));
+    const rombelList = Object.values(rombelMap).sort((a,b) => a.namaKelas.localeCompare(b.namaKelas));
 
     if (!rombelList.length) {
-      document.getElementById('kelas-grid').innerHTML =
-        '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#546E7A">Tidak ada jadwal hari ini</div>';
+      document.getElementById('kelas-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#546E7A">Tidak ada jadwal hari ini</div>';
       document.getElementById('loading').style.display = 'none';
       return;
     }
 
-    // Real-time listener agenda
-    const qAgenda = query(
-      collection(db, 'Agenda_Harian'),
-      where('tanggal', '==', tanggalStr)
-    );
-
-    onSnapshot(qAgenda, (snap) => {
+    onSnapshot(query(collection(db,'Agenda_Harian'), where('tanggal','==',tanggalStr)), snap => {
       const agendaDocs = snap.docs.map(d => d.data());
+      const byId    = new Set(agendaDocs.map(d=>d.id_jadwal).filter(Boolean));
+      const bySlot  = new Set(agendaDocs.filter(d=>d.id_rombel&&d.slot_urutan).map(d=>`${d.id_rombel}_${d.slot_urutan}`));
+      const byKelas = new Set(agendaDocs.filter(d=>d.kelas&&d.mapel).map(d=>`${d.kelas}_${d.mapel}`));
 
-      // Set pencocokan
-      const sudahIsiById    = new Set(agendaDocs.map(d => d.id_jadwal).filter(Boolean));
-      const sudahIsiBySlot  = new Set(agendaDocs.filter(d => d.id_rombel && d.slot_urutan).map(d => `${d.id_rombel}_${d.slot_urutan}`));
-      const sudahIsiByKelas = new Set(agendaDocs.filter(d => d.kelas && d.mapel).map(d => `${d.kelas}_${d.mapel}`));
-
-      function cekTerisi(slot) {
-        return sudahIsiById.has(slot.docId) ||
-               sudahIsiBySlot.has(`${slot.id_rombel}_${slot.slot_urutan}`) ||
-               sudahIsiByKelas.has(`${slot.nama_kelas || slot.kelas}_${slot.nama_mapel || slot.mata_pelajaran}`);
+      function cekTerisi(s) {
+        return byId.has(s.docId) || bySlot.has(`${s.id_rombel}_${s.slot_urutan}`) || byKelas.has(`${s.nama_kelas||s.kelas}_${s.nama_mapel||s.mata_pelajaran}`);
       }
 
-      // Bangun data per rombel
-      const rombelData = rombelList.map(r => {
-        // Mapel unik di kelas ini
-        const mapelUnik = {};
+      const data = rombelList.map(r => {
+        const mapelMap = {};
         r.slots.forEach(s => {
-          const km = s.kode_mapel || s.id_mapel || 'X';
-          if (!mapelUnik[km]) mapelUnik[km] = { kode: km, terisi: false, slots: [] };
-          mapelUnik[km].slots.push(s);
+          const km = s.kode_mapel || s.id_mapel || '?';
+          if (!mapelMap[km]) mapelMap[km] = { kode:km, terisi:false, slots:[] };
+          mapelMap[km].slots.push(s);
         });
-
-        // Tandai mapel yang sudah terisi
-        Object.values(mapelUnik).forEach(m => {
-          m.terisi = m.slots.some(s => cekTerisi(s));
-        });
-
-        const mapelList   = Object.values(mapelUnik);
-        const totalMapel  = mapelList.length;
-        const terisiMapel = mapelList.filter(m => m.terisi).length;
-        const pct         = totalMapel > 0 ? Math.round(terisiMapel / totalMapel * 100) : 0;
-
-        // Guru pertama dari slot
-        const guruId   = r.slots[0]?.id_guru || '';
-        const guruData = cacheGuru[guruId];
-        const guruStr  = guruData ? `${guruData.kode_guru || '??'} · ${guruData.nama_lengkap?.split(',')[0] || ''}` : '—';
-
-        return { ...r, mapelList, totalMapel, terisiMapel, pct, guruId, guruStr };
+        Object.values(mapelMap).forEach(m => { m.terisi = m.slots.some(s => cekTerisi(s)); });
+        const mapelList   = Object.values(mapelMap);
+        const total       = mapelList.length;
+        const terisi      = mapelList.filter(m=>m.terisi).length;
+        const pct         = total>0 ? Math.round(terisi/total*100) : 0;
+        const guruId      = r.slots[0]?.id_guru || '';
+        const g           = cacheGuru[guruId];
+        const guruStr     = g ? `${g.kode_guru||'??'} · ${(g.nama_lengkap||'').split(',')[0]}` : '—';
+        return { ...r, mapelList, total, terisi, pct, guruId, guruStr };
       });
 
-      renderKelasGrid(rombelData);
-      renderBarChart(rombelData);
-      renderGuruList(rombelData, agendaDocs);
-      updateSummary(rombelData);
-      updateTicker(rombelData);
-
+      renderGrid(data);
+      renderBar(data);
+      renderGuru(data, agendaDocs);
+      renderSummary(data);
+      renderTicker(data);
       document.getElementById('loading').style.display = 'none';
     });
   }
 
-  function renderKelasGrid(rombelData) {
-    const grid = document.getElementById('kelas-grid');
-    grid.innerHTML = rombelData.map(r => {
-      const status = r.pct === 100 ? 'sudah' : r.pct > 0 ? 'parsial' : 'belum';
-      const ikon   = r.pct === 100 ? '✅' : r.pct > 0 ? '⚡' : '🔴';
-      const warna  = r.pct === 100 ? '#43A047' : r.pct > 0 ? '#F9A825' : '#E53935';
-
-      const mapelChips = r.mapelList.map(m =>
-        `<span class="mapel-chip ${m.terisi ? 'chip-ok' : 'chip-no'}">${m.kode}</span>`
-      ).join('');
-
-      return `<div class="kartu ${status}">
-        <div class="kartu-top">
-          <div class="kartu-nama">${r.namaKelas}</div>
-          <span class="kartu-ikon">${ikon}</span>
-        </div>
+  function renderGrid(data) {
+    document.getElementById('kelas-grid').innerHTML = data.map(r => {
+      const s = r.pct===100?'sudah':r.pct>0?'parsial':'belum';
+      const ikon = r.pct===100?'✅':r.pct>0?'⚡':'🔴';
+      const w = r.pct===100?'#43A047':r.pct>0?'#F9A825':'#E53935';
+      const chips = r.mapelList.map(m=>`<span class="mapel-chip ${m.terisi?'chip-ok':'chip-no'}">${m.kode}</span>`).join('');
+      return `<div class="kartu ${s}">
+        <div class="kartu-top"><div class="kartu-nama">${r.namaKelas}</div><span class="kartu-ikon">${ikon}</span></div>
         <div class="kartu-guru">${r.guruStr}</div>
-        <div class="mapel-row">${mapelChips}</div>
-        <div class="kartu-progbar"><div class="kartu-progfill" style="width:${r.pct}%;background:${warna}"></div></div>
-        <div class="kartu-bot">
-          <span class="kartu-sesi">${r.terisiMapel}/${r.totalMapel} sesi</span>
-          <span class="kartu-pct" style="color:${warna}">${r.pct}%</span>
-        </div>
+        <div class="mapel-row">${chips}</div>
+        <div class="kartu-progbar"><div class="kartu-progfill" style="width:${r.pct}%;background:${w}"></div></div>
+        <div class="kartu-bot"><span class="kartu-sesi">${r.terisi}/${r.total} sesi</span><span class="kartu-pct" style="color:${w}">${r.pct}%</span></div>
       </div>`;
     }).join('');
   }
 
-  function renderBarChart(rombelData) {
-    const sorted = [...rombelData].sort((a,b) => b.pct - a.pct);
-    const el = document.getElementById('bar-chart');
-    el.innerHTML = sorted.map(r => {
-      const warna = r.pct === 100 ? '#43A047' : r.pct > 0 ? '#F9A825' : '#E53935';
-      const wPct  = r.pct === 100 ? '#81C784' : r.pct > 0 ? '#FFB74D' : '#EF9A9A';
+  function renderBar(data) {
+    const sorted = [...data].sort((a,b)=>b.pct-a.pct);
+    document.getElementById('bar-chart').innerHTML = sorted.map(r => {
+      const w = r.pct===100?'#43A047':r.pct>0?'#F9A825':'#E53935';
+      const wp = r.pct===100?'#81C784':r.pct>0?'#FFB74D':'#EF9A9A';
       return `<div class="bar-item">
         <div class="bar-lbl">${r.namaKelas}</div>
-        <div class="bar-bg">
-          <div class="bar-fill" style="width:${Math.max(r.pct,4)}%;background:${warna}">
-            ${r.pct > 20 ? `<span class="bar-txt">${r.terisiMapel}/${r.totalMapel}</span>` : ''}
-          </div>
-        </div>
-        <div class="bar-pct" style="color:${wPct}">${r.pct}%</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.max(r.pct,4)}%;background:${w}">${r.pct>20?`<span class="bar-txt">${r.terisi}/${r.total}</span>`:''}</div></div>
+        <div class="bar-pct" style="color:${wp}">${r.pct}%</div>
       </div>`;
     }).join('');
   }
 
-  function renderGuruList(rombelData, agendaDocs) {
-    // Rekap per guru
-    const guruRekap = {};
-    rombelData.forEach(r => {
+  function renderGuru(data, agendaDocs) {
+    const rekap = {};
+    data.forEach(r => {
       r.mapelList.forEach(m => {
-        const gid = r.slots.find(s => s.kode_mapel === m.kode || s.id_mapel === m.kode)?.id_guru || r.guruId;
+        const gid = r.slots.find(s=>s.kode_mapel===m.kode||s.id_mapel===m.kode)?.id_guru || r.guruId;
         if (!gid) return;
-        if (!guruRekap[gid]) guruRekap[gid] = { total: 0, terisi: 0 };
-        guruRekap[gid].total++;
-        if (m.terisi) guruRekap[gid].terisi++;
+        if (!rekap[gid]) rekap[gid] = {total:0,terisi:0};
+        rekap[gid].total++;
+        if (m.terisi) rekap[gid].terisi++;
       });
     });
-
-    const el = document.getElementById('guru-list');
-    const entries = Object.entries(guruRekap)
-      .map(([gid, r]) => ({ gid, ...r, pct: Math.round(r.terisi/r.total*100) }))
-      .sort((a,b) => b.pct - a.pct);
-
-    el.innerHTML = entries.map(e => {
-      const g     = cacheGuru[e.gid];
-      const nama  = g?.nama_lengkap?.split(',')[0] || '—';
-      const kode  = g?.kode_guru || '??';
-      const warna = e.pct === 100 ? '#43A047' : e.pct > 0 ? '#F9A825' : '#E53935';
-      const wPct  = e.pct === 100 ? '#81C784' : e.pct > 0 ? '#FFB74D' : '#EF9A9A';
+    const entries = Object.entries(rekap).map(([gid,r])=>({gid,...r,pct:Math.round(r.terisi/r.total*100)})).sort((a,b)=>b.pct-a.pct);
+    document.getElementById('guru-list').innerHTML = entries.map(e => {
+      const g = cacheGuru[e.gid];
+      const nama = (g?.nama_lengkap||'—').split(',')[0];
+      const kode = g?.kode_guru||'??';
+      const w  = e.pct===100?'#43A047':e.pct>0?'#F9A825':'#E53935';
+      const wp = e.pct===100?'#81C784':e.pct>0?'#FFB74D':'#EF9A9A';
       return `<div class="guru-item">
         <div class="guru-kode">${kode}</div>
-        <div class="guru-nama-txt">${nama}</div>
-        <div class="guru-prog"><div class="guru-prog-fill" style="width:${e.pct}%;background:${warna}"></div></div>
-        <div class="guru-pct" style="color:${wPct}">${e.pct}%</div>
+        <div class="guru-nm">${nama}</div>
+        <div class="guru-pb"><div class="guru-pb-fill" style="width:${e.pct}%;background:${w}"></div></div>
+        <div class="guru-pc" style="color:${wp}">${e.pct}%</div>
       </div>`;
     }).join('');
   }
 
-  function updateSummary(rombelData) {
-    const lengkap  = rombelData.filter(r => r.pct === 100).length;
-    const sebagian = rombelData.filter(r => r.pct > 0 && r.pct < 100).length;
-    const belum    = rombelData.filter(r => r.pct === 0).length;
-    const total    = rombelData.length;
-    const pctTotal = total > 0 ? Math.round(rombelData.reduce((s,r) => s+r.pct,0) / total) : 0;
-
-    document.getElementById('jml-lengkap').textContent  = lengkap;
-    document.getElementById('jml-sebagian').textContent = sebagian;
-    document.getElementById('jml-belum').textContent    = belum;
-    document.getElementById('jml-total').textContent    = total;
-    document.getElementById('prog-fill').style.width    = pctTotal + '%';
-    document.getElementById('prog-pct').textContent     = pctTotal + '%';
+  function renderSummary(data) {
+    const L=data.filter(r=>r.pct===100).length, S=data.filter(r=>r.pct>0&&r.pct<100).length, B=data.filter(r=>r.pct===0).length, T=data.length;
+    const P=T>0?Math.round(data.reduce((s,r)=>s+r.pct,0)/T):0;
+    document.getElementById('jml-lengkap').textContent=L;
+    document.getElementById('jml-sebagian').textContent=S;
+    document.getElementById('jml-belum').textContent=B;
+    document.getElementById('jml-total').textContent=T;
+    document.getElementById('prog-fill').style.width=P+'%';
+    document.getElementById('prog-pct').textContent=P+'%';
   }
 
-  function updateTicker(rombelData) {
-    const belumList = rombelData.filter(r => r.pct < 100).map(r => r.namaKelas);
-    const lengkap   = rombelData.filter(r => r.pct === 100).length;
-    let txt = `Rekap ${hariIni}: ${lengkap} dari ${rombelData.length} kelas lengkap`;
-    if (belumList.length) txt += ` · Belum lengkap: ${belumList.join(', ')}`;
-    else txt += ' · Semua kelas sudah mengisi agenda hari ini!';
-    txt += ' · Sistem Monitor Agenda Kelas SMAN 5 Sarolangun · Kreatif & Berkarakter';
-    document.getElementById('ticker-txt').textContent = txt;
+  function renderTicker(data) {
+    const belum = data.filter(r=>r.pct<100).map(r=>r.namaKelas);
+    const L = data.filter(r=>r.pct===100).length;
+    let txt = `Rekap ${hariIni}: ${L} dari ${data.length} kelas lengkap`;
+    if (belum.length) txt+=` · Belum lengkap: ${belum.join(', ')}`;
+    else txt+=' · Semua kelas sudah mengisi agenda!';
+    txt+=' · SMAN 5 Sarolangun · Kreatif & Berkarakter';
+    document.getElementById('ticker-txt').textContent=txt;
   }
 
-  // ── SLIDER FOTO ──
-  const daftarFoto = [
-    { src: '../shared/foto/foto1.jpg', caption: 'Kegiatan Belajar Mengajar' },
-    { src: '../shared/foto/foto2.jpg', caption: 'Upacara Bendera' },
-    { src: '../shared/foto/foto3.jpg', caption: 'Ekstrakurikuler' },
-    { src: '../shared/foto/foto4.jpg', caption: 'Prestasi Siswa' },
-    { src: '../shared/foto/foto5.jpg', caption: 'SMAN 5 Sarolangun' },
+  // SLIDER FOTO
+  const fotos = [
+    { src:'../shared/foto/foto1.jpg', caption:'Kegiatan Belajar Mengajar' },
+    { src:'../shared/foto/foto2.jpg', caption:'Upacara Bendera' },
+    { src:'../shared/foto/foto3.jpg', caption:'Ekstrakurikuler' },
+    { src:'../shared/foto/foto4.jpg', caption:'Prestasi Siswa' },
+    { src:'../shared/foto/foto5.jpg', caption:'SMAN 5 Sarolangun' },
   ];
 
-  let sliderIdx = 0;
-  let sliderTimer = null;
+  let sliderIdx=0, sliderTimer=null;
+  const track = document.getElementById('slider-track');
+  const dotsEl = document.getElementById('slider-dots');
 
-  window.initSlider = function initSlider() {
-    const track = document.getElementById('slider-track');
-    const dots  = document.getElementById('slider-dots');
-    const wrap  = document.getElementById('slider-wrap');
-    if (!track || !daftarFoto.length) return;
+  const valid = [];
+  let checked = 0;
+  fotos.forEach((f,i) => {
+    const img = new Image();
+    img.onload  = () => { valid.push({...f,i}); checked++; if(checked===fotos.length) buildSlider(); };
+    img.onerror = () => { checked++; if(checked===fotos.length) buildSlider(); };
+    img.src = f.src;
+  });
 
-    // Cek foto yang tersedia
-    const fotoTersedia = [];
-    let loaded = 0;
-
-    daftarFoto.forEach((f, i) => {
-      const img = new Image();
-      img.onload = () => {
-        fotoTersedia.push({ ...f, idx: i });
-        loaded++;
-        if (loaded === daftarFoto.length) buildSlider(fotoTersedia.sort((a,b) => a.idx-b.idx));
-      };
-      img.onerror = () => {
-        loaded++;
-        if (loaded === daftarFoto.length) {
-          if (fotoTersedia.length > 0) buildSlider(fotoTersedia.sort((a,b) => a.idx-b.idx));
-          else showPlaceholder();
-        }
-      };
-      img.src = f.src;
-    });
-  }
-
-  window.buildSlider = function buildSlider(fotos) {
-    if (!fotos.length) { showPlaceholder(); return; }
-    const track = document.getElementById('slider-track');
-    const dots  = document.getElementById('slider-dots');
-
-    track.innerHTML = fotos.map(f => `
-      <div class="slider-item">
-        <img class="slider-img" src="${f.src}" alt="${f.caption}" style="height:180px">
-        <div class="slider-overlay"><div class="slider-caption">${f.caption}</div></div>
-      </div>`).join('');
-
-    dots.innerHTML = fotos.map((_,i) =>
-      `<div class="slider-dot ${i===0?'aktif':''}" onclick="goSlide(${i})"></div>`
+  function buildSlider() {
+    if (!valid.length) {
+      document.getElementById('slider-outer').innerHTML =
+        `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#546E7A;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <p style="font-size:12px">Upload foto ke folder shared/foto/</p>
+        </div>`;
+      return;
+    }
+    valid.sort((a,b)=>a.i-b.i);
+    track.innerHTML = valid.map(f =>
+      `<div class="slider-slide">
+        <img src="${f.src}" alt="${f.caption}">
+        <div class="slider-caption-bar"><div class="slider-caption-txt">${f.caption}</div></div>
+      </div>`
     ).join('');
-
-    sliderIdx = 0;
-    clearInterval(sliderTimer);
-    sliderTimer = setInterval(() => {
-      sliderIdx = (sliderIdx + 1) % fotos.length;
-      goSlide(sliderIdx);
-    }, 5000);
+    dotsEl.innerHTML = valid.map((_,i)=>`<div class="dot ${i===0?'on':''}" onclick="goSlide(${i})"></div>`).join('');
+    sliderTimer = setInterval(()=>{ sliderIdx=(sliderIdx+1)%valid.length; goSlide(sliderIdx); }, 5000);
   }
 
-  window.showPlaceholder = function showPlaceholder() {
-    const wrap = document.getElementById('slider-wrap');
-    wrap.innerHTML = `<div class="slider-placeholder" style="height:180px;">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#546E7A" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-        <path d="M21 15l-5-5L5 21"/>
-      </svg>
-      <div>Tambahkan foto ke folder <code style="color:#E07020">shared/foto/</code></div>
-      <div style="font-size:10px">foto1.jpg, foto2.jpg, ... foto5.jpg</div>
-    </div>`;
-    document.getElementById('slider-dots').innerHTML = '';
-  }
-
-  window.goSlide = function(idx) {
-    sliderIdx = idx;
-    const track = document.getElementById('slider-track');
-    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
-    document.querySelectorAll('.slider-dot').forEach((d,i) => {
-      d.classList.toggle('aktif', i === idx);
-    });
+  window.goSlide = function(i) {
+    sliderIdx=i;
+    track.style.transform=`translateX(-${i*100}%)`;
+    document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));
   };
 
-  initSlider();
   init();
 </script>
 </body>
