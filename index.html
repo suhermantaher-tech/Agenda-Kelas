@@ -3,142 +3,804 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Egenda Kelas — SMAN 5 Sarolangun</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#1A3A5C">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CMA — Class Monitoring Application</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --oranye: #E07020;
+      --oranye-gelap: #B85510;
+      --biru: #1A3A5C;
+      --biru-mid: #2563A8;
+      --hijau: #2E7D32;
+      --krem: #FFF8F0;
+      --teks: #0F1923;
+      --muted: #6B7C8D;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--krem);
+      color: var(--teks);
       min-height: 100vh;
-      background: #1A3A5C;
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-      position: relative; overflow: hidden;
+      overflow-x: hidden;
     }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
     body::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 55%;
-      background: linear-gradient(160deg, #B85510, #E07020, #F0A040);
-      border-radius: 0 0 60% 60% / 0 0 40% 40%;
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
     }
-    .kartu {
-      background: white;
-      border-radius: 28px;
-      padding: 0;
-      max-width: 380px; width: 100%;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-      position: relative; z-index: 1;
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      position: relative;
       overflow: hidden;
     }
-    .kartu-header {
-      background: linear-gradient(135deg, #B85510, #E07020);
-      padding: 28px 24px 20px;
-      text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-    }
-    .logo-wrap {
-      width: 82px; height: 82px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #fff5e0, #ffb347, #e07020, #b85510, #2E7D32, #1A3A5C);
-      padding: 3px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      display: inline-block;
-    }
-    .logo-inner {
-      width: 100%; height: 100%;
-      border-radius: 17px;
+
+    /* Latar geometri */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
       overflow: hidden;
-      background: white;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -120px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224,112,32,0.12) 0%, transparent 70%);
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,58,92,0.10) 0%, transparent 70%);
+    }
+    .hero-line {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--biru) 0%, var(--oranye) 50%, var(--hijau) 100%);
+    }
+
+    /* NAVBAR */
+    .nav {
+      position: relative;
+      z-index: 10;
+      padding: 20px 48px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 5px;
+      justify-content: space-between;
     }
-    .kartu-header img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      display: block;
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .kartu-header h1 { font-size: 18px; font-weight: 800; color: white; }
-    .kartu-header p { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 500; }
-    .kartu-body { padding: 24px 20px; }
-    .menu-label { font-size: 11px; font-weight: 700; color: #9E8E7E; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; }
-    .menu { display: flex; flex-direction: column; gap: 10px; }
-    .menu a {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1.5px solid #E8DDD5;
-      text-decoration: none;
-      color: #1A1A1A;
-      font-weight: 700;
-      font-size: 14px;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
-      background: #F7F4F0;
-    }
-    .menu a:hover {
-      border-color: #E07020;
-      background: #FFF0E0;
-      transform: translateX(3px);
-    }
-    .menu a .ico {
+    .nav-logo-img {
       width: 40px; height: 40px;
       border-radius: 10px;
+      background: linear-gradient(135deg, #ffb347, #E07020, #2E7D32, #1A3A5C);
+      padding: 2.5px;
+    }
+    .nav-logo-in {
+      width: 100%; height: 100%;
+      border-radius: 8px;
+      background: white;
+      overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+    }
+    .nav-logo-in img { width: 100%; height: 100%; object-fit: contain; }
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--biru);
+      letter-spacing: -0.5px;
+    }
+    .nav-brand span { color: var(--oranye); }
+    .nav-sekolah {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: -2px;
+    }
+    .nav-badge {
+      background: var(--biru);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* HERO KONTEN */
+    .hero-konten {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 48px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(224,112,32,0.1);
+      border: 1px solid rgba(224,112,32,0.2);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--oranye-gelap);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--oranye);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -3px;
+      color: var(--biru);
+      margin-bottom: 8px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero-title .aksen {
+      color: var(--oranye);
+      position: relative;
+      display: inline-block;
+    }
+    .hero-title .aksen::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      height: 6px;
+      background: var(--oranye);
+      opacity: 0.2;
+      border-radius: 3px;
+    }
+    .hero-subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      font-family: 'DM Mono', monospace;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+    .hero-desc {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+
+    /* STAT ROW */
+    .stat-row {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 48px;
+      animation: fadeUp 0.6s ease 0.35s both;
+    }
+    .stat-item { text-align: center; }
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--biru);
+      line-height: 1;
+    }
+    .stat-val span { color: var(--oranye); }
+    .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; }
+    .stat-div { width: 1px; background: var(--oranye); opacity: 0.2; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SCROLL HINT */
+    .scroll-hint {
+      position: relative;
+      z-index: 10;
+      padding: 20px 48px;
+      display: flex;
+      justify-content: center;
+      animation: fadeUp 0.6s ease 0.7s both;
+    }
+    .scroll-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .arrow-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--oranye));
+      animation: arrowAnim 1.5s ease-in-out infinite;
+    }
+    @keyframes arrowAnim { 0%,100%{opacity:0.3;transform:scaleY(0.7)} 50%{opacity:1;transform:scaleY(1)} }
+
+    /* ── MODUL SECTION ── */
+    .section {
+      padding: 80px 48px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--oranye);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--biru);
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    /* MODUL GRID */
+    .modul-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .modul-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      border: 1.5px solid rgba(26,58,92,0.08);
+      text-decoration: none;
+      color: var(--teks);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      cursor: pointer;
+    }
+    .modul-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--card-color, var(--biru));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .modul-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(26,58,92,0.12); border-color: transparent; }
+    .modul-card:hover::before { transform: scaleX(1); }
+
+    .modul-card.hero-card {
+      grid-column: span 2;
+      grid-row: span 2;
+      background: var(--biru);
+      color: white;
+    }
+    .modul-card.hero-card .modul-nama { color: white; }
+    .modul-card.hero-card .modul-desc { color: rgba(255,255,255,0.6); }
+    .modul-card.hero-card .fitur-chip { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+
+    .modul-ikon-wrap {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      background: var(--ikon-bg, rgba(26,58,92,0.06));
       flex-shrink: 0;
     }
-    .ico-guru  { background: #FFF0E0; }
-    .ico-tv    { background: #E8F5E9; }
-    .ico-admin { background: #E3EEF8; }
-    .ico-keps  { background: #F3E5F5; }
-    .menu a .info { flex: 1; }
-    .menu a .desc { font-size: 11px; color: #9E8E7E; font-weight: 500; margin-top: 2px; }
-    .menu a .arr { color: #E07020; font-size: 16px; }
-    .footer-kartu {
-      text-align: center; padding: 12px;
-      font-size: 11px; color: #B0A090;
-      border-top: 1px solid #F0E8E0;
+    .modul-card.hero-card .modul-ikon-wrap {
+      background: rgba(255,255,255,0.1);
+      width: 64px; height: 64px;
+      font-size: 30px;
+      border-radius: 18px;
+    }
+
+    .modul-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .modul-card.hero-card .modul-tag { color: rgba(255,255,255,0.4); }
+
+    .modul-nama {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--biru);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+    .modul-card.hero-card .modul-nama { font-size: 28px; }
+
+    .modul-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .fitur-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: auto;
+    }
+    .fitur-chip {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(26,58,92,0.06);
+      color: var(--biru);
+    }
+
+    .modul-aksi {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--oranye);
+      margin-top: 8px;
+      transition: gap 0.2s;
+      min-height: 44px;
+    }
+    .modul-card:hover .modul-aksi { gap: 10px; }
+    .modul-card.hero-card .modul-aksi { color: rgba(255,255,255,0.8); }
+
+    .modul-number {
+      position: absolute;
+      top: 20px; right: 24px;
+      font-family: 'Syne', sans-serif;
+      font-size: 64px;
+      font-weight: 800;
+      color: rgba(26,58,92,0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .modul-card.hero-card .modul-number { color: rgba(255,255,255,0.04); font-size: 120px; }
+
+    /* ── FITUR SECTION ── */
+    .fitur-section {
+      background: var(--biru);
+      padding: 80px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .fitur-section::before {
+      content: 'CMA';
+      position: absolute;
+      right: -20px; top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Syne', sans-serif;
+      font-size: 240px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .fitur-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .fitur-section .section-title { color: white; }
+    .fitur-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 40px;
+    }
+    .fitur-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      transition: background 0.2s;
+    }
+    .fitur-item:hover { background: rgba(255,255,255,0.09); }
+    .fitur-ikon { font-size: 28px; margin-bottom: 12px; }
+    .fitur-judul { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .fitur-teks { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: #0A1520;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+    }
+    .footer-brand span { color: var(--oranye); }
+    .footer-sekolah { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+    .footer-copy { font-size: 11px; color: rgba(255,255,255,0.25); font-family: 'DM Mono', monospace; }
+
+    /* TABLET */
+    @media (max-width: 900px) {
+      .nav { padding: 14px 20px; }
+      .hero-konten { padding: 28px 20px; }
+      .section { padding: 48px 20px; }
+      .modul-grid { grid-template-columns: repeat(2,1fr); }
+      .modul-card.hero-card { grid-column: span 2; grid-row: span 1; }
+      .fitur-grid { grid-template-columns: repeat(2,1fr); }
+      .hero-title { letter-spacing: -2px; }
+      .stat-row { gap: 20px; }
+      .fitur-section { padding: 48px 20px; }
+      .footer { flex-direction: column; gap: 14px; text-align: center; padding: 28px 20px; }
+    }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+      .nav { padding: 12px 16px; }
+      .nav-brand { font-size: 15px; }
+      .nav-badge { font-size: 9px; padding: 3px 9px; }
+
+      .hero-konten { padding: 24px 16px; }
+      .hero-eyebrow { font-size: 10px; padding: 4px 12px; }
+      .hero-title { font-size: 56px; letter-spacing: -2px; }
+      .hero-subtitle { font-size: 11px; letter-spacing: 2px; }
+      .hero-desc { font-size: 14px; }
+
+      .stat-row { gap: 14px; }
+      .stat-val { font-size: 24px; }
+      .stat-lbl { font-size: 10px; }
+
+      .section { padding: 40px 16px; }
+      .section-title { font-size: 26px; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+
+      /* Modul: 1 kolom di HP */
+      .modul-grid { grid-template-columns: 1fr; gap: 12px; }
+      .modul-card.hero-card { grid-column: span 1; grid-row: span 1; }
+      .modul-card.hero-card .modul-nama { font-size: 20px; }
+      .modul-card.hero-card .modul-ikon-wrap { width: 48px; height: 48px; font-size: 24px; }
+      .modul-card { padding: 20px; border-radius: 16px; }
+      .modul-number { font-size: 48px; }
+      .modul-card.hero-card .modul-number { font-size: 80px; }
+      .modul-nama { font-size: 16px; }
+      .modul-desc { font-size: 12px; }
+
+      /* Fitur: 2 kolom di HP */
+      .fitur-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .fitur-section { padding: 40px 16px; }
+      .fitur-section::before { display: none; }
+      .fitur-item { padding: 14px; border-radius: 12px; }
+      .fitur-ikon { font-size: 22px; margin-bottom: 8px; }
+      .fitur-judul { font-size: 13px; }
+      .fitur-teks { font-size: 11px; }
+
+      .footer { padding: 24px 16px; gap: 12px; }
+      .footer-brand { font-size: 16px; }
+
+      .scroll-hint { padding: 14px; }
+    }
+
+    /* Sangat kecil */
+    @media (max-width: 360px) {
+      .hero-title { font-size: 44px; }
+      .stat-row { gap: 10px; }
+      .fitur-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="kartu">
-    <div class="kartu-header">
-      <div class="logo-wrap">
-        <div class="logo-inner">
-          <img src="shared/logo.jpg" alt="Logo SMAN 5 Sarolangun" onerror="this.style.display='none'">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+
+  <!-- NAVBAR -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="nav-logo-img">
+        <div class="nav-logo-in">
+          <img src="shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
         </div>
       </div>
-      <h1>Egenda Kelas</h1>
-      <p>SMA Negeri 5 Sarolangun · Kreatif &amp; Berkarakter</p>
-    </div>
-    <div class="kartu-body">
-      <div class="menu-label">Pilih portal sesuai peran</div>
-      <div class="menu">
-        <a href="portal-guru/">
-          <div class="ico ico-guru">👨‍🏫</div>
-          <div class="info"><div>Portal Guru</div><div class="desc">Input agenda harian · Login PIN</div></div>
-          <span class="arr">›</span>
-        </a>
-        <a href="monitor-tv/">
-          <div class="ico ico-tv">📺</div>
-          <div class="info"><div>Monitor Ruang Guru</div><div class="desc">Status kelas real-time</div></div>
-          <span class="arr">›</span>
-        </a>
-        <a href="dashboard-admin/">
-          <div class="ico ico-admin">⚙️</div>
-          <div class="info"><div>Dashboard Admin</div><div class="desc">Laporan &amp; manajemen data</div></div>
-          <span class="arr">›</span>
-        </a>
-        <a href="dashboard-kepsek/">
-          <div class="ico ico-keps">📊</div>
-          <div class="info"><div>Portal Kepala Sekolah</div><div class="desc">Ringkasan eksekutif</div></div>
-          <span class="arr">›</span>
-        </a>
+      <div>
+        <div class="nav-brand"><span>CMA</span> · SMAN 5</div>
+        <div class="nav-sekolah">Sarolangun · Jambi</div>
       </div>
     </div>
-    <div class="footer-kartu">Egenda Kelas © 2025 · SMAN 5 Sarolangun</div>
+    <div class="nav-badge">v2.0 · 2025/2026</div>
+  </nav>
+
+  <!-- HERO KONTEN -->
+  <div class="hero-konten">
+    <div class="hero-eyebrow">Class Monitoring Application</div>
+    <h1 class="hero-title">
+      <span class="aksen">CMA</span>
+    </h1>
+    <div class="hero-subtitle">SMAN 5 Sarolangun · Sistem Informasi KBM</div>
+    <p class="hero-desc">
+      Platform monitoring kegiatan belajar mengajar berbasis web — real-time, terintegrasi, dan mudah digunakan oleh semua pemangku kepentingan sekolah.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="stat-val">18<span>+</span></div>
+        <div class="stat-lbl">Guru Aktif</div>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat-item">
+        <div class="stat-val">8</div>
+        <div class="stat-lbl">Rombel</div>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat-item">
+        <div class="stat-val">5</div>
+        <div class="stat-lbl">Modul</div>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat-item">
+        <div class="stat-val"><span>∞</span></div>
+        <div class="stat-lbl">Real-time</div>
+      </div>
+    </div>
   </div>
+
+  <div class="scroll-hint">
+    <a href="#modul" class="scroll-arrow">
+      <span>Pilih Portal</span>
+      <div class="arrow-line"></div>
+    </a>
+  </div>
+</section>
+
+<!-- MODUL GRID -->
+<section id="modul">
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Portal Akses</div>
+        <div class="section-title">Pilih modul<br>yang Anda butuhkan</div>
+      </div>
+    </div>
+
+    <div class="modul-grid">
+
+      <!-- MONITOR TV — HERO CARD -->
+      <a href="monitor-tv/index.html" class="modul-card hero-card" style="--card-color:var(--oranye)">
+        <div class="modul-number">01</div>
+        <div class="modul-ikon-wrap">🖥️</div>
+        <div class="modul-tag">Layar Ruang Guru</div>
+        <div class="modul-nama">Monitor Agenda Kelas Real-Time</div>
+        <div class="modul-desc">Pantau status pengisian agenda seluruh kelas secara langsung. Dilengkapi bell otomatis, slider foto kegiatan, progress per rombel, dan capaian guru hari ini.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">🔔 Bell Otomatis</span>
+          <span class="fitur-chip">📊 Progress Rombel</span>
+          <span class="fitur-chip">👥 Kehadiran Siswa</span>
+          <span class="fitur-chip">📸 Slider Foto</span>
+          <span class="fitur-chip">⚡ Real-time</span>
+        </div>
+        <div class="modul-aksi">Buka Monitor →</div>
+      </a>
+
+      <!-- PORTAL GURU -->
+      <a href="portal-guru/index.html" class="modul-card" style="--card-color:#2563A8;--ikon-bg:rgba(37,99,168,0.08)">
+        <div class="modul-number">02</div>
+        <div class="modul-ikon-wrap">👨‍🏫</div>
+        <div class="modul-tag">Akses Guru</div>
+        <div class="modul-nama">Portal Guru</div>
+        <div class="modul-desc">Login PIN, isi agenda harian, lihat roster jadwal, dan pantau kehadiran siswa per kelas.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">🔐 Login PIN</span>
+          <span class="fitur-chip">📋 Isi Agenda</span>
+          <span class="fitur-chip">🗓 Roster</span>
+          <span class="fitur-chip">⏰ Notifikasi Jam</span>
+        </div>
+        <div class="modul-aksi">Masuk Portal →</div>
+      </a>
+
+      <!-- PRESENSI QR -->
+      <a href="presensi/index.html" class="modul-card" style="--card-color:var(--hijau);--ikon-bg:rgba(46,125,50,0.08)">
+        <div class="modul-number">03</div>
+        <div class="modul-ikon-wrap">📷</div>
+        <div class="modul-tag">Pintu Gerbang</div>
+        <div class="modul-nama">Presensi QR Siswa</div>
+        <div class="modul-desc">Scan QR Code kartu siswa untuk presensi masuk pagi. Data langsung tersimpan dan terhubung ke semua modul.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">📱 Scan QR</span>
+          <span class="fitur-chip">⚡ Instan</span>
+          <span class="fitur-chip">📊 Log Harian</span>
+        </div>
+        <div class="modul-aksi">Buka Scanner →</div>
+      </a>
+
+      <!-- DASHBOARD KEPSEK -->
+      <a href="dashboard-kepsek/index.html" class="modul-card" style="--card-color:#7B1FA2;--ikon-bg:rgba(123,31,162,0.07)">
+        <div class="modul-number">04</div>
+        <div class="modul-ikon-wrap">👔</div>
+        <div class="modul-tag">Kepala Sekolah</div>
+        <div class="modul-nama">Dashboard Kepsek</div>
+        <div class="modul-desc">Monitoring & evaluasi KBM komprehensif — realisasi JP, scorecard guru, tren mingguan, dan ekspor laporan.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">📈 Tren</span>
+          <span class="fitur-chip">🏆 Scorecard</span>
+          <span class="fitur-chip">📊 Ekspor</span>
+        </div>
+        <div class="modul-aksi">Buka Dashboard →</div>
+      </a>
+
+      <!-- DASHBOARD ADMIN -->
+      <a href="dashboard-admin/index.html" class="modul-card" style="--card-color:var(--oranye-gelap);--ikon-bg:rgba(184,85,16,0.08)">
+        <div class="modul-number">05</div>
+        <div class="modul-ikon-wrap">⚙️</div>
+        <div class="modul-tag">Administrator</div>
+        <div class="modul-nama">Dashboard Admin</div>
+        <div class="modul-desc">Kelola data guru, mata pelajaran, rombel, roster visual, jam baku, dan kalender akademik.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">📋 Roster Visual</span>
+          <span class="fitur-chip">👥 Data Guru</span>
+          <span class="fitur-chip">📅 Kalender</span>
+        </div>
+        <div class="modul-aksi">Buka Admin →</div>
+      </a>
+
+      <!-- REKAP PRESENSI -->
+      <a href="presensi/rekap.html" class="modul-card" style="--card-color:#00838F;--ikon-bg:rgba(0,131,143,0.07)">
+        <div class="modul-number">06</div>
+        <div class="modul-ikon-wrap">📊</div>
+        <div class="modul-tag">Laporan Presensi</div>
+        <div class="modul-nama">Rekap Kehadiran</div>
+        <div class="modul-desc">Rekap kehadiran siswa per hari, per kelas, per siswa. Filter periode dan ekspor ke Excel atau cetak PDF.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">📅 Per Hari</span>
+          <span class="fitur-chip">👤 Per Siswa</span>
+          <span class="fitur-chip">📥 Excel/PDF</span>
+        </div>
+        <div class="modul-aksi">Lihat Rekap →</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- FITUR UNGGULAN -->
+<section class="fitur-section">
+  <div class="fitur-inner">
+    <div class="section-label" style="color:rgba(255,255,255,0.4)">Keunggulan CMA</div>
+    <div class="section-title">Dirancang untuk<br>kebutuhan nyata sekolah</div>
+
+    <div class="fitur-grid">
+      <div class="fitur-item">
+        <div class="fitur-ikon">⚡</div>
+        <div class="fitur-judul">Real-Time Firebase</div>
+        <div class="fitur-teks">Data agenda, presensi, dan monitoring diperbarui instan tanpa perlu refresh halaman.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">📱</div>
+        <div class="fitur-judul">Tanpa Instalasi APK</div>
+        <div class="fitur-teks">Cukup buka browser di HP, tablet, atau layar TV. Tidak perlu install aplikasi apapun.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">🔔</div>
+        <div class="fitur-judul">Bell Otomatis</div>
+        <div class="fitur-teks">8 jenis suara bell berbunyi otomatis sesuai jadwal jam baku — mulai PBM, pergantian jam, hingga pulang.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">📷</div>
+        <div class="fitur-judul">Presensi QR Code</div>
+        <div class="fitur-teks">Siswa scan kartu QR saat masuk pagi. Data hadir otomatis terisi di form agenda guru.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">🗓</div>
+        <div class="fitur-judul">Roster Visual</div>
+        <div class="fitur-teks">Susun jadwal pelajaran dengan grid visual seperti aSc. Validasi bentrok guru otomatis.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">📊</div>
+        <div class="fitur-judul">Laporan Lengkap</div>
+        <div class="fitur-teks">Ekspor laporan harian, bulanan, dan semester ke Excel atau PDF langsung dari browser.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">👔</div>
+        <div class="fitur-judul">Monev Kepsek</div>
+        <div class="fitur-teks">Dashboard kepala sekolah dengan scorecard guru, tren kepatuhan, dan alert kelas kosong.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">🔒</div>
+        <div class="fitur-judul">Akses Terpisah</div>
+        <div class="fitur-teks">Guru login PIN, admin login email Firebase, kepsek login email tersendiri. Data aman dan terstruktur.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand"><span>CMA</span> · Class Monitoring Application</div>
+    <div class="footer-sekolah">SMAN 5 Sarolangun · Kabupaten Sarolangun · Provinsi Jambi</div>
+  </div>
+  <div class="footer-copy">v2.0 · T.A. 2025/2026 · Firebase + GitHub Pages</div>
+</footer>
+
+<script>
+  // Animasi kartu saat scroll
+  const cards = document.querySelectorAll('.modul-card, .fitur-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.animation = `fadeUp 0.5s ease ${i * 0.05}s both`;
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(c => { c.style.opacity = '0'; observer.observe(c); });
+</script>
 </body>
 </html>
