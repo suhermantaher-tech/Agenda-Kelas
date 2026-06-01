@@ -11,14 +11,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --oranye: #E07020;
-      --oranye-gelap: #B85510;
-      --biru: #1A3A5C;
-      --biru-mid: #2563A8;
+      --oranye: #D4601A;
+      --oranye-gelap: #B34D10;
+      --oranye-terang: #F07828;
+      --oranye-muda: #FEF0E6;
+      --biru: #1A3A6E;
+      --biru-mid: #1E4D9A;
       --hijau: #2E7D32;
-      --krem: #FFF8F0;
-      --teks: #0F1923;
-      --muted: #6B7C8D;
+      --hijau-mid: #388E3C;
+      --krem: #FEF6EF;
+      --teks: #1A1A1A;
+      --muted: #7A6258;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,23 +66,23 @@
       content: '';
       position: absolute;
       top: -120px; right: -120px;
-      width: 600px; height: 600px;
+      width: 700px; height: 700px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(224,112,32,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(212,96,26,0.14) 0%, rgba(240,120,40,0.06) 50%, transparent 70%);
     }
     .hero-bg::after {
       content: '';
       position: absolute;
       bottom: -80px; left: -80px;
-      width: 400px; height: 400px;
+      width: 500px; height: 500px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(26,58,92,0.10) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(46,125,50,0.10) 0%, transparent 70%);
     }
     .hero-line {
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--biru) 0%, var(--oranye) 50%, var(--hijau) 100%);
+      height: 5px;
+      background: linear-gradient(90deg, var(--oranye-gelap) 0%, var(--oranye) 30%, var(--oranye-terang) 50%, var(--hijau) 75%, var(--biru) 100%);
     }
 
     /* NAVBAR */
@@ -114,10 +117,10 @@
       font-family: 'Syne', sans-serif;
       font-size: 18px;
       font-weight: 800;
-      color: var(--biru);
+      color: var(--oranye);
       letter-spacing: -0.5px;
     }
-    .nav-brand span { color: var(--oranye); }
+    .nav-brand span { color: var(--biru); }
     .nav-sekolah {
       font-size: 11px;
       color: var(--muted);
@@ -125,7 +128,7 @@
       margin-top: -2px;
     }
     .nav-badge {
-      background: var(--biru);
+      background: var(--oranye);
       color: white;
       font-size: 10px;
       font-weight: 700;
@@ -151,13 +154,13 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(224,112,32,0.1);
-      border: 1px solid rgba(224,112,32,0.2);
+      background: var(--oranye);
+      border: 1px solid var(--oranye-gelap);
       border-radius: 20px;
-      padding: 5px 14px;
+      padding: 6px 16px;
       font-size: 11px;
       font-weight: 700;
-      color: var(--oranye-gelap);
+      color: white;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       margin-bottom: 24px;
@@ -167,7 +170,7 @@
       content: '';
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: var(--oranye);
+      background: white;
       animation: pulse 2s ease-in-out infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
@@ -178,7 +181,7 @@
       font-weight: 800;
       line-height: 1;
       letter-spacing: -3px;
-      color: var(--biru);
+      color: var(--oranye);
       margin-bottom: 8px;
       animation: fadeUp 0.6s ease 0.1s both;
     }
@@ -191,9 +194,9 @@
       content: '';
       position: absolute;
       bottom: 4px; left: 0; right: 0;
-      height: 6px;
-      background: var(--oranye);
-      opacity: 0.2;
+      height: 8px;
+      background: var(--hijau);
+      opacity: 0.3;
       border-radius: 3px;
     }
     .hero-subtitle {
@@ -227,10 +230,10 @@
       font-family: 'Syne', sans-serif;
       font-size: 32px;
       font-weight: 800;
-      color: var(--biru);
+      color: var(--oranye);
       line-height: 1;
     }
-    .stat-val span { color: var(--oranye); }
+    .stat-val span { color: var(--hijau); }
     .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; }
     .stat-div { width: 1px; background: var(--oranye); opacity: 0.2; }
 
@@ -292,7 +295,7 @@
       font-family: 'Syne', sans-serif;
       font-size: 36px;
       font-weight: 800;
-      color: var(--biru);
+      color: var(--oranye);
       letter-spacing: -1px;
       line-height: 1.1;
     }
@@ -370,7 +373,7 @@
       font-family: 'Syne', sans-serif;
       font-size: 18px;
       font-weight: 800;
-      color: var(--biru);
+      color: var(--oranye-gelap);
       line-height: 1.2;
       letter-spacing: -0.3px;
     }
@@ -426,7 +429,7 @@
 
     /* ── FITUR SECTION ── */
     .fitur-section {
-      background: var(--biru);
+      background: linear-gradient(135deg, var(--oranye-gelap) 0%, var(--oranye) 50%, var(--oranye-terang) 100%);
       padding: 80px 48px;
       position: relative;
       overflow: hidden;
@@ -471,7 +474,7 @@
 
     /* ── FOOTER ── */
     .footer {
-      background: #0A1520;
+      background: var(--oranye-gelap);
       padding: 40px 48px;
       display: flex;
       align-items: center;
@@ -483,7 +486,7 @@
       font-weight: 800;
       color: white;
     }
-    .footer-brand span { color: var(--oranye); }
+    .footer-brand span { color: #FFD09A; }
     .footer-sekolah { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 3px; }
     .footer-copy { font-size: 11px; color: rgba(255,255,255,0.25); font-family: 'DM Mono', monospace; }
 
@@ -650,7 +653,7 @@
       </a>
 
       <!-- PORTAL GURU -->
-      <a href="portal-guru/index.html" class="modul-card" style="--card-color:#2563A8;--ikon-bg:rgba(37,99,168,0.08)">
+      <a href="portal-guru/index.html" class="modul-card" style="--card-color:#1A3A6E;--ikon-bg:rgba(26,58,110,0.07)">
         <div class="modul-number">02</div>
         <div class="modul-ikon-wrap">👨‍🏫</div>
         <div class="modul-tag">Akses Guru</div>
@@ -666,7 +669,7 @@
       </a>
 
       <!-- PRESENSI QR -->
-      <a href="presensi/index.html" class="modul-card" style="--card-color:var(--hijau);--ikon-bg:rgba(46,125,50,0.08)">
+      <a href="presensi/index.html" class="modul-card" style="--card-color:#2E7D32;--ikon-bg:rgba(46,125,50,0.07)">
         <div class="modul-number">03</div>
         <div class="modul-ikon-wrap">📷</div>
         <div class="modul-tag">Pintu Gerbang</div>
