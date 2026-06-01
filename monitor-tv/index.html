@@ -145,8 +145,24 @@
     <div class="logo-box"><div class="logo-in"><img src="../shared/logo.jpg" alt="" onerror="this.style.display='none'"></div></div>
     <div><div class="hdr-nama">SMAN 5 Sarolangun</div><div class="hdr-sub">Kreatif &amp; Berkarakter</div></div>
   </div>
-  <div class="hdr-mid">Monitor Agenda Kelas Real-time</div>
+  <div class="hdr-mid" ondblclick="toggleBellTest()" style="cursor:default;" title="Double-click untuk test bell">Monitor Agenda Kelas Real-time</div>
   <div><div class="jam" id="jam">--:--:--</div><div class="tgl" id="tgl">--</div></div>
+</div>
+
+<!-- TEST BELL PANEL (double-click header untuk tampilkan) -->
+<div id="bell-test-panel" style="display:none;position:fixed;top:56px;right:10px;background:#111E30;border:1px solid #1A2E44;border-radius:12px;padding:12px;z-index:9997;display:none;">
+  <div style="font-size:11px;color:#546E7A;margin-bottom:8px;font-weight:700;">🔔 TEST BELL</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+    <button onclick="bunyikanBell('mulai')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Mulai PBM</button>
+    <button onclick="bunyikanBell('ganti')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Ganti Jam</button>
+    <button onclick="bunyikanBell('istirahat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Istirahat</button>
+    <button onclick="bunyikanBell('masuk')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Masuk</button>
+    <button onclick="bunyikanBell('sholat')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Sholat</button>
+    <button onclick="bunyikanBell('pulang')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Pulang</button>
+    <button onclick="bunyikanBell('apel')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Apel</button>
+    <button onclick="bunyikanBell('senam')" style="background:#1A3A5C;color:#90CAF9;border:none;border-radius:7px;padding:5px 8px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">▶ Senam</button>
+  </div>
+  <button onclick="document.getElementById('bell-test-panel').style.display='none'" style="width:100%;margin-top:8px;background:transparent;border:1px solid #1A2E44;color:#546E7A;border-radius:7px;padding:4px;font-size:10px;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;">Tutup</button>
 </div>
 
 <div class="sumbar">
@@ -476,6 +492,11 @@ function initSlider(){
     dots.innerHTML=valid.map((_,i)=>`<div class="dot ${i===0?'on':''}" onclick="go(${i})"></div>`).join('');
     setInterval(()=>{idx=(idx+1)%valid.length;go(idx);},5000);
   }
+  window.bunyikanBell = bunyikanBell;
+  window.toggleBellTest = function() {
+    const p = document.getElementById('bell-test-panel');
+    p.style.display = p.style.display === 'none' || !p.style.display ? 'block' : 'none';
+  };
   window.go=function(i){idx=i;document.getElementById('slider-track').style.transform=`translateX(-${i*100}%)`;document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));};
 }
 
