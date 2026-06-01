@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap Presensi — SMAN 5 Sarolangun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root{--oranye:#E07020;--oranye-gelap:#B85510;--oranye-terang:#FFF3E0;--biru-tua:#1A3A5C;--biru-muda:#E3EEF8;--hijau:#2E7D32;--hijau-muda:#E8F5E9;--merah:#C62828;--merah-muda:#FFEBEE;--kuning:#F57F17;--kuning-muda:#FFF8E1;--abu:#78909C;--border:#E0E0E0;--teks:#1A1A2E;--radius:12px;--radius-sm:8px;--shadow:0 2px 8px rgba(0,0,0,0.07)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--teks);min-height:100vh}
+
+    /* HEADER */
+    .hdr{background:var(--biru-tua);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--oranye)}
+    .hdr-kiri{display:flex;align-items:center;gap:12px}
+    .logo-box{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#ffb347,#E07020,#2E7D32);padding:2px;flex-shrink:0}
+    .logo-in{width:100%;height:100%;border-radius:7px;background:white;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .logo-in img{width:100%;height:100%;object-fit:contain}
+    .hdr-nama{font-size:14px;font-weight:700;color:white}
+    .hdr-sub{font-size:10px;color:rgba(255,255,255,0.45)}
+    .hdr-nav{display:flex;gap:8px}
+    .hdr-nav a{color:rgba(255,255,255,0.55);font-size:12px;text-decoration:none;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-weight:600;transition:all 0.15s}
+    .hdr-nav a:hover,.hdr-nav a.aktif{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
+
+    /* MAIN */
+    .main{max-width:1300px;margin:0 auto;padding:20px}
+    .kartu{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:18px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
+    .section-judul{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+    /* FILTER BAR */
+    .filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .filter-grp{display:flex;flex-direction:column;gap:3px}
+    .filter-lbl{font-size:10px;font-weight:700;color:var(--abu);text-transform:uppercase;letter-spacing:0.5px}
+    .filter-inp{padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--teks);outline:none;transition:border-color 0.2s;background:white}
+    .filter-inp:focus{border-color:var(--oranye)}
+    .btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;border:1px solid var(--border);background:white;color:var(--teks);display:inline-flex;align-items:center;gap:5px;transition:all 0.15s;white-space:nowrap}
+    .btn:hover{background:#F5F5F5}
+    .btn.oranye{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
+    .btn.oranye:hover{background:var(--oranye-gelap)}
+    .btn.hijau{background:var(--hijau);border-color:#1B5E20;color:white}
+    .btn.biru{background:var(--biru-tua);border-color:#0D2137;color:white}
+
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+    .kpi{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .kpi.biru::before{background:var(--biru-tua)}
+    .kpi.hijau::before{background:var(--hijau)}
+    .kpi.merah::before{background:var(--merah)}
+    .kpi.kuning::before{background:var(--kuning)}
+    .kpi.oranye::before{background:var(--oranye)}
+    .kpi-val{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--teks)}
+    .kpi-lbl{font-size:11px;color:var(--abu);margin-top:3px;font-weight:500}
+
+    /* TABS */
+    .tabs{display:flex;gap:4px;margin-bottom:0;border-bottom:2px solid var(--border);padding-bottom:0}
+    .tab{padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--abu);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.15s}
+    .tab.aktif{color:var(--oranye);border-bottom-color:var(--oranye)}
+    .tab-konten{display:none;padding-top:16px}
+    .tab-konten.aktif{display:block}
+
+    /* TABEL */
+    .tbl-wrap{overflow-x:auto}
+    table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+    table.tbl th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--abu);border-bottom:1.5px solid var(--border);text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap}
+    table.tbl td{padding:8px 12px;border-bottom:0.5px solid var(--border);color:var(--teks);vertical-align:middle}
+    table.tbl tr:hover td{background:#F8F9FA}
+    table.tbl tr:last-child td{border-bottom:none}
+    .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block}
+    .badge-h{background:var(--hijau-muda);color:var(--hijau)}
+    .badge-a{background:var(--merah-muda);color:var(--merah)}
+    .badge-i{background:var(--biru-muda);color:var(--biru-tua)}
+    .badge-s{background:var(--kuning-muda);color:var(--kuning)}
+    .pb-wrap{height:5px;background:var(--border);border-radius:3px;overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-right:4px}
+    .pb-fill{height:100%;border-radius:3px}
+
+    /* PRINT STYLES */
+    @media print{
+      .no-print{display:none!important}
+      body{background:white;font-size:11px}
+      .main{padding:0;max-width:100%}
+      .kartu{box-shadow:none;border:none;padding:0}
+      .kpi-grid{grid-template-columns:repeat(5,1fr)}
+      .hdr{background:none;border:none;padding:0;margin-bottom:12px}
+      .hdr-nama{color:black;font-size:16px}
+      .hdr-sub{color:#666}
+      .hdr-nav{display:none}
+      table.tbl th{background:#F5F5F5}
+      .print-judul{display:block!important}
+    }
+    .print-judul{display:none;font-size:14px;font-weight:700;text-align:center;margin-bottom:8px}
+
+    /* REKAP HARIAN VISUAL */
+    .rekap-harian-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+    .rekap-kelas-card{background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--shadow)}
+    .rkc-nama{font-size:14px;font-weight:800;color:var(--teks);margin-bottom:6px}
+    .rkc-stat{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+    .rkc-item{background:var(--abu-bg,#F5F5F5);border-radius:5px;padding:5px 8px;text-align:center}
+    .rkc-val{font-size:16px;font-weight:800;font-family:'DM Mono',monospace}
+    .rkc-lbl{font-size:9px;color:var(--abu);font-weight:600}
+    .rkc-pb{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+    .rkc-pbf{height:100%;border-radius:2px}
+    .rkc-pct{font-size:11px;font-weight:700;margin-top:3px}
+
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--biru-tua);color:white;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="hdr no-print">
+  <div class="hdr-kiri">
+    <div class="logo-box"><div class="logo-in"><img src="../shared/logo.jpg" alt="" onerror="this.style.display='none'"></div></div>
+    <div><div class="hdr-nama">SMAN 5 Sarolangun — Rekap Presensi</div><div class="hdr-sub">Manajemen data kehadiran siswa</div></div>
+  </div>
+  <div class="hdr-nav">
+    <a href="index.html">📷 Scan Presensi</a>
+    <a href="kelola-siswa.html">👥 Kelola Siswa</a>
+    <a href="rekap.html" class="aktif">📊 Rekap</a>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- FILTER -->
+  <div class="kartu no-print">
+    <div class="section-judul">🔍 Filter & Tampilkan Data</div>
+    <div class="filter-bar">
+      <div class="filter-grp">
+        <div class="filter-lbl">Dari Tanggal</div>
+        <input type="date" class="filter-inp" id="f-dari" onchange="muatData()">
+      </div>
+      <div class="filter-grp">
+        <div class="filter-lbl">Sampai Tanggal</div>
+        <input type="date" class="filter-inp" id="f-sampai" onchange="muatData()">
+      </div>
+      <div class="filter-grp">
+        <div class="filter-lbl">Kelas</div>
+        <select class="filter-inp" id="f-kelas" onchange="muatData()">
+          <option value="">Semua Kelas</option>
+        </select>
+      </div>
+      <div class="filter-grp">
+        <div class="filter-lbl">Cari Siswa</div>
+        <input type="text" class="filter-inp" id="f-cari" placeholder="Nama / NIS..." oninput="applyFilter()" style="min-width:180px">
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <button class="btn oranye" onclick="muatData()">🔄 Muat Data</button>
+        <button class="btn hijau" onclick="eksporExcel()">📊 Excel</button>
+        <button class="btn biru" onclick="cetakLaporan()">🖨️ Cetak / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi biru"><div class="kpi-val" id="k-total-siswa">0</div><div class="kpi-lbl">Total Siswa Terdaftar</div></div>
+    <div class="kpi hijau"><div class="kpi-val" id="k-total-hadir">0</div><div class="kpi-lbl">Total Scan Hadir</div></div>
+    <div class="kpi oranye"><div class="kpi-val" id="k-hari">0</div><div class="kpi-lbl">Hari Sekolah</div></div>
+    <div class="kpi kuning"><div class="kpi-val" id="k-rata">0%</div><div class="kpi-lbl">Rata-rata Kehadiran</div></div>
+    <div class="kpi merah"><div class="kpi-val" id="k-tdk-hadir">0</div><div class="kpi-lbl">Tidak Hadir (kumulatif)</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="kartu">
+    <div class="tabs no-print">
+      <button class="tab aktif" onclick="gantiTab('harian',this)">📅 Per Hari</button>
+      <button class="tab" onclick="gantiTab('siswa',this)">👤 Per Siswa</button>
+      <button class="tab" onclick="gantiTab('kelas',this)">🏫 Per Kelas</button>
+      <button class="tab" onclick="gantiTab('detail',this)">📋 Detail Lengkap</button>
+    </div>
+
+    <!-- TAB: PER HARI -->
+    <div class="tab-konten aktif" id="tab-harian">
+      <div class="print-judul" id="pj-harian">Rekap Presensi Harian — SMAN 5 Sarolangun</div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Tanggal</th><th>Hari</th><th>Total Siswa</th><th>Hadir</th><th>Tidak Hadir</th><th>% Kehadiran</th><th>Per Kelas</th></tr></thead>
+          <tbody id="tbody-harian"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--abu)">Pilih periode lalu klik Muat Data</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: PER SISWA -->
+    <div class="tab-konten" id="tab-siswa">
+      <div class="print-judul">Rekap Kehadiran per Siswa — SMAN 5 Sarolangun</div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Hadir</th><th>Tidak Hadir</th><th>% Kehadiran</th><th>Status</th></tr></thead>
+          <tbody id="tbody-siswa"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--abu)">Pilih periode lalu klik Muat Data</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: PER KELAS -->
+    <div class="tab-konten" id="tab-kelas">
+      <div class="print-judul">Rekap Kehadiran per Kelas — SMAN 5 Sarolangun</div>
+      <div id="rekap-kelas-wrap" class="rekap-harian-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--abu)">Pilih periode lalu klik Muat Data</div>
+      </div>
+    </div>
+
+    <!-- TAB: DETAIL -->
+    <div class="tab-konten" id="tab-detail">
+      <div class="print-judul">Detail Presensi Lengkap — SMAN 5 Sarolangun</div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Tanggal</th><th>Jam Masuk</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Status</th></tr></thead>
+          <tbody id="tbody-detail"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--abu)">Pilih periode lalu klik Muat Data</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const db = getFirestore(initializeApp({
+  apiKey:"AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+  authDomain:"agedasmanli.firebaseapp.com", projectId:"agedasmanli",
+  storageBucket:"agedasmanli.firebasestorage.app",
+  messagingSenderId:"969562298791",
+  appId:"1:969562298791:web:320a29a007c74739217e82"
+}));
+
+const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function pad(v){return String(v).padStart(2,'0')}
+function fmtTgl(s){const d=new Date(s);return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3000)}
+
+// Set default tanggal = minggu ini
+const now=new Date();
+const hari=now.getDay()||7;
+const senin=new Date(now); senin.setDate(now.getDate()-hari+1);
+const minggu=new Date(senin); minggu.setDate(senin.getDate()+6);
+document.getElementById('f-dari').value=`${senin.getFullYear()}-${pad(senin.getMonth()+1)}-${pad(senin.getDate())}`;
+document.getElementById('f-sampai').value=`${minggu.getFullYear()}-${pad(minggu.getMonth()+1)}-${pad(minggu.getDate())}`;
+
+let allSiswa=[], allPresensi=[], filteredPresensi=[];
+
+// Muat data siswa
+async function muatSiswa(){
+  const snap=await getDocs(collection(db,'Data_Siswa'));
+  allSiswa=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Isi filter kelas
+  const kelas=[...new Set(allSiswa.map(s=>s.kelas||'').filter(Boolean))].sort();
+  const sel=document.getElementById('f-kelas');
+  sel.innerHTML='<option value="">Semua Kelas</option>'+kelas.map(k=>`<option>${k}</option>`).join('');
+  document.getElementById('k-total-siswa').textContent=allSiswa.length;
+}
+
+window.muatData=async function(){
+  const dari   = document.getElementById('f-dari').value;
+  const sampai = document.getElementById('f-sampai').value;
+  if(!dari||!sampai){toast('⚠ Pilih periode tanggal dulu');return;}
+
+  toast('⏳ Memuat data...');
+  const snap=await getDocs(query(
+    collection(db,'Presensi_Harian'),
+    where('tanggal','>=',dari),
+    where('tanggal','<=',sampai)
+  ));
+  allPresensi=snap.docs.map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.jam_masuk||'').localeCompare(b.jam_masuk||''));
+  applyFilter();
+  toast(`✅ ${allPresensi.length} data presensi dimuat`);
+};
+
+window.applyFilter=function(){
+  const kelas=document.getElementById('f-kelas').value;
+  const cari =(document.getElementById('f-cari').value||'').toLowerCase();
+  filteredPresensi=allPresensi.filter(p=>{
+    if(kelas&&p.kelas!==kelas)return false;
+    if(cari&&!(p.nama||'').toLowerCase().includes(cari)&&!(p.nis||'').includes(cari))return false;
+    return true;
+  });
+  hitungKPI();
+  renderSemua();
+};
+
+function hitungKPI(){
+  const dari  =document.getElementById('f-dari').value;
+  const sampai=document.getElementById('f-sampai').value;
+  // Hitung hari sekolah (Senin-Sabtu) dalam rentang
+  let hariSekolah=0;
+  if(dari&&sampai){
+    const d=new Date(dari), s=new Date(sampai);
+    for(let t=new Date(d);t<=s;t.setDate(t.getDate()+1)){
+      if(t.getDay()!==0)hariSekolah++;
+    }
+  }
+  const totalHadir=filteredPresensi.length;
+  const kelasFilter=document.getElementById('f-kelas').value;
+  const siswaFilter=kelasFilter?allSiswa.filter(s=>s.kelas===kelasFilter):allSiswa;
+  const totalTdk=Math.max(0,(siswaFilter.length*hariSekolah)-totalHadir);
+  const rata=siswaFilter.length&&hariSekolah?Math.round(totalHadir/(siswaFilter.length*hariSekolah)*100):0;
+
+  document.getElementById('k-total-hadir').textContent=totalHadir;
+  document.getElementById('k-hari').textContent=hariSekolah;
+  document.getElementById('k-rata').textContent=rata+'%';
+  document.getElementById('k-tdk-hadir').textContent=totalTdk;
+}
+
+function renderSemua(){
+  renderHarian();
+  renderSiswa();
+  renderKelas();
+  renderDetail();
+}
+
+function renderHarian(){
+  const perHari={};
+  filteredPresensi.forEach(p=>{
+    if(!perHari[p.tanggal])perHari[p.tanggal]={hadir:0,kelas:{}};
+    perHari[p.tanggal].hadir++;
+    perHari[p.tanggal].kelas[p.kelas]=(perHari[p.tanggal].kelas[p.kelas]||0)+1;
+  });
+  const totalSiswa=allSiswa.length||1;
+  const tbody=document.getElementById('tbody-harian');
+  const tgls=Object.keys(perHari).sort();
+  if(!tgls.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--abu)">Tidak ada data</td></tr>';return;}
+  tbody.innerHTML=tgls.map(tgl=>{
+    const d=new Date(tgl);
+    const h=perHari[tgl].hadir;
+    const tdk=totalSiswa-h;
+    const pct=Math.round(h/totalSiswa*100);
+    const w=pct>=90?'var(--hijau)':pct>=75?'var(--kuning)':'var(--merah)';
+    const kelasTxt=Object.entries(perHari[tgl].kelas).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`${k}:${v}`).join(' · ');
+    return `<tr>
+      <td style="font-weight:700">${fmtTgl(tgl)}</td>
+      <td>${HARI[d.getDay()]}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${totalSiswa}</td>
+      <td><span class="badge badge-h">${h}</span></td>
+      <td><span class="badge badge-a">${Math.max(0,tdk)}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="pb-wrap"><div class="pb-fill" style="width:${pct}%;background:${w}"></div></div>
+          <span style="font-size:11px;font-weight:700;color:${w};font-family:'DM Mono',monospace">${pct}%</span>
+        </div>
+      </td>
+      <td style="font-size:11px;color:var(--abu)">${kelasTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSiswa(){
+  const dari  =document.getElementById('f-dari').value;
+  const sampai=document.getElementById('f-sampai').value;
+  // Hitung hari sekolah
+  let hariSekolah=0;
+  if(dari&&sampai){
+    const d=new Date(dari),s=new Date(sampai);
+    for(let t=new Date(d);t<=s;t.setDate(t.getDate()+1)) if(t.getDay()!==0)hariSekolah++;
+  }
+  const perSiswa={};
+  filteredPresensi.forEach(p=>{
+    const key=p.nis||p.nama;
+    if(!perSiswa[key])perSiswa[key]={nis:p.nis,nama:p.nama,kelas:p.kelas,hadir:0};
+    perSiswa[key].hadir++;
+  });
+  // Gabungkan dengan data siswa master
+  const kelasFilter=document.getElementById('f-kelas').value;
+  const siswaList=(kelasFilter?allSiswa.filter(s=>s.kelas===kelasFilter):allSiswa)
+    .map(s=>{
+      const key=s.nis;
+      const h=perSiswa[key]?.hadir||0;
+      const tdk=Math.max(0,hariSekolah-h);
+      const pct=hariSekolah>0?Math.round(h/hariSekolah*100):0;
+      return{...s,hadir:h,tdk,pct};
+    }).sort((a,b)=>{
+      if(a.kelas!==b.kelas)return(a.kelas||'').localeCompare(b.kelas||'');
+      return(a.nama||'').localeCompare(b.nama||'');
+    });
+
+  const tbody=document.getElementById('tbody-siswa');
+  tbody.innerHTML=siswaList.map((s,i)=>{
+    const w=s.pct>=90?'var(--hijau)':s.pct>=75?'var(--kuning)':'var(--merah)';
+    const st=s.pct>=90?'badge-h':s.pct>=75?'badge-s':'badge-a';
+    const stTxt=s.pct>=90?'Baik':s.pct>=75?'Cukup':'Kurang';
+    return `<tr>
+      <td style="color:var(--abu);font-family:'DM Mono',monospace">${i+1}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nis||'—'}</td>
+      <td style="font-weight:600">${s.nama||'—'}</td>
+      <td><span class="badge" style="background:var(--biru-muda);color:var(--biru-tua)">${s.kelas||'—'}</span></td>
+      <td style="text-align:center;font-weight:700;color:var(--hijau)">${s.hadir}</td>
+      <td style="text-align:center;font-weight:700;color:var(--merah)">${s.tdk}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="pb-wrap"><div class="pb-fill" style="width:${s.pct}%;background:${w}"></div></div>
+          <span style="font-size:11px;font-weight:700;color:${w}">${s.pct}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${st}">${stTxt}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKelas(){
+  const dari  =document.getElementById('f-dari').value;
+  const sampai=document.getElementById('f-sampai').value;
+  let hariSekolah=0;
+  if(dari&&sampai){
+    const d=new Date(dari),s=new Date(sampai);
+    for(let t=new Date(d);t<=s;t.setDate(t.getDate()+1)) if(t.getDay()!==0)hariSekolah++;
+  }
+  const kelasData={};
+  allSiswa.forEach(s=>{
+    if(!s.kelas)return;
+    if(!kelasData[s.kelas])kelasData[s.kelas]={siswa:0,hadir:0};
+    kelasData[s.kelas].siswa++;
+  });
+  filteredPresensi.forEach(p=>{
+    if(p.kelas&&kelasData[p.kelas])kelasData[p.kelas].hadir++;
+  });
+
+  const wrap=document.getElementById('rekap-kelas-wrap');
+  const kelas=Object.keys(kelasData).sort();
+  if(!kelas.length){wrap.innerHTML='<div style="text-align:center;padding:24px;color:var(--abu)">Tidak ada data</div>';return;}
+  wrap.innerHTML=kelas.map(k=>{
+    const d=kelasData[k];
+    const total=d.siswa*hariSekolah||1;
+    const pct=Math.round(d.hadir/total*100);
+    const w=pct>=90?'var(--hijau)':pct>=75?'var(--kuning)':'var(--merah)';
+    return `<div class="rekap-kelas-card">
+      <div class="rkc-nama">${k}</div>
+      <div class="rkc-stat">
+        <div class="rkc-item"><div class="rkc-val" style="color:var(--hijau)">${d.hadir}</div><div class="rkc-lbl">Scan Hadir</div></div>
+        <div class="rkc-item"><div class="rkc-val" style="color:var(--teks)">${d.siswa}</div><div class="rkc-lbl">Siswa</div></div>
+      </div>
+      <div class="rkc-pb"><div class="rkc-pbf" style="width:${pct}%;background:${w}"></div></div>
+      <div class="rkc-pct" style="color:${w}">${pct}% kehadiran</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDetail(){
+  const tbody=document.getElementById('tbody-detail');
+  if(!filteredPresensi.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--abu)">Tidak ada data</td></tr>';return;}
+  tbody.innerHTML=filteredPresensi.map(p=>{
+    const ts=p.jam_masuk?new Date(p.jam_masuk):null;
+    const jam=ts?`${pad(ts.getHours())}:${pad(ts.getMinutes())}:${pad(ts.getSeconds())}`:'—';
+    return `<tr>
+      <td>${fmtTgl(p.tanggal)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${jam}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${p.nis||'—'}</td>
+      <td style="font-weight:600">${p.nama||'—'}</td>
+      <td><span class="badge" style="background:var(--biru-muda);color:var(--biru-tua)">${p.kelas||'—'}</span></td>
+      <td><span class="badge badge-h">✓ Hadir</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// TAB
+window.gantiTab=function(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('aktif'));
+  document.querySelectorAll('.tab-konten').forEach(t=>t.classList.remove('aktif'));
+  el.classList.add('aktif');
+  document.getElementById('tab-'+tab).classList.add('aktif');
+};
+
+// EKSPOR EXCEL
+window.eksporExcel=function(){
+  if(!filteredPresensi.length){toast('⚠ Tidak ada data');return;}
+  const dari  =document.getElementById('f-dari').value;
+  const sampai=document.getElementById('f-sampai').value;
+
+  // Sheet 1: Detail
+  const ws1=XLSX.utils.json_to_sheet(filteredPresensi.map(p=>({
+    Tanggal:p.tanggal, JamMasuk:(p.jam_masuk||'').slice(11,19),
+    NIS:p.nis, Nama:p.nama, Kelas:p.kelas, Status:'Hadir'
+  })));
+
+  // Sheet 2: Per siswa
+  const perSiswa={};
+  filteredPresensi.forEach(p=>{
+    const k=p.nis||p.nama;
+    if(!perSiswa[k])perSiswa[k]={NIS:p.nis,Nama:p.nama,Kelas:p.kelas,Hadir:0};
+    perSiswa[k].Hadir++;
+  });
+  const ws2=XLSX.utils.json_to_sheet(Object.values(perSiswa).sort((a,b)=>a.Kelas.localeCompare(b.Kelas)||a.Nama.localeCompare(b.Nama)));
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws1,'Detail Presensi');
+  XLSX.utils.book_append_sheet(wb,ws2,'Rekap per Siswa');
+  XLSX.writeFile(wb,`Presensi_${dari}_${sampai}.xlsx`);
+  toast('✅ Excel berhasil diunduh');
+};
+
+// CETAK
+window.cetakLaporan=function(){
+  // Tampilkan judul print
+  document.querySelectorAll('.print-judul').forEach(el=>{
+    const dari=document.getElementById('f-dari').value;
+    const sampai=document.getElementById('f-sampai').value;
+    el.textContent=`Rekap Presensi ${fmtTgl(dari)} s/d ${fmtTgl(sampai)} — SMAN 5 Sarolangun`;
+  });
+  window.print();
+};
+
+// INIT
+muatSiswa().then(()=>muatData());
+</script>
+</body>
+</html>
