@@ -994,6 +994,9 @@
           <div class="form-grup">
             <label class="form-label">Data Kehadiran Siswa</label>
             <div class="kehadiran-grid">
+              <!-- INFO PRESENSI PAGI -->
+              <div id="info-presensi-pagi" style="display:none;grid-column:1/-1;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:8px 12px;margin-bottom:4px;"></div>
+
               <div class="kehadiran-item hadir">
                 <label>✅ Hadir</label>
                 <input type="number" id="inp-hadir" value="0" min="0">
@@ -1162,84 +1165,103 @@
   async function muatKehadiranSiswaGuru() {
     if (!guruAktif) return;
     try {
-      // 1. Ambil jadwal guru hari ini → dapatkan daftar kelas
-      const snapJ = await getDocs(query(
-        collection(db, 'Jadwal_Pelajaran'),
-        where('id_guru', '==', guruAktif.id),
-        where('hari', '==', hariIni)
-      ));
-      if (snapJ.empty) return;
-
-      // Kelas unik yang diajar guru ini
-      const kelasList = [...new Set(
-        snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean)
-      )].sort();
-
-      // 2. Total siswa per kelas dari Data_Siswa
-      const sSnap = await getDocs(collection(db, 'Data_Siswa'));
-      const totalPerKelas = {};
-      kelasList.forEach(k => totalPerKelas[k] = 0);
-      sSnap.docs.forEach(d => {
-        const kSiswa = d.data().kelas || '';
-        // Cocokkan dengan cara lenient (abaikan spasi)
-        const match = kelasList.find(k =>
-          k === kSiswa ||
-          k.replace(/\s/g,'') === kSiswa.replace(/\s/g,'')
-        );
-        if (match) totalPerKelas[match]++;
-      });
-
-      // 3. Presensi hari ini
-      const pSnap = await getDocs(query(
-        collection(db, 'Presensi_Harian'),
-        where('tanggal', '==', tanggalStr(sekarang))
-      ));
-      const hadirPerKelas = {};
-      kelasList.forEach(k => hadirPerKelas[k] = 0);
-      pSnap.docs.forEach(d => {
-        const kP = d.data().kelas || '';
-        const match = kelasList.find(k =>
-          k === kP ||
-          k.replace(/\s/g,'') === kP.replace(/\s/g,'')
-        );
-        if (match) hadirPerKelas[match]++;
-      });
-
-      // 4. Tampilkan panel
       const panel = document.getElementById('panel-kehadiran-siswa');
       const wrap  = document.getElementById('kehadiran-per-kelas');
       const sumEl = document.getElementById('kehadiran-summary');
       panel.style.display = 'block';
 
-      const totalH = kelasList.reduce((s,k) => s + hadirPerKelas[k], 0);
-      const totalS = kelasList.reduce((s,k) => s + totalPerKelas[k], 0);
-      sumEl.textContent = totalS > 0 ? `${totalH} dari ${totalS} siswa hadir` : `${totalH} siswa hadir`;
+      // 1. Semua siswa hari ini dari Data_Siswa
+      const sSnap = await getDocs(collection(db, 'Data_Siswa'));
+      const semuaSiswa = sSnap.docs.map(d => ({ id:d.id, ...d.data() }));
 
-      wrap.innerHTML = kelasList.map(k => {
-        const hadir = hadirPerKelas[k] || 0;
-        const total = totalPerKelas[k] || 0;
-        const bolos = Math.max(0, total - hadir);
-        const pct   = total > 0 ? Math.round(hadir/total*100) : (hadir > 0 ? 100 : 0);
+      // 2. Siswa yang sudah scan presensi hari ini
+      const pSnap = await getDocs(query(
+        collection(db, 'Presensi_Harian'),
+        where('tanggal', '==', tanggalStr(sekarang))
+      ));
+      const hadirNIS = new Set(pSnap.docs.map(d => d.data().nis).filter(Boolean));
+      const hadirNama = new Set(pSnap.docs.map(d => (d.data().nama||'').toLowerCase()).filter(Boolean));
+
+      // 3. Jadwal guru hari ini → ambil kelas
+      const snapJ = await getDocs(query(
+        collection(db, 'Jadwal_Pelajaran'),
+        where('id_guru', '==', guruAktif.id),
+        where('hari', '==', hariIni)
+      ));
+      const kelasList = snapJ.empty ? [] :
+        [...new Set(snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean))].sort();
+
+      // 4. Kalau tidak ada jadwal, tampilkan semua kelas yang ada presensinya
+      const kelasTarget = kelasList.length > 0 ? kelasList :
+        [...new Set(semuaSiswa.map(s => s.kelas||'').filter(Boolean))].sort();
+
+      if (!kelasTarget.length) {
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--teks-muted);text-align:center;padding:12px">Belum ada data siswa</div>';
+        sumEl.textContent = '—';
+        return;
+      }
+
+      // 5. Render per kelas — tampilkan nama siswa tidak hadir
+      let totalHadirAll = 0, totalSiswaAll = 0;
+
+      wrap.innerHTML = kelasTarget.map(kelas => {
+        const siswaKelas = semuaSiswa.filter(s =>
+          s.kelas === kelas || (s.kelas||'').replace(/\s/g,'') === kelas.replace(/\s/g,'')
+        ).sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
+
+        const hadir = siswaKelas.filter(s =>
+          hadirNIS.has(s.nis) || hadirNama.has((s.nama||'').toLowerCase())
+        );
+        const tidakHadir = siswaKelas.filter(s =>
+          !hadirNIS.has(s.nis) && !hadirNama.has((s.nama||'').toLowerCase())
+        );
+
+        totalHadirAll += hadir.length;
+        totalSiswaAll += siswaKelas.length;
+
+        const pct   = siswaKelas.length > 0 ? Math.round(hadir.length/siswaKelas.length*100) : 0;
         const warna = pct >= 90 ? '#2E7D32' : pct >= 75 ? '#F57F17' : '#C62828';
-        return `<div class="kls-hadir-item">
-          <div class="kls-hadir-nama">${k}</div>
-          <div class="kls-hadir-pb"><div class="kls-hadir-pbf" style="width:${pct}%;background:${warna}"></div></div>
-          <div class="kls-hadir-angka" style="color:${warna}">${hadir}${total>0?'/'+total:''}</div>
-          <span class="kls-bolos-badge" style="${bolos>0?'background:#FFEBEE;color:#C62828':'background:#E8F5E9;color:#2E7D32'}">
-            ${bolos > 0 ? `⚠ ${bolos} bolos` : '✓ Hadir'}
-          </span>
+        const warnaLbl = pct >= 90 ? '#1B5E20' : pct >= 75 ? '#E65100' : '#B71C1C';
+
+        // Daftar nama tidak hadir
+        const namaTdkHadir = tidakHadir.length > 0
+          ? `<div style="margin-top:8px;padding:8px 10px;background:#FFF5F5;border-radius:8px;border:1px solid #FFCDD2;">
+              <div style="font-size:10px;font-weight:700;color:#C62828;margin-bottom:5px;">⚠ Tidak hadir (${tidakHadir.length} siswa):</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                ${tidakHadir.map(s =>
+                  `<span style="font-size:10px;background:white;border:1px solid #FFCDD2;color:#C62828;padding:1px 7px;border-radius:10px;font-weight:600">${s.nama?.split(' ').slice(0,2).join(' ')||'—'}</span>`
+                ).join('')}
+              </div>
+            </div>`
+          : `<div style="margin-top:6px;font-size:10px;color:#2E7D32;font-weight:600">✅ Semua siswa hadir</div>`;
+
+        return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="font-size:13px;font-weight:800;color:var(--biru-tua);min-width:40px">${kelas}</div>
+            <div style="flex:1;height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:${warna};border-radius:3px;"></div>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:${warnaLbl};font-family:'DM Mono',monospace;">${hadir.length}/${siswaKelas.length}</div>
+            <div style="font-size:11px;font-weight:700;color:${warnaLbl}">${pct}%</div>
+          </div>
+          ${namaTdkHadir}
         </div>`;
       }).join('');
 
+      sumEl.textContent = totalSiswaAll > 0
+        ? `${totalHadirAll} dari ${totalSiswaAll} siswa hadir`
+        : `${totalHadirAll} siswa hadir`;
+
     } catch(e) {
-      console.log('Kehadiran siswa error:', e.message);
-      document.getElementById('panel-kehadiran-siswa').style.display = 'block';
+      console.log('Kehadiran error:', e.message);
+      const panel = document.getElementById('panel-kehadiran-siswa');
+      panel.style.display = 'block';
       document.getElementById('kehadiran-per-kelas').innerHTML =
         `<div style="font-size:11px;color:var(--merah);padding:8px">Error: ${e.message}</div>`;
     }
   }
 
-  // ── JAM AKTIF & NOTIFIKASI ──
+    // ── JAM AKTIF & NOTIFIKASI ──
   let jamBakuGuru = [];
   let timerJam = null;
   let notifSudahKirim = new Set();
@@ -1454,7 +1476,7 @@
     tampilLoading(false);
   }
 
-  window.pilihJadwal = function(id, data, jamMulai, jamSelesai, jamKe, allDocIds) {
+  window.pilihJadwal = async function(id, data, jamMulai, jamSelesai, jamKe, allDocIds) {
     jadwalDipilih = { id, ...data, allDocIds: allDocIds || [id] };
     const namaMapel = data.nama_mapel || data.mata_pelajaran || data.mapel || '—';
     const namaKelas = data.nama_kelas || data.kelas || '—';
@@ -1463,6 +1485,34 @@
     ['materi','submateri','catatan'].forEach(f => document.getElementById('inp-'+f).value = '');
     ['metode','media'].forEach(f => document.getElementById('inp-'+f).value = '');
     ['hadir','alfa','izin','sakit'].forEach(f => document.getElementById('inp-'+f).value = '0');
+
+    // Auto-isi jumlah hadir dari scan presensi pagi kelas ini
+    try {
+      const pSnap = await getDocs(query(
+        collection(db, 'Presensi_Harian'),
+        where('tanggal', '==', tanggalStr(sekarang))
+      ));
+      // Hitung siswa hadir di kelas ini
+      const hadirKelas = pSnap.docs.filter(d => {
+        const k = d.data().kelas || '';
+        return k === namaKelas || k.replace(/\s/g,'') === namaKelas.replace(/\s/g,'');
+      }).length;
+
+      if (hadirKelas > 0) {
+        document.getElementById('inp-hadir').value = hadirKelas;
+        // Tampilkan info presensi di form
+        const infoEl = document.getElementById('info-presensi-pagi');
+        if (infoEl) {
+          infoEl.style.display = 'flex';
+          infoEl.innerHTML = `<span style="font-size:11px;color:#2E7D32;font-weight:600">
+            📋 Dari scan pagi: <strong>${hadirKelas} siswa hadir</strong> · Bisa disesuaikan jika ada siswa masuk/keluar
+          </span>`;
+        }
+      }
+    } catch(e) {
+      console.log('Auto-isi presensi:', e.message);
+    }
+
     document.getElementById('form-agenda').style.display = 'block';
     document.getElementById('form-agenda').scrollIntoView({ behavior:'smooth', block:'start' });
   };
