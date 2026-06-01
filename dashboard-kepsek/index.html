@@ -544,6 +544,13 @@ async function muatSemuaData() {
   ]);
   gSnap.docs.forEach(d => { cacheGuru[d.id]   = d.data(); });
   rSnap.docs.forEach(d => { cacheRombel[d.id] = d.data(); });
+  // Build reverse map: nama_kelas (normalized) → docId
+  window.rombelByNama = {};
+  Object.entries(cacheRombel).forEach(([id, r]) => {
+    const norm = (r.nama_kelas||'').replace(/\s+/g,'').toUpperCase();
+    window.rombelByNama[norm] = { id, ...r };
+    window.rombelByNama[(r.nama_kelas||'').toUpperCase()] = { id, ...r };
+  });
   mSnap.docs.forEach(d => { cacheMapel[d.id]  = d.data(); });
   cacheJadwal = jSnap.docs.map(d => ({ id:d.id, ...d.data() }));
 
@@ -623,8 +630,26 @@ async function initBeranda() {
 
   // Hitung kelas unik hari ini
   const jadwalHariIni = cacheJadwal.filter(j => j.hari === HARI[now.getDay()]);
-  const kelasSet = new Set(jadwalHariIni.map(j => j.id_rombel || j.nama_kelas));
-  const terisi   = new Set(agHariIni.map(a => a.id_rombel || a.kelas));
+  // Gunakan id_rombel sebagai key utama, fallback ke nama_kelas
+  const kelasSet = new Set(jadwalHariIni.map(j => j.id_rombel || j.nama_kelas || j.kelas));
+  // Hitung kelas terisi - cocokkan dengan normalisasi
+  const terisi = new Set();
+  agHariIni.filter(a => !a.is_lanjutan).forEach(a => {
+    const k = a.id_rombel || a.kelas || '';
+    // Cocokkan langsung
+    if (kelasSet.has(k)) { terisi.add(k); return; }
+    // Cocokkan via cacheRombel[k] (k adalah docId)
+    if (cacheRombel[k]) { terisi.add(k); return; }
+    // Cocokkan nama kelas dengan normalisasi spasi
+    const norm = k.replace(/\s+/g,'').toUpperCase();
+    for (const id of kelasSet) {
+      const rNama = (cacheRombel[id]?.nama_kelas || id).replace(/\s+/g,'').toUpperCase();
+      if (rNama === norm) { terisi.add(id); return; }
+    }
+    // Cari via rombelByNama
+    const rFound = window.rombelByNama?.[k.toUpperCase()] || window.rombelByNama?.[norm];
+    if (rFound?.id && kelasSet.has(rFound.id)) terisi.add(rFound.id);
+  });
   const lengkap  = [...kelasSet].filter(k => terisi.has(k)).length;
   const belum    = kelasSet.size - lengkap;
   const totalHadir = agHariIni.reduce((s,a) => s+(a.jumlah_hadir||0), 0);
@@ -663,10 +688,15 @@ async function initBeranda() {
   } else {
     const kelasBelum = [...kelasSet].filter(k => !terisi.has(k));
     alertEl.innerHTML = kelasBelum.map(k => {
-      const r = Object.values(cacheRombel).find(r => r.nama_kelas === k) || {};
-      const wali = cacheGuru[r.id_wali]?.nama_lengkap?.split(',')[0] || '—';
+      // Cari nama kelas dari cacheRombel — ID, nama exact, atau nama normalized
+      const norm = k.replace(/\s+/g,'').toUpperCase();
+      const rByID   = cacheRombel[k];
+      const rByMap  = window.rombelByNama?.[k.toUpperCase()] || window.rombelByNama?.[norm];
+      const r       = rByID || rByMap || {};
+      const namaKelas = r.nama_kelas || k;
+      const wali    = cacheGuru[r.id_wali]?.nama_lengkap?.split(',')[0] || '—';
       return `<div class="alert-item">
-        <div class="alert-kelas">${k}</div>
+        <div class="alert-kelas">${namaKelas}</div>
         <div class="alert-info">Wali: ${wali}</div>
         <span class="alert-jam">Belum ada agenda</span>
       </div>`;
@@ -675,7 +705,17 @@ async function initBeranda() {
 
   // Live Feed
   const feedEl = document.getElementById('live-feed');
-  const sorted = [...agHariIni].sort((a,b) => (b.timestamp_input||'').localeCompare(a.timestamp_input||'')).slice(0,8);
+  // Deduplikasi: hapus slot lanjutan dan entry duplikat per guru+kelas+mapel
+  const feedUniq = [];
+  const feedSeen = new Set();
+  [...agHariIni]
+    .filter(a => !a.is_lanjutan)
+    .sort((a,b) => (b.timestamp_input||'').localeCompare(a.timestamp_input||''))
+    .forEach(a => {
+      const key = `${a.id_guru}_${a.kelas}_${a.mapel}_${a.materi_pokok}`;
+      if (!feedSeen.has(key)) { feedSeen.add(key); feedUniq.push(a); }
+    });
+  const sorted = feedUniq.slice(0, 8);
   if (!sorted.length) {
     feedEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--abu);font-size:12px;">Belum ada aktivitas hari ini</div>';
   } else {
