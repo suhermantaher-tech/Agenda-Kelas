@@ -1169,18 +1169,26 @@
         where('id_guru', '==', guruAktif.id),
         where('hari', '==', hariIni)
       ));
-      if (snapJadwal.empty) return;
+      if (snapJadwal.empty) {
+        console.log('Tidak ada jadwal hari ini untuk guru ini');
+        return;
+      }
 
-      // Kelas unik yang diajar guru ini
-      const kelasGuru = [...new Set(snapJadwal.docs.map(d => d.data().nama_kelas || d.data().kelas).filter(Boolean))];
+      // Kelas unik — normalisasi nama kelas (hapus spasi ekstra)
+      const norm = k => (k||'').replace(/\s+/g,' ').trim();
+      const kelasRaw = [...new Set(snapJadwal.docs.map(d => norm(d.data().nama_kelas || d.data().kelas)).filter(Boolean))];
+      console.log('[Kehadiran] Kelas guru:', kelasRaw);
 
-      // Total siswa per kelas
+      // Total siswa per kelas — cocokkan dengan normalisasi
       const sSnap = await getDocs(collection(db, 'Data_Siswa'));
       const totalPerKelas = {};
       sSnap.docs.forEach(d => {
-        const k = d.data().kelas || '';
-        if (kelasGuru.includes(k)) totalPerKelas[k] = (totalPerKelas[k] || 0) + 1;
+        const k = norm(d.data().kelas);
+        // Cek apakah kelas ini ada di jadwal guru (dengan normalisasi)
+        const match = kelasRaw.find(kg => norm(kg) === k || kg.replace(/\s/g,'') === k.replace(/\s/g,''));
+        if (match) totalPerKelas[match] = (totalPerKelas[match] || 0) + 1;
       });
+      console.log('[Kehadiran] Total per kelas:', totalPerKelas);
 
       // Presensi hari ini
       const pSnap = await getDocs(query(
@@ -1189,11 +1197,23 @@
       ));
       const hadirPerKelas = {};
       pSnap.docs.forEach(d => {
-        const k = d.data().kelas || '';
-        if (kelasGuru.includes(k)) hadirPerKelas[k] = (hadirPerKelas[k] || 0) + 1;
+        const k = norm(d.data().kelas);
+        const match = kelasRaw.find(kg => norm(kg) === k || kg.replace(/\s/g,'') === k.replace(/\s/g,''));
+        if (match) hadirPerKelas[match] = (hadirPerKelas[match] || 0) + 1;
       });
+      console.log('[Kehadiran] Hadir per kelas:', hadirPerKelas);
 
-      if (!Object.keys(totalPerKelas).length) return;
+      // Tampilkan panel meski totalPerKelas kosong (Data_Siswa mungkin belum ada)
+      const panel = document.getElementById('panel-kehadiran-siswa');
+      const wrap  = document.getElementById('kehadiran-per-kelas');
+      const sumEl = document.getElementById('kehadiran-summary');
+      panel.style.display = 'block';
+
+      if (!Object.keys(totalPerKelas).length) {
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--teks-muted);text-align:center;padding:8px">Data siswa belum diimport di modul Presensi</div>';
+        sumEl.textContent = 'Data siswa belum tersedia';
+        return;
+      }
 
       // Render panel
       const panel = document.getElementById('panel-kehadiran-siswa');
