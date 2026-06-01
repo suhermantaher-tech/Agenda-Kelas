@@ -689,6 +689,66 @@ function cekBell() {
 
 setInterval(cekBell, 10000); // Cek setiap 10 detik
 
+// ── KEHADIRAN SISWA REAL-TIME ──
+async function muatKehadiranSiswa() {
+  try {
+    // Total siswa per kelas dari Data_Siswa
+    const sSnap = await getDocs(collection(db, 'Data_Siswa'));
+    const totalPerKelas = {};
+    sSnap.docs.forEach(d => {
+      const k = d.data().kelas || '';
+      if (k) totalPerKelas[k] = (totalPerKelas[k] || 0) + 1;
+    });
+
+    if (!Object.keys(totalPerKelas).length) {
+      document.getElementById('kehadiran-siswa').innerHTML =
+        '<div style="text-align:center;color:#546E7A;font-size:11px;padding:10px">Belum ada data siswa</div>';
+      return;
+    }
+
+    // Real-time listener presensi hari ini
+    onSnapshot(
+      query(collection(db, 'Presensi_Harian'), where('tanggal', '==', TGL_STR)),
+      snap => {
+        const hadirPerKelas = {};
+        snap.docs.forEach(d => {
+          const k = d.data().kelas || '';
+          if (k) hadirPerKelas[k] = (hadirPerKelas[k] || 0) + 1;
+        });
+
+        const kelas = Object.keys(totalPerKelas).sort();
+        const el    = document.getElementById('kehadiran-siswa');
+        const totalH = snap.docs.length;
+        const totalS = Object.values(totalPerKelas).reduce((s,v)=>s+v,0);
+
+        document.getElementById('total-hadir-val').textContent = `${totalH} / ${totalS}`;
+
+        el.innerHTML = kelas.map(k => {
+          const hadir = hadirPerKelas[k] || 0;
+          const total = totalPerKelas[k] || 0;
+          const bolos = total - hadir;
+          const pct   = total > 0 ? Math.round(hadir/total*100) : 0;
+          const warna = pct >= 90 ? '#43A047' : pct >= 75 ? '#F9A825' : '#E53935';
+          return `<div class="hadir-item">
+            <div class="hadir-kelas">${k}</div>
+            <div class="hadir-pb-bg"><div class="hadir-pb-fill" style="width:${pct}%;background:${warna}"></div></div>
+            <div class="hadir-angka" style="color:${warna}">${hadir}/${total}</div>
+            ${bolos > 0
+              ? `<span class="hadir-badge" style="background:rgba(229,57,53,0.2);color:#EF9A9A">-${bolos}</span>`
+              : `<span class="hadir-badge" style="background:rgba(67,160,71,0.2);color:#81C784">✓</span>`
+            }
+          </div>`;
+        }).join('');
+      }
+    );
+  } catch(e) {
+    console.log('Kehadiran:', e.message);
+    document.getElementById('kehadiran-siswa').innerHTML =
+      '<div style="text-align:center;color:#546E7A;font-size:11px;padding:10px">'+e.message+'</div>';
+  }
+}
+
+muatKehadiranSiswa();
 init();
 </script>
 </body>
