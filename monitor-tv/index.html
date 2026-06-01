@@ -105,6 +105,8 @@
     .ticker-lbl{background:white;color:#B85510;padding:0 6px;border-radius:5px;font-size:9px;font-weight:800;flex-shrink:0}
     .ticker-scroll{flex:1;overflow:hidden;white-space:nowrap}
     .ticker-txt{display:inline-block;animation:scroll 35s linear infinite}
+    .bell-notif{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#E07020;color:white;padding:8px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;animation:fadeNotif 3s forwards;pointer-events:none}
+    @keyframes fadeNotif{0%{opacity:0;top:70px}10%{opacity:1;top:60px}80%{opacity:1}100%{opacity:0}}
     @keyframes scroll{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
 
     /* LOADING */
@@ -458,6 +460,149 @@ function initSlider(){
   }
   window.go=function(i){idx=i;document.getElementById('slider-track').style.transform=`translateX(-${i*100}%)`;document.querySelectorAll('.dot').forEach((d,j)=>d.classList.toggle('on',j===i));};
 }
+
+
+// ══════════════════════════════════════
+// SISTEM BELL OTOMATIS
+// ══════════════════════════════════════
+const BELL = {
+  mulai:    '../shared/bell/Mulai_Pembelajaran.mp3',
+  ganti:    '../shared/bell/Pergantian-Jam.mp3',
+  istirahat:'../shared/bell/Intirahat.mp3',
+  masuk:    '../shared/bell/Masuk_Setelah_Istirahat.mp3',
+  sholat:   '../shared/bell/Sholat.mp3',
+  pulang:   '../shared/bell/Pulang.mp3',
+  apel:     '../shared/bell/Apel.mp3',
+  senam:    '../shared/bell/Senam.mp3',
+};
+
+let bellSudahBunyi = new Set(); // Simpan bell yang sudah berbunyi hari ini
+let audioPlayer = new Audio();
+
+function bunyikanBell(jenis) {
+  const src = BELL[jenis];
+  if (!src) return;
+  // Cegah double-play
+  const key = `${new Date().toDateString()}_${jenis}_${Math.floor(Date.now()/60000)}`;
+  if (bellSudahBunyi.has(key)) return;
+  bellSudahBunyi.add(key);
+
+  audioPlayer.pause();
+  audioPlayer = new Audio(src);
+  audioPlayer.volume = 1.0;
+  audioPlayer.play().catch(e => {
+    // Browser butuh interaksi user — tampilkan tombol
+    console.log('Bell blocked:', e);
+    tampilTombolBell(jenis);
+  });
+
+  // Log di ticker
+  const nama = {
+    mulai:'Mulai Pembelajaran',ganti:'Pergantian Jam',
+    istirahat:'Istirahat',masuk:'Masuk Setelah Istirahat',
+    sholat:'Istirahat Sholat Zuhur',pulang:'Pulang',
+    apel:'Apel Pagi',senam:'Senam Pagi'
+  }[jenis]||jenis;
+  console.log('[Bell]', nama, new Date().toLocaleTimeString());
+}
+
+function tampilTombolBell(jenis) {
+  // Tombol muncul jika autoplay diblokir browser
+  let btn = document.getElementById('bell-btn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'bell-btn';
+    btn.style.cssText = 'position:fixed;bottom:32px;right:20px;background:#E07020;color:white;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;z-index:9999;font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.3)';
+    document.body.appendChild(btn);
+  }
+  btn.textContent = '🔔 Klik untuk aktifkan Bell';
+  btn.onclick = () => {
+    audioPlayer.play();
+    btn.remove();
+  };
+}
+
+// Reset bell log tiap hari baru
+let hariTerakhir = new Date().toDateString();
+setInterval(() => {
+  const hariIniStr = new Date().toDateString();
+  if (hariIniStr !== hariTerakhir) {
+    bellSudahBunyi.clear();
+    hariTerakhir = hariIniStr;
+  }
+}, 60000);
+
+// Cek bell setiap 10 detik
+function cekBell() {
+  if (!jamBaku.length) return;
+
+  const n     = new Date();
+  const menit = n.getHours()*60 + n.getMinutes();
+  const detik = n.getSeconds();
+
+  // Hanya proses di detik 0-15 untuk menghindari double trigger
+  if (detik > 15) return;
+
+  // Cari index jeda ke berapa (untuk tahu apakah ini jeda pertama atau kedua)
+  const jedaList = jamBaku.filter(j => j.jenis === 'Jeda');
+
+  jamBaku.forEach((slot, idx) => {
+    const slotMulai = toMen(slot.jam_mulai);
+
+    // Tepat saat slot dimulai (toleransi 1 menit)
+    if (Math.abs(menit - slotMulai) > 1) return;
+
+    if (slot.jenis === 'KBM') {
+      // Cek apakah ini jam KBM pertama hari ini
+      const kbmSebelumnya = jamBaku.slice(0, idx).filter(j => j.jenis === 'KBM');
+
+      if (kbmSebelumnya.length === 0) {
+        // Jam KBM pertama = Mulai Pembelajaran
+        bunyikanBell('mulai');
+      } else {
+        // Cek apakah slot sebelumnya adalah Jeda
+        const slotSebelum = jamBaku[idx-1];
+        if (slotSebelum?.jenis === 'Jeda') {
+          // Kembali dari jeda
+          // Cek apakah jeda ini adalah jeda sholat (jeda ke-2)
+          const jedaIdx = jedaList.findIndex(j => j.jam_mulai === slotSebelum.jam_mulai);
+          if (jedaIdx >= 1) {
+            // Jeda ke-2 atau lebih = setelah sholat
+            bunyikanBell('masuk');
+          } else {
+            // Jeda ke-1 = setelah istirahat pertama
+            bunyikanBell('masuk');
+          }
+        } else {
+          // Pergantian jam biasa
+          bunyikanBell('ganti');
+        }
+      }
+    } else if (slot.jenis === 'Jeda') {
+      const ket = (slot.keterangan||'').toLowerCase();
+      if (ket.includes('sholat') || ket.includes('zuhur') || ket.includes('dzuhur')) {
+        bunyikanBell('sholat');
+      } else if (ket.includes('upacara') || ket.includes('apel')) {
+        bunyikanBell('apel');
+      } else if (ket.includes('senam')) {
+        bunyikanBell('senam');
+      } else {
+        bunyikanBell('istirahat');
+      }
+    }
+  });
+
+  // Bell pulang = saat jam KBM terakhir selesai
+  const kbmSlots = jamBaku.filter(j => j.jenis === 'KBM');
+  if (kbmSlots.length > 0) {
+    const jamTerakhir = kbmSlots[kbmSlots.length-1];
+    if (Math.abs(menit - toMen(jamTerakhir.jam_selesai)) <= 1) {
+      bunyikanBell('pulang');
+    }
+  }
+}
+
+setInterval(cekBell, 10000); // Cek setiap 10 detik
 
 init();
 </script>
