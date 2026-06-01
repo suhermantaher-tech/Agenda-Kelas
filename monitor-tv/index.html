@@ -105,7 +105,8 @@
     .ticker-lbl{background:white;color:#B85510;padding:0 6px;border-radius:5px;font-size:9px;font-weight:800;flex-shrink:0}
     .ticker-scroll{flex:1;overflow:hidden;white-space:nowrap}
     .ticker-txt{display:inline-block;animation:scroll 35s linear infinite}
-    .bell-notif{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#E07020;color:white;padding:8px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;animation:fadeNotif 3s forwards;pointer-events:none}
+    .bell-notif{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#B85510,#E07020);color:white;padding:12px 36px;border-radius:14px;font-size:18px;font-weight:700;z-index:9999;animation:fadeNotif 5s forwards;pointer-events:none;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.4);white-space:nowrap;letter-spacing:0.3px}
+    @keyframes fadeNotif{0%{opacity:0;bottom:20px}10%{opacity:1;bottom:30px}75%{opacity:1;bottom:30px}100%{opacity:0;bottom:40px}}
     @keyframes fadeNotif{0%{opacity:0;top:70px}10%{opacity:1;top:60px}80%{opacity:1}100%{opacity:0}}
     @keyframes scroll{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
 
@@ -121,6 +122,23 @@
   <div class="spin"></div>
   <p style="font-size:12px;color:#607D8B">Memuat data...</p>
 </div>
+
+<!-- OVERLAY AKTIVASI BELL -->
+<div id="bell-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px;">
+  <div style="font-size:48px">🔔</div>
+  <div style="font-size:18px;font-weight:700;color:white">Sistem Bell Otomatis</div>
+  <div style="font-size:13px;color:#90A4AE;text-align:center;max-width:320px;line-height:1.6">
+    Klik tombol di bawah untuk mengaktifkan bell otomatis.<br>
+    Cukup dilakukan sekali saat pertama buka halaman.
+  </div>
+  <button onclick="aktivasiBell()" style="background:#E07020;color:white;border:none;border-radius:14px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 4px 20px rgba(224,112,32,0.4);margin-top:8px;">
+    🔔 Aktifkan Bell Sekolah
+  </button>
+  <div style="font-size:11px;color:#546E7A">SMAN 5 Sarolangun · Egenda Kelas</div>
+</div>
+
+<!-- INDIKATOR BELL AKTIF -->
+<div id="bell-status" style="position:fixed;top:58px;right:20px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;z-index:100;display:none;"></div>
 
 <div class="hdr">
   <div class="hdr-kiri">
@@ -465,7 +483,7 @@ function initSlider(){
 // ══════════════════════════════════════
 // SISTEM BELL OTOMATIS
 // ══════════════════════════════════════
-const BELL = {
+const BELL_SRC = {
   mulai:    '../shared/bell/Mulai_Pembelajaran.mp3',
   ganti:    '../shared/bell/Pergantian-Jam.mp3',
   istirahat:'../shared/bell/Intirahat.mp3',
@@ -476,50 +494,74 @@ const BELL = {
   senam:    '../shared/bell/Senam.mp3',
 };
 
-let bellSudahBunyi = new Set(); // Simpan bell yang sudah berbunyi hari ini
-let audioPlayer = new Audio();
+const BELL_NAMA = {
+  mulai:'🔔 Mulai Pembelajaran',
+  ganti:'🔔 Pergantian Jam',
+  istirahat:'🔔 Istirahat',
+  masuk:'🔔 Masuk Kembali',
+  sholat:'🕌 Istirahat Sholat Zuhur',
+  pulang:'🏠 Pulang',
+  apel:'🏳️ Apel Pagi',
+  senam:'🏃 Senam Pagi',
+};
+
+let bellAktif     = false;
+let bellSudahBunyi = new Set();
+let audioCtx       = null;
+let audioPlayer    = null;
+
+// Dipanggil saat user klik tombol aktivasi
+window.aktivasiBell = function() {
+  // Buat AudioContext setelah interaksi user
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Test play audio pendek untuk unlock
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.001; // hampir tidak terdengar
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+
+  bellAktif = true;
+  document.getElementById('bell-overlay').style.display = 'none';
+
+  // Tampilkan indikator bell aktif
+  const st = document.getElementById('bell-status');
+  st.textContent = '🔔 Bell Aktif';
+  st.style.cssText = 'position:fixed;top:58px;right:20px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;z-index:100;background:rgba(67,160,71,0.2);color:#81C784;border:1px solid rgba(67,160,71,0.3);display:block';
+
+  console.log('[Bell] Sistem bell aktif');
+};
 
 function bunyikanBell(jenis) {
-  const src = BELL[jenis];
+  if (!bellAktif) return;
+  const src = BELL_SRC[jenis];
   if (!src) return;
-  // Cegah double-play
+
+  // Cegah double-play dalam 1 menit
   const key = `${new Date().toDateString()}_${jenis}_${Math.floor(Date.now()/60000)}`;
   if (bellSudahBunyi.has(key)) return;
   bellSudahBunyi.add(key);
 
-  audioPlayer.pause();
+  // Hentikan bell sebelumnya
+  if (audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
   audioPlayer = new Audio(src);
   audioPlayer.volume = 1.0;
-  audioPlayer.play().catch(e => {
-    // Browser butuh interaksi user — tampilkan tombol
-    console.log('Bell blocked:', e);
-    tampilTombolBell(jenis);
-  });
-
-  // Log di ticker
-  const nama = {
-    mulai:'Mulai Pembelajaran',ganti:'Pergantian Jam',
-    istirahat:'Istirahat',masuk:'Masuk Setelah Istirahat',
-    sholat:'Istirahat Sholat Zuhur',pulang:'Pulang',
-    apel:'Apel Pagi',senam:'Senam Pagi'
-  }[jenis]||jenis;
-  console.log('[Bell]', nama, new Date().toLocaleTimeString());
+  audioPlayer.play()
+    .then(() => tampilNotifBell(jenis))
+    .catch(e => console.warn('[Bell] Play error:', e));
 }
 
-function tampilTombolBell(jenis) {
-  // Tombol muncul jika autoplay diblokir browser
-  let btn = document.getElementById('bell-btn');
-  if (!btn) {
-    btn = document.createElement('button');
-    btn.id = 'bell-btn';
-    btn.style.cssText = 'position:fixed;bottom:32px;right:20px;background:#E07020;color:white;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;z-index:9999;font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.3)';
-    document.body.appendChild(btn);
-  }
-  btn.textContent = '🔔 Klik untuk aktifkan Bell';
-  btn.onclick = () => {
-    audioPlayer.play();
-    btn.remove();
-  };
+function tampilNotifBell(jenis) {
+  const nama = BELL_NAMA[jenis] || jenis;
+  // Hapus notif lama
+  document.querySelectorAll('.bell-notif').forEach(el => el.remove());
+  const div = document.createElement('div');
+  div.className = 'bell-notif';
+  div.textContent = nama;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 4000);
 }
 
 // Reset bell log tiap hari baru
