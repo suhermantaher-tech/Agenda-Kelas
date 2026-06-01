@@ -44,6 +44,9 @@
     .kartu-qr-nis{font-size:9px;font-family:'DM Mono',monospace;color:var(--abu);margin-top:1px}
     .kartu-qr-tahun{font-size:8px;color:var(--border);margin-top:4px}
 
+    .hdr-nav{display:flex;gap:8px}
+    .hdr-nav a{color:rgba(255,255,255,0.55);font-size:12px;text-decoration:none;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-weight:600;transition:all 0.15s;display:inline-flex;align-items:center;gap:5px}
+    .hdr-nav a:hover,.hdr-nav a.aktif{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
     @media print{
       .no-print{display:none!important}
       body{background:white}
@@ -61,7 +64,11 @@
     <div class="hdr-nama">SMAN 5 Sarolangun — Kelola Data Siswa</div>
     <div class="hdr-sub">Import data siswa, generate & cetak kartu QR presensi</div>
   </div>
-  <a href="index.html" style="color:rgba(255,255,255,0.6);font-size:12px;text-decoration:none">← Kembali ke Presensi</a>
+  <div class="hdr-nav">
+    <a href="index.html">📷 Scan Presensi</a>
+    <a href="kelola-siswa.html" class="aktif">👥 Kelola Siswa</a>
+    <a href="rekap.html">📊 Rekap</a>
+  </div>
 </div>
 
 <div class="main">
