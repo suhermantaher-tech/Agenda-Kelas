@@ -212,6 +212,22 @@
     document.getElementById('tanggal').textContent = `${namaHari[n.getDay()]}, ${n.getDate()} ${namaBulan[n.getMonth()]} ${n.getFullYear()}`;
   }
   updateJam(); setInterval(updateJam, 1000);
+  // Re-render grid setiap menit untuk update slot jam aktif
+  let lastSlotUrutan = -1;
+  setInterval(() => {
+    const slot = slotAktifSekarang();
+    const urutan = slot?.urutan || -1;
+    if (urutan !== lastSlotUrutan && jamBaku.length > 0) {
+      lastSlotUrutan = urutan;
+      // Trigger re-render dengan data terakhir
+      const grid = document.getElementById('kelas-grid');
+      if (grid && grid.children.length > 0) {
+        // Re-render akan dipicu oleh onSnapshot berikutnya
+        // Tapi kita perlu force refresh grid juga
+        window._lastRombelData && renderGrid(window._lastRombelData);
+      }
+    }
+  }, 30000);
 
   const now        = new Date();
   const hariIni    = namaHari[now.getDay()];
@@ -273,6 +289,7 @@
         return { ...r, ml, tot, ter, pct, guruStr: g?`${g.kode_guru||'??'} · ${(g.nama_lengkap||'').split(',')[0]}`:'—', guruId:r.slots[0]?.id_guru||'' };
       });
 
+      window._lastRombelData = data;
       renderGrid(data);
       renderBar(data);
       renderGuru(data);
