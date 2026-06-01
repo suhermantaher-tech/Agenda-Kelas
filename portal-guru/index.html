@@ -1216,10 +1216,6 @@
       }
 
       // Render panel
-      const panel = document.getElementById('panel-kehadiran-siswa');
-      const wrap  = document.getElementById('kehadiran-per-kelas');
-      const sumEl = document.getElementById('kehadiran-summary');
-
       panel.style.display = 'block';
 
       const totalH = Object.values(hadirPerKelas).reduce((s,v)=>s+v,0);
