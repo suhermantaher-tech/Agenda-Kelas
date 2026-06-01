@@ -138,7 +138,7 @@
 </div>
 
 <!-- INDIKATOR BELL AKTIF -->
-<div id="bell-status" style="position:fixed;top:58px;right:20px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;z-index:100;display:none;"></div>
+<div id="bell-status" style="position:fixed;bottom:28px;left:16px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;z-index:100;display:none;"></div>
 
 <div class="hdr">
   <div class="hdr-kiri">
@@ -529,7 +529,7 @@ window.aktivasiBell = function() {
   // Tampilkan indikator bell aktif
   const st = document.getElementById('bell-status');
   st.textContent = '🔔 Bell Aktif';
-  st.style.cssText = 'position:fixed;top:58px;right:20px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;z-index:100;background:rgba(67,160,71,0.2);color:#81C784;border:1px solid rgba(67,160,71,0.3);display:block';
+  st.style.cssText = 'position:fixed;bottom:28px;left:16px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;z-index:100;background:rgba(67,160,71,0.2);color:#81C784;border:1px solid rgba(67,160,71,0.3);display:block';
 
   console.log('[Bell] Sistem bell aktif');
 };
