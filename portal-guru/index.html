@@ -1161,86 +1161,81 @@
     // ── KEHADIRAN SISWA PER KELAS ──
   async function muatKehadiranSiswaGuru() {
     if (!guruAktif) return;
-
     try {
-      // Ambil kelas yang diajar guru ini hari ini
-      const snapJadwal = await getDocs(query(
+      // 1. Ambil jadwal guru hari ini → dapatkan daftar kelas
+      const snapJ = await getDocs(query(
         collection(db, 'Jadwal_Pelajaran'),
         where('id_guru', '==', guruAktif.id),
         where('hari', '==', hariIni)
       ));
-      if (snapJadwal.empty) {
-        console.log('Tidak ada jadwal hari ini untuk guru ini');
-        return;
-      }
+      if (snapJ.empty) return;
 
-      // Kelas unik — normalisasi nama kelas (hapus spasi ekstra)
-      const norm = k => (k||'').replace(/\s+/g,' ').trim();
-      const kelasRaw = [...new Set(snapJadwal.docs.map(d => norm(d.data().nama_kelas || d.data().kelas)).filter(Boolean))];
-      console.log('[Kehadiran] Kelas guru:', kelasRaw);
+      // Kelas unik yang diajar guru ini
+      const kelasList = [...new Set(
+        snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean)
+      )].sort();
 
-      // Total siswa per kelas — cocokkan dengan normalisasi
+      // 2. Total siswa per kelas dari Data_Siswa
       const sSnap = await getDocs(collection(db, 'Data_Siswa'));
       const totalPerKelas = {};
+      kelasList.forEach(k => totalPerKelas[k] = 0);
       sSnap.docs.forEach(d => {
-        const k = norm(d.data().kelas);
-        // Cek apakah kelas ini ada di jadwal guru (dengan normalisasi)
-        const match = kelasRaw.find(kg => norm(kg) === k || kg.replace(/\s/g,'') === k.replace(/\s/g,''));
-        if (match) totalPerKelas[match] = (totalPerKelas[match] || 0) + 1;
+        const kSiswa = d.data().kelas || '';
+        // Cocokkan dengan cara lenient (abaikan spasi)
+        const match = kelasList.find(k =>
+          k === kSiswa ||
+          k.replace(/\s/g,'') === kSiswa.replace(/\s/g,'')
+        );
+        if (match) totalPerKelas[match]++;
       });
-      console.log('[Kehadiran] Total per kelas:', totalPerKelas);
 
-      // Presensi hari ini
+      // 3. Presensi hari ini
       const pSnap = await getDocs(query(
         collection(db, 'Presensi_Harian'),
         where('tanggal', '==', tanggalStr(sekarang))
       ));
       const hadirPerKelas = {};
+      kelasList.forEach(k => hadirPerKelas[k] = 0);
       pSnap.docs.forEach(d => {
-        const k = norm(d.data().kelas);
-        const match = kelasRaw.find(kg => norm(kg) === k || kg.replace(/\s/g,'') === k.replace(/\s/g,''));
-        if (match) hadirPerKelas[match] = (hadirPerKelas[match] || 0) + 1;
+        const kP = d.data().kelas || '';
+        const match = kelasList.find(k =>
+          k === kP ||
+          k.replace(/\s/g,'') === kP.replace(/\s/g,'')
+        );
+        if (match) hadirPerKelas[match]++;
       });
-      console.log('[Kehadiran] Hadir per kelas:', hadirPerKelas);
 
-      // Tampilkan panel meski totalPerKelas kosong (Data_Siswa mungkin belum ada)
+      // 4. Tampilkan panel
       const panel = document.getElementById('panel-kehadiran-siswa');
       const wrap  = document.getElementById('kehadiran-per-kelas');
       const sumEl = document.getElementById('kehadiran-summary');
       panel.style.display = 'block';
 
-      if (!Object.keys(totalPerKelas).length) {
-        wrap.innerHTML = '<div style="font-size:11px;color:var(--teks-muted);text-align:center;padding:8px">Data siswa belum diimport di modul Presensi</div>';
-        sumEl.textContent = 'Data siswa belum tersedia';
-        return;
-      }
+      const totalH = kelasList.reduce((s,k) => s + hadirPerKelas[k], 0);
+      const totalS = kelasList.reduce((s,k) => s + totalPerKelas[k], 0);
+      sumEl.textContent = totalS > 0 ? `${totalH} dari ${totalS} siswa hadir` : `${totalH} siswa hadir`;
 
-      // Render panel
-      panel.style.display = 'block';
-
-      const totalH = Object.values(hadirPerKelas).reduce((s,v)=>s+v,0);
-      const totalS = Object.values(totalPerKelas).reduce((s,v)=>s+v,0);
-      sumEl.textContent = `${totalH} dari ${totalS} siswa hadir`;
-
-      wrap.innerHTML = kelasGuru.sort().map(k => {
+      wrap.innerHTML = kelasList.map(k => {
         const hadir = hadirPerKelas[k] || 0;
         const total = totalPerKelas[k] || 0;
-        const bolos = total - hadir;
-        const pct   = total > 0 ? Math.round(hadir/total*100) : 0;
+        const bolos = Math.max(0, total - hadir);
+        const pct   = total > 0 ? Math.round(hadir/total*100) : (hadir > 0 ? 100 : 0);
         const warna = pct >= 90 ? '#2E7D32' : pct >= 75 ? '#F57F17' : '#C62828';
-        const bgBolos = bolos > 0 ? 'background:#FFEBEE;color:#C62828' : 'background:#E8F5E9;color:#2E7D32';
         return `<div class="kls-hadir-item">
           <div class="kls-hadir-nama">${k}</div>
           <div class="kls-hadir-pb"><div class="kls-hadir-pbf" style="width:${pct}%;background:${warna}"></div></div>
-          <div class="kls-hadir-angka" style="color:${warna}">${hadir}/${total}</div>
-          <span class="kls-bolos-badge" style="${bgBolos}">
-            ${bolos > 0 ? `⚠ ${bolos} tidak hadir` : '✓ Lengkap'}
+          <div class="kls-hadir-angka" style="color:${warna}">${hadir}${total>0?'/'+total:''}</div>
+          <span class="kls-bolos-badge" style="${bolos>0?'background:#FFEBEE;color:#C62828':'background:#E8F5E9;color:#2E7D32'}">
+            ${bolos > 0 ? `⚠ ${bolos} bolos` : '✓ Hadir'}
           </span>
         </div>`;
       }).join('');
 
     } catch(e) {
-      console.log('Kehadiran siswa:', e.message);
+      console.log('Kehadiran siswa error:', e.message);
+      document.getElementById('panel-kehadiran-siswa').style.display = 'block';
+      document.getElementById('kehadiran-per-kelas').innerHTML =
+        `<div style="font-size:11px;color:var(--merah);padding:8px">Error: ${e.message}</div>`;
     }
   }
 
