@@ -96,6 +96,24 @@
       overflow: hidden;
     }
 
+    .roster-hari-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.15s; }
+    .roster-hari-btn.aktif { background:var(--oranye); border-color:var(--oranye-gelap); color:white; }
+    .roster-hari-card { background:white; border-radius:var(--radius); border:1.5px solid var(--border); padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+    .roster-hari-label { font-size:12px; font-weight:800; color:var(--oranye-gelap); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--oranye-terang); display:flex; align-items:center; justify-content:space-between; }
+    .roster-hari-count { font-size:10px; font-weight:600; background:var(--oranye-terang); color:var(--oranye-gelap); padding:2px 8px; border-radius:10px; }
+    .roster-sesi-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:0.5px solid var(--border); }
+    .roster-sesi-item:last-child { border-bottom:none; }
+    .roster-jam-col { text-align:center; flex-shrink:0; min-width:44px; }
+    .roster-jam-num { font-size:16px; font-weight:800; color:var(--biru-tua); font-family:'DM Mono',monospace; line-height:1; }
+    .roster-jam-time { font-size:9px; color:var(--abu); margin-top:2px; font-family:'DM Mono',monospace; }
+    .roster-mapel-col { flex:1; }
+    .roster-mapel-nama { font-size:13px; font-weight:700; color:var(--teks); }
+    .roster-kelas-nama { font-size:11px; color:var(--teks-muted); margin-top:2px; }
+    .roster-durasi-badge { font-size:10px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; flex-shrink:0; }
+    .roster-jeda-row { display:flex; align-items:center; gap:8px; padding:6px 0; }
+    .roster-jeda-line { flex:1; height:1px; background:var(--border); }
+    .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
+    .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
     @keyframes slideUp {
       from { opacity:0; transform: translateY(32px) scale(0.97); }
       to   { opacity:1; transform: translateY(0) scale(1); }
@@ -766,6 +784,28 @@
       margin-bottom: 16px;
     }
 
+    .roster-hari-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.15s; }
+    .roster-hari-btn.aktif { background:var(--oranye); border-color:var(--oranye-gelap); color:white; }
+    .roster-hari-card { background:white; border-radius:var(--radius); border:1.5px solid var(--border); padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+    .roster-hari-label { font-size:12px; font-weight:800; color:var(--oranye-gelap); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--oranye-terang); display:flex; align-items:center; justify-content:space-between; }
+    .roster-hari-count { font-size:10px; font-weight:600; background:var(--oranye-terang); color:var(--oranye-gelap); padding:2px 8px; border-radius:10px; }
+    .roster-sesi-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:0.5px solid var(--border); }
+    .roster-sesi-item:last-child { border-bottom:none; }
+    .roster-jam-col { text-align:center; flex-shrink:0; min-width:44px; }
+    .roster-jam-num { font-size:16px; font-weight:800; color:var(--biru-tua); font-family:'DM Mono',monospace; line-height:1; }
+    .roster-jam-time { font-size:9px; color:var(--abu); margin-top:2px; font-family:'DM Mono',monospace; }
+    .roster-mapel-col { flex:1; }
+    .roster-mapel-nama { font-size:13px; font-weight:700; color:var(--teks); }
+    .roster-kelas-nama { font-size:11px; color:var(--teks-muted); margin-top:2px; }
+    .roster-durasi-badge { font-size:10px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; flex-shrink:0; }
+    .roster-jeda-row { display:flex; align-items:center; gap:8px; padding:6px 0; }
+    .roster-jeda-line { flex:1; height:1px; background:var(--border); }
+    .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
+    .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateX(-50%) translateY(20px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
     @media (max-width: 360px) {
       .pin-kotak { width: 52px; height: 60px; font-size: 22px; }
       .form-row { grid-template-columns: 1fr; }
@@ -847,6 +887,7 @@
         <button class="btn-keluar" onclick="keluar()">Keluar</button>
       </div>
       <div class="tanggal-chip">📅 <span id="teks-tanggal">—</span></div>
+      <div id="chip-sisa-jam" style="display:none;margin-top:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:12px;color:white;font-weight:500;"></div>
     </div>
     <div class="header-wave"></div>
   </div>
@@ -862,7 +903,8 @@
     </div>
 
     <div class="tabs">
-      <button class="tab-btn aktif" onclick="gantiTab('jadwal', this)">📚 Jadwal Hari Ini</button>
+      <button class="tab-btn aktif" onclick="gantiTab('jadwal', this)">📚 Hari Ini</button>
+      <button class="tab-btn" onclick="gantiTab('roster', this)">🗓 Roster Saya</button>
       <button class="tab-btn" onclick="gantiTab('riwayat', this)">🗂 Riwayat</button>
     </div>
 
@@ -955,6 +997,26 @@
           </button>
           <button class="btn-batal" onclick="tutupForm()">Batal</button>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB ROSTER -->
+    <div class="tab-konten" id="tab-roster">
+      <div class="sec-label">Roster Jadwal Mengajar Saya</div>
+
+      <!-- Filter hari -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="roster-hari-filter">
+        <button class="roster-hari-btn aktif" onclick="gantiHariRoster('Semua',this)">Semua</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Senin',this)">Senin</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Selasa',this)">Selasa</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Rabu',this)">Rabu</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Kamis',this)">Kamis</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Jumat',this)">Jumat</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Sabtu',this)">Sabtu</button>
+      </div>
+
+      <div id="roster-konten">
+        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>
       </div>
     </div>
 
@@ -1070,22 +1132,108 @@
   }
 
   // ── JADWAL ──
+    // ── JAM AKTIF & NOTIFIKASI ──
+  let jamBakuGuru = [];
+  let timerJam = null;
+  let notifSudahKirim = new Set();
+
+  function toMenit(jam) {
+    if (!jam) return 0;
+    const [h,m] = jam.split(':').map(Number);
+    return h*60+m;
+  }
+
+  function menitSekarang() {
+    const n = new Date();
+    return n.getHours()*60 + n.getMinutes();
+  }
+
+  function cekNotifikasiJam() {
+    if (!jamBakuGuru.length) return;
+    const mn = menitSekarang();
+
+    jamBakuGuru.filter(j => j.jenis === 'KBM').forEach(slot => {
+      const selesai = toMenit(slot.jam_selesai);
+      const sisaMen = selesai - mn;
+
+      // Notifikasi 5 menit sebelum selesai
+      const key5 = `notif5_${slot.urutan}_${new Date().toDateString()}`;
+      if (sisaMen === 5 && !notifSudahKirim.has(key5)) {
+        notifSudahKirim.add(key5);
+        tampilNotifJam(`⏰ Jam ${slot.urutan} akan selesai dalam 5 menit (${slot.jam_selesai})`, 'warn');
+      }
+
+      // Notifikasi 1 menit sebelum selesai
+      const key1 = `notif1_${slot.urutan}_${new Date().toDateString()}`;
+      if (sisaMen === 1 && !notifSudahKirim.has(key1)) {
+        notifSudahKirim.add(key1);
+        tampilNotifJam(`⚡ Jam ${slot.urutan} selesai 1 menit lagi!`, 'danger');
+      }
+    });
+
+    // Update chip sisa jam
+    updateChipSisaJam(mn);
+  }
+
+  function updateChipSisaJam(mn) {
+    const chipEl = document.getElementById('chip-sisa-jam');
+    if (!chipEl) return;
+
+    const slotAktif = jamBakuGuru.find(j =>
+      j.jenis === 'KBM' &&
+      toMenit(j.jam_mulai) <= mn &&
+      mn < toMenit(j.jam_selesai)
+    );
+
+    if (slotAktif) {
+      const sisa = toMenit(slotAktif.jam_selesai) - mn;
+      const warna = sisa <= 5 ? '#E53935' : sisa <= 10 ? '#F9A825' : '#43A047';
+      chipEl.innerHTML = `<span style="color:${warna};font-weight:700">⏱ Sisa ${sisa} menit</span> · Jam ${slotAktif.urutan} selesai ${slotAktif.jam_selesai}`;
+      chipEl.style.display = 'block';
+    } else {
+      const slotNext = jamBakuGuru.find(j => j.jenis === 'KBM' && toMenit(j.jam_mulai) > mn);
+      if (slotNext) {
+        const tunggu = toMenit(slotNext.jam_mulai) - mn;
+        chipEl.innerHTML = `⏭ Jam ${slotNext.urutan} mulai ${slotNext.jam_mulai} (${tunggu} menit lagi)`;
+        chipEl.style.display = 'block';
+      } else {
+        chipEl.style.display = 'none';
+      }
+    }
+  }
+
+  function tampilNotifJam(pesan, tipe) {
+    const warna = tipe === 'danger' ? '#C62828' : '#E07020';
+    const div = document.createElement('div');
+    div.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:${warna};color:white;padding:12px 24px;border-radius:14px;font-size:14px;font-weight:700;font-family:Plus Jakarta Sans,sans-serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:slideUp 0.3s ease;white-space:nowrap`;
+    div.textContent = pesan;
+    document.body.appendChild(div);
+    // Getar/vibrate jika didukung
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    setTimeout(() => div.remove(), 6000);
+  }
+
   async function muatJadwal() {
     tampilLoading(true);
     const listEl = document.getElementById('jadwal-list');
     listEl.innerHTML = '';
     try {
-      // Muat jam baku hari ini untuk urutan tampilan
+      // Muat jam baku hari ini
       const jbSnap = await getDocs(query(
         collection(db, 'Jam_Baku'),
         where('hari', '==', hariIni)
       ));
-      const jamBaku = jbSnap.docs
+      jamBakuGuru = jbSnap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => a.urutan - b.urutan)
-        .filter(j => j.jenis === 'KBM');
+        .sort((a, b) => a.urutan - b.urutan);
+      const jamBakuKBM = jamBakuGuru.filter(j => j.jenis === 'KBM');
 
-      // Muat roster guru ini hari ini dari Jadwal_Pelajaran (struktur baru)
+      // Mulai timer notifikasi
+      if (timerJam) clearInterval(timerJam);
+      timerJam = setInterval(cekNotifikasiJam, 60000);
+      updateChipSisaJam(menitSekarang());
+
+      // Muat roster guru hari ini
       const snap = await getDocs(query(
         collection(db, 'Jadwal_Pelajaran'),
         where('id_guru', '==', guruAktif.id),
@@ -1100,48 +1248,84 @@
         tampilLoading(false); return;
       }
 
-      // Cek agenda yang sudah diisi hari ini
+      // Cek agenda sudah diisi
       const snapAgenda = await getDocs(query(
         collection(db, 'Agenda_Harian'),
         where('id_guru', '==', guruAktif.id),
         where('tanggal', '==', tanggalStr(sekarang))
       ));
-      const sudahIsi = new Set(snapAgenda.docs.map(d => d.data().id_jadwal));
+      const sudahIsiById = new Set(snapAgenda.docs.map(d => d.data().id_jadwal));
 
-      // Urutkan berdasarkan slot_urutan dari jam baku
+      // Urutkan jadwal
       const jadwalDocs = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
-      jadwalDocs.sort((a, b) => (a.slot_urutan || a.jam_ke || 0) - (b.slot_urutan || b.jam_ke || 0));
+      jadwalDocs.sort((a, b) => (a.slot_urutan || 0) - (b.slot_urutan || 0));
 
-      let total = jadwalDocs.length, isi = 0;
-
+      // ══════════════════════════════════════════
+      // KELOMPOKKAN JADWAL BERTURUT-TURUT (durasi > 1 JP)
+      // Jadwal dengan mapel & kelas sama yang berturutan → 1 item
+      // ══════════════════════════════════════════
+      const sesiList = [];
       jadwalDocs.forEach(j => {
-        const sudah = sudahIsi.has(j.docId);
+        const mapelKode = j.kode_mapel || j.nama_mapel || j.mapel || '';
+        const kelasId   = j.id_rombel || j.nama_kelas || j.kelas || '';
+        const last      = sesiList[sesiList.length - 1];
+
+        // Gabung jika mapel & kelas sama, dan slot berurutan
+        if (last &&
+            last.mapelKode === mapelKode &&
+            last.kelasId   === kelasId   &&
+            (j.slot_urutan - last.slotSelesai) === 1) {
+          // Extend sesi terakhir
+          last.slotSelesai = j.slot_urutan;
+          last.durasi++;
+          last.docIds.push(j.docId);
+          // Update jam selesai
+          const slotJam = jamBakuKBM.find(jb => jb.urutan === j.slot_urutan);
+          if (slotJam) last.jamSelesai = slotJam.jam_selesai;
+        } else {
+          // Buat sesi baru
+          const slotJam = jamBakuKBM.find(jb => jb.urutan === j.slot_urutan);
+          const jamKe   = jamBakuKBM.findIndex(jb => jb.urutan === j.slot_urutan) + 1;
+          sesiList.push({
+            docIds:      [j.docId],
+            data:        j,
+            mapelKode,
+            kelasId,
+            slotMulai:   j.slot_urutan,
+            slotSelesai: j.slot_urutan,
+            durasi:      1,
+            jamKe,
+            jamMulai:    slotJam?.jam_mulai  || '',
+            jamSelesai:  slotJam?.jam_selesai || '',
+          });
+        }
+      });
+
+      // Render sesi (sudah digabung)
+      let total = sesiList.length, isi = 0;
+      sesiList.forEach(sesi => {
+        // Sesi terisi jika salah satu docId sudah ada agendanya
+        const sudah = sesi.docIds.some(id => sudahIsiById.has(id));
         if (sudah) isi++;
 
-        // Ambil info jam dari jam baku
-        const slotJam = jamBaku.find(jb => jb.urutan === j.slot_urutan);
-        const jamMulai   = slotJam?.jam_mulai  || j.jam_mulai  || '';
-        const jamSelesai  = slotJam?.jam_selesai || j.jam_selesai || '';
-
-        // Hitung jam ke (urutan KBM saja)
-        const jamKe = jamBaku.findIndex(jb => jb.urutan === j.slot_urutan) + 1 || j.slot_urutan || '?';
-
-        const namaMapel = j.nama_mapel || j.mata_pelajaran || j.mapel || '—';
-        const namaKelas = j.nama_kelas || j.kelas || '—';
+        const namaMapel = sesi.data.nama_mapel || sesi.data.mata_pelajaran || sesi.data.mapel || '—';
+        const namaKelas = sesi.data.nama_kelas || sesi.data.kelas || '—';
+        const durasiTxt = sesi.durasi > 1 ? ` · ${sesi.durasi}JP` : '';
+        const jamTxt    = sesi.jamMulai && sesi.jamSelesai ? `${sesi.jamMulai} – ${sesi.jamSelesai}` : '';
 
         const el = document.createElement('div');
         el.className = `jadwal-item${sudah ? ' sudah-isi' : ''}`;
-        el.onclick = () => { if (!sudah) pilihJadwal(j.docId, j, jamMulai, jamSelesai, jamKe); };
+        el.onclick = () => {
+          if (!sudah) pilihJadwal(sesi.docIds[0], sesi.data, sesi.jamMulai, sesi.jamSelesai, sesi.jamKe, sesi.docIds);
+        };
         el.innerHTML = `
           <div class="jam-badge">
             <div class="jam-label">Jam</div>
-            <div class="jam-angka">${jamKe}</div>
+            <div class="jam-angka">${sesi.jamKe}${sesi.durasi > 1 ? `<br><span style="font-size:9px;font-weight:500">–${sesi.jamKe + sesi.durasi - 1}</span>` : ''}</div>
           </div>
           <div class="jadwal-tengah">
             <div class="jadwal-mapel">${namaMapel}</div>
-            <div class="jadwal-kelas">${namaKelas} · ${jamMulai} – ${jamSelesai}
-              ${j.durasi_jp > 1 ? ` · <strong>${j.durasi_jp}JP</strong>` : ''}
-            </div>
+            <div class="jadwal-kelas">${namaKelas} · ${jamTxt}${durasiTxt}</div>
           </div>
           <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : 'Belum'}</span>
         `;
@@ -1151,7 +1335,7 @@
       const sisa = total - isi;
       document.getElementById('status-nilai').textContent =
         isi === total
-          ? `Semua ${total} agenda sudah terisi ✓`
+          ? `Semua ${total} sesi agenda sudah terisi ✓`
           : `${isi} dari ${total} terisi · ${sisa} belum`;
       const dot = document.getElementById('status-dot');
       dot.textContent = isi === total ? '✅' : '📋';
@@ -1163,8 +1347,8 @@
     tampilLoading(false);
   }
 
-  window.pilihJadwal = function(id, data, jamMulai, jamSelesai, jamKe) {
-    jadwalDipilih = { id, ...data };
+  window.pilihJadwal = function(id, data, jamMulai, jamSelesai, jamKe, allDocIds) {
+    jadwalDipilih = { id, ...data, allDocIds: allDocIds || [id] };
     const namaMapel = data.nama_mapel || data.mata_pelajaran || data.mapel || '—';
     const namaKelas = data.nama_kelas || data.kelas || '—';
     document.getElementById('form-judul-teks').textContent =
@@ -1187,7 +1371,8 @@
     tampilLoading(true);
     document.getElementById('btn-simpan').disabled = true;
     try {
-      await addDoc(collection(db,'Agenda_Harian'), {
+      // Simpan agenda untuk semua slot dalam sesi (1 isian untuk multi-JP)
+      const dataAgenda = {
         id_guru:        guruAktif.id,
         id_jadwal:      jadwalDipilih.id,
         id_rombel:      jadwalDipilih.id_rombel || '',
@@ -1210,7 +1395,22 @@
         status_hadir:   'hadir',
         semester:       jadwalDipilih.semester || '',
         tahun_ajaran:   jadwalDipilih.tahun_ajaran || '',
-      });
+      };
+
+      // Simpan satu dokumen agenda — id_jadwal = docId pertama
+      await addDoc(collection(db,'Agenda_Harian'), dataAgenda);
+
+      // Jika sesi multi-JP, tandai docId lainnya juga (simpan referensi)
+      if (jadwalDipilih.allDocIds && jadwalDipilih.allDocIds.length > 1) {
+        for (let i = 1; i < jadwalDipilih.allDocIds.length; i++) {
+          await addDoc(collection(db,'Agenda_Harian'), {
+            ...dataAgenda,
+            id_jadwal: jadwalDipilih.allDocIds[i],
+            slot_urutan: (jadwalDipilih.slot_urutan || 0) + i,
+            is_lanjutan: true, // penanda slot lanjutan
+          });
+        }
+      }      });
       tampilToast('✅ Agenda berhasil disimpan!');
       tutupForm();
       await muatJadwal();
@@ -1292,7 +1492,134 @@
   window.hapusPin    = hapusPin;
   window.prosesLogin = prosesLogin;
   window.keluar      = keluar;
+
+  // ══════════════════════════════════════
+  // ROSTER SAYA — per hari
+  // ══════════════════════════════════════
+  let rosterCache = null;
+  let rosterHariAktif = 'Semua';
+  const hariUrut = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+  async function muatRosterGuru() {
+    const el = document.getElementById('roster-konten');
+    if (!el) return;
+    el.innerHTML = '<div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>';
+
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'Jadwal_Pelajaran'),
+        where('id_guru', '==', guruAktif.id)
+      ));
+
+      if (snap.empty) {
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📭</div><p>Belum ada jadwal tersusun.<br><small>Hubungi admin untuk menyusun roster.</small></p></div>';
+        return;
+      }
+
+      const jbSnap = await getDocs(collection(db, 'Jam_Baku'));
+      const jamBakuAll = {};
+      jbSnap.docs.forEach(d => {
+        const dd = d.data();
+        if (!jamBakuAll[dd.hari]) jamBakuAll[dd.hari] = [];
+        jamBakuAll[dd.hari].push(dd);
+      });
+      Object.keys(jamBakuAll).forEach(h => jamBakuAll[h].sort((a,b) => a.urutan - b.urutan));
+
+      const perHari = {};
+      snap.docs.forEach(d => {
+        const dd = d.data();
+        const h = dd.hari || '?';
+        if (!perHari[h]) perHari[h] = [];
+        perHari[h].push({ docId: d.id, ...dd });
+      });
+      Object.keys(perHari).forEach(h => perHari[h].sort((a,b) => (a.slot_urutan||0) - (b.slot_urutan||0)));
+
+      rosterCache = { perHari, jamBakuAll };
+      renderRoster();
+    } catch(e) {
+      el.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal: ${e.message}</p></div>`;
+    }
+  }
+
+  function renderRoster() {
+    const el = document.getElementById('roster-konten');
+    if (!el || !rosterCache) return;
+    const { perHari, jamBakuAll } = rosterCache;
+
+    const hariTampil = rosterHariAktif === 'Semua'
+      ? hariUrut.filter(h => perHari[h])
+      : [rosterHariAktif].filter(h => perHari[h]);
+
+    if (!hariTampil.length) {
+      el.innerHTML = '<div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal di hari ini.</p></div>';
+      return;
+    }
+
+    el.innerHTML = hariTampil.map(hari => {
+      const slots   = perHari[hari] || [];
+      const jamBaku = jamBakuAll[hari] || [];
+      const totalJP = slots.reduce((s,j) => s + (j.durasi_jp||1), 0);
+      const isHariIni = hari === hariIni;
+
+      let kbmKe = 0;
+      const baris = jamBaku.map(jb => {
+        if (jb.jenis === 'Jeda') {
+          return `<div class="roster-jeda-row">
+            <div class="roster-jeda-line"></div>
+            <div class="roster-jeda-txt">☕ ${jb.keterangan||'Istirahat'} · ${jb.jam_mulai}–${jb.jam_selesai}</div>
+            <div class="roster-jeda-line"></div>
+          </div>`;
+        }
+        kbmKe++;
+        const jadwal = slots.find(s => s.slot_urutan === jb.urutan);
+        if (!jadwal) {
+          return `<div class="roster-sesi-item" style="opacity:0.3;">
+            <div class="roster-jam-col">
+              <div class="roster-jam-num">${kbmKe}</div>
+              <div class="roster-jam-time">${jb.jam_mulai}<br>${jb.jam_selesai}</div>
+            </div>
+            <div class="roster-mapel-col">
+              <div class="roster-mapel-nama" style="color:var(--abu)">—</div>
+            </div>
+          </div>`;
+        }
+        const namaMapel = jadwal.nama_mapel || jadwal.mapel || '—';
+        const namaKelas = jadwal.nama_kelas || jadwal.kelas || '—';
+        const durasi = jadwal.durasi_jp || 1;
+        return `<div class="roster-sesi-item" style="${isHariIni?'background:var(--oranye-terang);margin:0 -4px;padding:8px 4px;border-radius:8px;border-bottom:none':''}">
+          <div class="roster-jam-col">
+            <div class="roster-jam-num" style="${isHariIni?'color:var(--oranye-gelap)':''}">${kbmKe}</div>
+            <div class="roster-jam-time">${jb.jam_mulai}<br>${jb.jam_selesai}</div>
+          </div>
+          <div class="roster-mapel-col">
+            <div class="roster-mapel-nama">${namaMapel}</div>
+            <div class="roster-kelas-nama">${namaKelas}</div>
+          </div>
+          ${durasi > 1 ? `<span class="roster-durasi-badge">${durasi}JP</span>` : ''}
+        </div>`;
+      }).join('');
+
+      return `<div class="roster-hari-card" ${isHariIni?'style="border-color:var(--oranye);background:#FFFBF7;"':''}>
+        <div class="roster-hari-label">
+          <span>${isHariIni?'📍 ':''}${hari}</span>
+          <span class="roster-hari-count">${totalJP} JP</span>
+        </div>
+        ${baris}
+        <div class="roster-total-jp">✅ Total ${totalJP} JP hari ${hari}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.gantiHariRoster = function(hari, el) {
+    rosterHariAktif = hari;
+    document.querySelectorAll('.roster-hari-btn').forEach(b => b.classList.remove('aktif'));
+    el.classList.add('aktif');
+    if (!rosterCache) muatRosterGuru();
+    else renderRoster();
+  };
+
   window.gantiTab    = gantiTab;
+  window.gantiHariRoster = gantiHariRoster;
   window.simpanAgenda = simpanAgenda;
   window.tutupForm   = tutupForm;
   window.pilihJadwal = pilihJadwal;
