@@ -5,147 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Presensi QR — SMAN 5 Sarolangun</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
-    :root {
-      --oranye:#E07020; --oranye-gelap:#B85510; --oranye-terang:#FFF3E0;
-      --biru-tua:#1A3A5C; --biru-muda:#E3EEF8;
-      --hijau:#2E7D32; --hijau-muda:#E8F5E9;
-      --merah:#C62828; --merah-muda:#FFEBEE;
-      --kuning:#F57F17; --kuning-muda:#FFF8E1;
-      --abu:#78909C; --border:#E0E0E0; --teks:#1A1A2E;
-    }
+    :root{--oranye:#E07020;--oranye-gelap:#B85510;--biru-tua:#1A3A5C;--biru-muda:#E3EEF8;--hijau:#2E7D32;--hijau-muda:#E8F5E9;--merah:#C62828;--merah-muda:#FFEBEE;--kuning:#F57F17;--kuning-muda:#FFF8E1;--abu:#78909C;--border:#E0E0E0;--teks:#1A1A2E}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;background:#0D1B2A;font-family:'Plus Jakarta Sans',sans-serif;color:white;overflow:hidden}
+    html,body{height:100%;background:#0D1B2A;font-family:'Plus Jakarta Sans',sans-serif;color:white}
 
-    /* HEADER */
-    .hdr{background:#111E30;border-bottom:2px solid var(--oranye);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;height:58px}
-    .hdr-kiri{display:flex;align-items:center;gap:10px}
-    .logo-box{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#ffb347,#E07020,#2E7D32);padding:2px;flex-shrink:0}
-    .logo-in{width:100%;height:100%;border-radius:7px;background:white;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .hdr{background:#111E30;border-bottom:2px solid var(--oranye);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;height:56px;flex-shrink:0}
+    .logo-box{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#ffb347,#E07020,#2E7D32);padding:2px;flex-shrink:0}
+    .logo-in{width:100%;height:100%;border-radius:6px;background:white;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .logo-in img{width:100%;height:100%;object-fit:contain}
-    .hdr-nama{font-size:14px;font-weight:700}
-    .hdr-sub{font-size:10px;color:rgba(255,255,255,0.5)}
-    .hdr-jam{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:white}
-    .hdr-tgl{font-size:10px;color:rgba(255,255,255,0.5);text-align:right;margin-top:1px}
+    .hdr-kiri{display:flex;align-items:center;gap:10px}
+    .hdr-nama{font-size:13px;font-weight:700}
+    .hdr-sub{font-size:10px;color:rgba(255,255,255,0.45)}
+    .jam{font-family:'DM Mono',monospace;font-size:20px;font-weight:500}
+    .tgl{font-size:10px;color:rgba(255,255,255,0.45);text-align:right;margin-top:1px}
 
-    /* LAYOUT UTAMA */
-    .main{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 58px);overflow:hidden}
+    body{display:flex;flex-direction:column;overflow:hidden}
+    .main{flex:1;display:grid;grid-template-columns:1fr 360px;overflow:hidden;min-height:0}
 
-    /* PANEL KIRI — KAMERA */
-    .panel-kamera{display:flex;flex-direction:column;padding:16px 20px;gap:14px;overflow:hidden}
-    .scan-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px}
-    .kamera-wrap{flex:1;position:relative;border-radius:16px;overflow:hidden;background:#000;min-height:0}
-    #qr-reader{width:100%;height:100%}
-    #qr-reader video{width:100%!important;height:100%!important;object-fit:cover}
-    #qr-reader img{display:none!important}
-    .scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-    .scan-frame{width:220px;height:220px;position:relative}
-    .scan-frame::before,.scan-frame::after{content:'';position:absolute;width:40px;height:40px;border-color:var(--oranye);border-style:solid}
-    .scan-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
-    .scan-frame::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
-    .scan-line{position:absolute;left:10px;right:10px;height:2px;background:linear-gradient(90deg,transparent,var(--oranye),transparent);animation:scanAnim 2s ease-in-out infinite;top:50%}
-    @keyframes scanAnim{0%,100%{top:20%;opacity:0.3}50%{top:80%;opacity:1}}
-    .scan-corner{position:absolute;width:40px;height:40px;border-color:var(--oranye);border-style:solid}
-    .scan-corner.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
-    .scan-corner.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
-    .scan-hint{text-align:center;font-size:13px;color:rgba(255,255,255,0.5);padding:4px 0}
+    /* KIRI — KAMERA */
+    .panel-kiri{display:flex;flex-direction:column;padding:14px 16px;gap:10px;overflow:hidden}
+    .scan-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
 
-    /* PANEL KANAN */
-    .panel-kanan{background:#111E30;border-left:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;overflow:hidden}
+    .kamera-container{flex:1;position:relative;border-radius:14px;overflow:hidden;background:#000;min-height:0;display:flex;align-items:center;justify-content:center}
+    #video{width:100%;height:100%;object-fit:cover;display:block}
+    #canvas-hidden{display:none}
 
-    /* HASIL SCAN TERBARU */
-    .hasil-scan{padding:16px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0}
-    .hasil-card{border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;transition:all 0.3s}
+    /* Frame scan */
+    .frame-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    .frame-box{width:200px;height:200px;position:relative}
+    .frame-box::before,.frame-box::after,.corner-tr,.corner-bl{content:'';position:absolute;width:36px;height:36px;border-color:var(--oranye);border-style:solid;border-radius:3px}
+    .frame-box::before{top:0;left:0;border-width:3px 0 0 3px}
+    .frame-box::after{top:0;right:0;border-width:3px 3px 0 0}
+    .corner-tr{bottom:0;left:0;border-width:0 0 3px 3px}
+    .corner-bl{bottom:0;right:0;border-width:0 3px 3px 0}
+    .scan-line{position:absolute;left:8px;right:8px;height:2px;background:linear-gradient(90deg,transparent,var(--oranye),transparent);top:30%;animation:scan 2.5s ease-in-out infinite}
+    @keyframes scan{0%,100%{top:15%;opacity:0.4}50%{top:85%;opacity:1}}
+
+    .kamera-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,0.3);padding:20px;text-align:center}
+    .btn-mulai{background:var(--oranye);color:white;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background 0.15s}
+    .btn-mulai:hover{background:var(--oranye-gelap)}
+    .scan-hint{font-size:12px;color:rgba(255,255,255,0.35);text-align:center;flex-shrink:0;padding:3px 0}
+
+    /* KANAN */
+    .panel-kanan{background:#111E30;border-left:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;overflow:hidden}
+
+    .hasil-wrap{padding:14px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
+    .hasil-card{border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px}
+    .hasil-card.idle{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.07)}
     .hasil-card.sukses{background:var(--hijau-muda);border:1.5px solid #A5D6A7}
     .hasil-card.duplikat{background:var(--kuning-muda);border:1.5px solid #FFE082}
     .hasil-card.error{background:var(--merah-muda);border:1.5px solid #FFCDD2}
-    .hasil-card.idle{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08)}
-    .hasil-ikon{font-size:36px;flex-shrink:0}
-    .hasil-nama{font-size:16px;font-weight:800;color:var(--teks)}
-    .hasil-info{font-size:12px;color:var(--abu);margin-top:2px}
-    .hasil-jam{font-size:20px;font-weight:700;color:var(--hijau);font-family:'DM Mono',monospace;margin-top:3px}
+    .hasil-ikon{font-size:32px;flex-shrink:0}
+    .hasil-nama{font-size:15px;font-weight:800;color:var(--teks)}
+    .hasil-info{font-size:11px;color:var(--abu);margin-top:2px}
+    .hasil-jam{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;margin-top:3px}
 
-    /* STATISTIK */
-    .stat-wrap{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0}
-    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .stat-item{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px;text-align:center}
-    .stat-val{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
-    .stat-lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    .stat-wrap{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .stat-item{background:rgba(255,255,255,0.05);border-radius:9px;padding:9px 10px;text-align:center}
+    .stat-val{font-size:24px;font-weight:800;font-family:'DM Mono',monospace}
+    .stat-lbl{font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
 
-    /* FILTER KELAS */
-    .filter-wrap{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap}
-    .kelas-btn{padding:4px 12px;border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,0.5);font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.15s}
-    .kelas-btn.aktif{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
+    .filter-wrap{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;display:flex;gap:5px;flex-wrap:wrap}
+    .kbtn{padding:3px 10px;border:1px solid rgba(255,255,255,0.12);border-radius:15px;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,0.45);font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.15s}
+    .kbtn.on{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
 
-    /* LOG PRESENSI */
-    .log-judul{padding:10px 16px 6px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-    .log-list{flex:1;overflow-y:auto;padding:0 16px 12px}
-    .log-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;animation:fadeIn 0.3s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
-    .log-item.baru{background:rgba(46,125,50,0.15);border:1px solid rgba(46,125,50,0.3)}
-    .log-item:not(.baru){background:rgba(255,255,255,0.03)}
-    .log-avatar{width:30px;height:30px;border-radius:50%;background:var(--biru-muda);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--biru-tua);flex-shrink:0}
-    .log-nama{font-size:12px;font-weight:600;color:white;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .log-kelas{font-size:10px;font-weight:600;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:1px 6px;border-radius:5px;flex-shrink:0}
-    .log-jam{font-size:10px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;flex-shrink:0}
+    .log-hdr{padding:8px 14px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;justify-content:space-between}
+    .log-list{flex:1;overflow-y:auto;padding:0 14px 10px}
+    .log-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;margin-bottom:3px}
+    .log-item.baru{background:rgba(46,125,50,0.18);border:1px solid rgba(46,125,50,0.3);animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+    .log-av{width:28px;height:28px;border-radius:50%;background:var(--biru-muda);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--biru-tua);flex-shrink:0}
+    .log-nm{font-size:11px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .log-kls{font-size:9px;font-weight:600;background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.5);padding:1px 5px;border-radius:4px;flex-shrink:0}
+    .log-jm{font-size:9px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;flex-shrink:0}
 
-    /* REKAP PER KELAS */
-    .rekap-wrap{padding:10px 16px;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0}
-    .rekap-item{display:flex;align-items:center;gap:8px;padding:4px 0}
-    .rekap-kelas{font-size:11px;font-weight:700;color:white;min-width:48px}
-    .rekap-pb{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden}
+    .rekap-wrap{padding:8px 14px 10px;background:rgba(0,0,0,0.15);flex-shrink:0}
+    .rekap-item{display:flex;align-items:center;gap:7px;padding:3px 0}
+    .rekap-kls{font-size:10px;font-weight:700;min-width:44px}
+    .rekap-pb{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
     .rekap-pbf{height:100%;border-radius:3px;background:var(--oranye)}
-    .rekap-val{font-size:10px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;min-width:30px;text-align:right}
+    .rekap-v{font-size:9px;color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;min-width:24px;text-align:right}
 
-    /* NOTIF SOUND VISUAL */
-    .notif-flash{position:fixed;inset:0;background:rgba(46,125,50,0.3);pointer-events:none;opacity:0;transition:opacity 0.1s;z-index:999}
-    .notif-flash.aktif{opacity:1}
+    .notif-flash{position:fixed;inset:0;background:rgba(46,125,50,0.25);pointer-events:none;opacity:0;transition:opacity 0.1s;z-index:999}
+    .notif-flash.on{opacity:1}
+
+    /* KELOLA SISWA LINK */
+    .kelola-link{position:fixed;bottom:8px;right:14px;font-size:11px;color:rgba(255,255,255,0.3);text-decoration:none;font-weight:600;z-index:10}
+    .kelola-link:hover{color:var(--oranye)}
+
+    @media(max-width:700px){
+      .main{grid-template-columns:1fr;grid-template-rows:1fr auto}
+      .panel-kanan{max-height:45vh}
+    }
   </style>
 </head>
 <body>
+<div class="notif-flash" id="flash"></div>
 
-<div class="notif-flash" id="notif-flash"></div>
-
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-kiri">
     <div class="logo-box"><div class="logo-in"><img src="../shared/logo.jpg" alt="" onerror="this.style.display='none'"></div></div>
-    <div><div class="hdr-nama">SMAN 5 Sarolangun</div><div class="hdr-sub">Sistem Presensi QR Code</div></div>
+    <div><div class="hdr-nama">SMAN 5 Sarolangun</div><div class="hdr-sub">Presensi Masuk Pagi</div></div>
   </div>
-  <div style="text-align:center">
-    <div style="font-size:11px;font-weight:700;color:var(--oranye);text-transform:uppercase;letter-spacing:1.5px">Presensi Masuk Pagi</div>
-  </div>
-  <div>
-    <div class="hdr-jam" id="jam">--:--:--</div>
-    <div class="hdr-tgl" id="tgl">--</div>
-  </div>
+  <div style="text-align:center;font-size:11px;font-weight:700;color:var(--oranye);text-transform:uppercase;letter-spacing:1.5px">Scan QR Code</div>
+  <div><div class="jam" id="jam">--:--:--</div><div class="tgl" id="tgl">--</div></div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
-
   <!-- KIRI: KAMERA -->
-  <div class="panel-kamera">
-    <div class="scan-label">📷 Arahkan QR Code ke kamera</div>
-    <div class="kamera-wrap">
-      <div id="qr-reader"></div>
-      <div class="scan-overlay">
-        <div class="scan-frame">
+  <div class="panel-kiri">
+    <div class="scan-lbl">📷 Kamera Presensi</div>
+    <div class="kamera-container" id="kamera-wrap">
+      <!-- Tampil tombol mulai dulu -->
+      <div class="kamera-idle" id="kamera-idle">
+        <div style="font-size:48px">📷</div>
+        <div style="font-size:14px;font-weight:700">Tap untuk mulai scan</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.3)">Kamera akan aktif setelah diklik</div>
+        <button class="btn-mulai" onclick="mulaiKamera()">▶ Mulai Scan</button>
+      </div>
+      <video id="video" autoplay playsinline muted style="display:none"></video>
+      <canvas id="canvas-hidden"></canvas>
+      <div class="frame-overlay" id="frame-overlay" style="display:none">
+        <div class="frame-box">
           <div class="scan-line"></div>
-          <div class="scan-corner tr"></div>
-          <div class="scan-corner bl"></div>
+          <div class="corner-tr"></div>
+          <div class="corner-bl"></div>
         </div>
       </div>
     </div>
-    <div class="scan-hint">Dekatkan kartu QR siswa ke kamera · Otomatis terbaca</div>
+    <div class="scan-hint" id="scan-hint">Tap "Mulai Scan" lalu arahkan QR ke kamera</div>
   </div>
 
   <!-- KANAN: STATUS + LOG -->
   <div class="panel-kanan">
-
-    <!-- Hasil scan terbaru -->
-    <div class="hasil-scan">
+    <div class="hasil-wrap">
       <div class="hasil-card idle" id="hasil-card">
         <div class="hasil-ikon" id="hasil-ikon">📷</div>
         <div>
@@ -156,52 +151,39 @@
       </div>
     </div>
 
-    <!-- Statistik -->
     <div class="stat-wrap">
       <div class="stat-grid">
-        <div class="stat-item">
-          <div class="stat-val" id="stat-hadir" style="color:#81C784">0</div>
-          <div class="stat-lbl">Hadir</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val" id="stat-total" style="color:white">0</div>
-          <div class="stat-lbl">Total Siswa</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val" id="stat-pct" style="color:var(--oranye)">0%</div>
-          <div class="stat-lbl">Kehadiran</div>
-        </div>
+        <div class="stat-item"><div class="stat-val" id="s-hadir" style="color:#81C784">0</div><div class="stat-lbl">Hadir</div></div>
+        <div class="stat-item"><div class="stat-val" id="s-total" style="color:white">0</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-item"><div class="stat-val" id="s-pct" style="color:var(--oranye)">0%</div><div class="stat-lbl">Kehadiran</div></div>
       </div>
     </div>
 
-    <!-- Filter kelas -->
     <div class="filter-wrap" id="filter-kelas">
-      <button class="kelas-btn aktif" onclick="filterKelas('',this)">Semua</button>
+      <button class="kbtn on" onclick="filterKls('',this)">Semua</button>
     </div>
 
-    <!-- Log presensi -->
-    <div class="log-judul">
-      <span>Log Presensi Hari Ini</span>
-      <span id="log-count" style="font-size:10px">0 siswa</span>
+    <div class="log-hdr">
+      <span>Log Presensi</span>
+      <span id="log-count">0 siswa</span>
     </div>
     <div class="log-list" id="log-list">
-      <div style="text-align:center;padding:30px;color:rgba(255,255,255,0.2);font-size:12px">Belum ada presensi hari ini</div>
+      <div style="text-align:center;padding:24px;color:rgba(255,255,255,0.15);font-size:12px">Belum ada presensi hari ini</div>
     </div>
 
-    <!-- Rekap per kelas -->
-    <div class="rekap-wrap" id="rekap-kelas"></div>
-
+    <div class="rekap-wrap" id="rekap"></div>
   </div>
 </div>
 
+<a href="kelola-siswa.html" class="kelola-link">⚙ Kelola Siswa</a>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const db = getFirestore(initializeApp({
   apiKey:"AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
-  authDomain:"agedasmanli.firebaseapp.com",
-  projectId:"agedasmanli",
+  authDomain:"agedasmanli.firebaseapp.com", projectId:"agedasmanli",
   storageBucket:"agedasmanli.firebasestorage.app",
   messagingSenderId:"969562298791",
   appId:"1:969562298791:web:320a29a007c74739217e82"
@@ -210,8 +192,6 @@ const db = getFirestore(initializeApp({
 const BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 function pad(v){return String(v).padStart(2,'0')}
-
-// JAM
 function updateJam(){
   const n=new Date();
   document.getElementById('jam').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
@@ -219,202 +199,199 @@ function updateJam(){
 }
 updateJam(); setInterval(updateJam,1000);
 
-const now    = new Date();
-const TGL    = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-let presensiHariIni = [];
-let totalSiswa      = 0;
-let filterKelasAktif = '';
-let scanCooldown    = false;
-let kelasSet        = new Set();
+const now=new Date();
+const TGL=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+let presensi=[], totalSiswa=0, filterAktif='', cooldown=false, scanning=false;
 
-// Muat total siswa dari Data_Siswa
-async function muatDataSiswa(){
-  const snap = await getDocs(collection(db,'Data_Siswa'));
-  totalSiswa = snap.docs.length;
-  // Kumpulkan semua kelas
-  snap.docs.forEach(d => {
-    const kelas = d.data().kelas || '';
-    if (kelas) kelasSet.add(kelas);
-  });
-  // Render filter kelas
-  const filterEl = document.getElementById('filter-kelas');
-  const kelasUrut = [...kelasSet].sort();
-  filterEl.innerHTML = `<button class="kelas-btn aktif" onclick="filterKelas('',this)">Semua</button>` +
-    kelasUrut.map(k => `<button class="kelas-btn" onclick="filterKelas('${k}',this)">${k}</button>`).join('');
-  document.getElementById('stat-total').textContent = totalSiswa;
+// Muat total siswa
+async function muatSiswa(){
+  const snap=await getDocs(collection(db,'Data_Siswa'));
+  totalSiswa=snap.docs.length;
+  const kelas=[...new Set(snap.docs.map(d=>d.data().kelas||'').filter(Boolean))].sort();
+  const f=document.getElementById('filter-kelas');
+  f.innerHTML=`<button class="kbtn on" onclick="filterKls('',this)">Semua</button>`+
+    kelas.map(k=>`<button class="kbtn" onclick="filterKls('${k}',this)">${k}</button>`).join('');
+  document.getElementById('s-total').textContent=totalSiswa;
 }
 
-// Real-time listener presensi hari ini
-onSnapshot(
-  query(collection(db,'Presensi_Harian'), where('tanggal','==',TGL)),
-  snap => {
-    presensiHariIni = snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>(b.jam_masuk||'').localeCompare(a.jam_masuk||''));
-    renderLog();
-    updateStat();
-    renderRekap();
-  }
-);
+// Real-time listener
+onSnapshot(query(collection(db,'Presensi_Harian'),where('tanggal','==',TGL)),snap=>{
+  presensi=snap.docs.map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>(b.jam_masuk||'').localeCompare(a.jam_masuk||''));
+  renderLog(); updateStat(); renderRekap();
+});
 
 function updateStat(){
-  const hadir = presensiHariIni.length;
-  const pct   = totalSiswa > 0 ? Math.round(hadir/totalSiswa*100) : 0;
-  document.getElementById('stat-hadir').textContent = hadir;
-  document.getElementById('stat-pct').textContent   = pct+'%';
-  document.getElementById('log-count').textContent  = hadir+' siswa';
+  const h=presensi.length, p=totalSiswa>0?Math.round(h/totalSiswa*100):0;
+  document.getElementById('s-hadir').textContent=h;
+  document.getElementById('s-pct').textContent=p+'%';
+  document.getElementById('log-count').textContent=h+' siswa';
 }
 
 function renderLog(){
-  const data = filterKelasAktif
-    ? presensiHariIni.filter(p => p.kelas === filterKelasAktif)
-    : presensiHariIni;
-  const el = document.getElementById('log-list');
-  if (!data.length){
-    el.innerHTML='<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.2);font-size:12px">Belum ada presensi'+(filterKelasAktif?' kelas '+filterKelasAktif:'')+'</div>';
-    return;
-  }
-  el.innerHTML = data.map((p,i) => {
-    const inisial = (p.nama||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
-    const baru = i === 0 ? 'baru' : '';
-    return `<div class="log-item ${baru}">
-      <div class="log-avatar">${inisial}</div>
-      <div class="log-nama">${p.nama||'—'}</div>
-      <div class="log-kelas">${p.kelas||'—'}</div>
-      <div class="log-jam">${p.jam_masuk?.slice(11,16)||'—'}</div>
+  const data=filterAktif?presensi.filter(p=>p.kelas===filterAktif):presensi;
+  const el=document.getElementById('log-list');
+  if(!data.length){el.innerHTML='<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.15);font-size:12px">Belum ada presensi</div>';return;}
+  el.innerHTML=data.map((p,i)=>{
+    const ini=(p.nama||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+    return `<div class="log-item ${i===0?'baru':''}">
+      <div class="log-av">${ini}</div>
+      <div class="log-nm">${p.nama||'—'}</div>
+      <div class="log-kls">${p.kelas||'—'}</div>
+      <div class="log-jm">${(p.jam_masuk||'').slice(11,16)||'—'}</div>
     </div>`;
   }).join('');
 }
 
 function renderRekap(){
-  if (!kelasSet.size) return;
-  const rekapEl = document.getElementById('rekap-kelas');
-  const kelasUrut = [...kelasSet].sort();
-  const siswaPerKelas = {};
-  // Hitung total siswa per kelas dari presensi (fallback)
-  presensiHariIni.forEach(p => {
-    if (p.kelas) siswaPerKelas[p.kelas] = (siswaPerKelas[p.kelas]||0);
-  });
-  const hadirPerKelas = {};
-  presensiHariIni.forEach(p => {
-    if (p.kelas) hadirPerKelas[p.kelas] = (hadirPerKelas[p.kelas]||0)+1;
-  });
-  rekapEl.innerHTML = kelasUrut.map(k => {
-    const h = hadirPerKelas[k]||0;
-    return `<div class="rekap-item">
-      <div class="rekap-kelas">${k}</div>
-      <div class="rekap-pb"><div class="rekap-pbf" style="width:${Math.min(h*5,100)}%"></div></div>
-      <div class="rekap-val">${h}</div>
-    </div>`;
-  }).join('');
+  const el=document.getElementById('rekap');
+  const perKelas={};
+  presensi.forEach(p=>{if(p.kelas)perKelas[p.kelas]=(perKelas[p.kelas]||0)+1;});
+  const kelas=Object.keys(perKelas).sort();
+  if(!kelas.length){el.innerHTML='';return;}
+  const maks=Math.max(...Object.values(perKelas),1);
+  el.innerHTML=kelas.map(k=>`<div class="rekap-item">
+    <div class="rekap-kls">${k}</div>
+    <div class="rekap-pb"><div class="rekap-pbf" style="width:${Math.round(perKelas[k]/maks*100)}%"></div></div>
+    <div class="rekap-v">${perKelas[k]}</div>
+  </div>`).join('');
 }
 
-// SCAN QR
-async function prosesQR(data) {
-  if (scanCooldown) return;
-  scanCooldown = true;
-  setTimeout(() => { scanCooldown = false; }, 2000);
-
-  // Format QR: NIS|Nama Siswa|Kelas
-  const parts = data.split('|');
-  if (parts.length < 3) {
-    tampilHasil('error','❌','QR Code tidak valid','Format tidak dikenali','—');
-    return;
-  }
-  const [nis, nama, kelas] = parts.map(p => p.trim());
-  const now2   = new Date();
-  const jamStr = `${pad(now2.getHours())}:${pad(now2.getMinutes())}`;
-  const tsStr  = now2.toISOString();
-
-  // Cek duplikat — sudah scan hari ini?
-  const sudah = presensiHariIni.find(p => p.nis === nis);
-  if (sudah) {
-    tampilHasil('duplikat','⚠️',nama,`${kelas} · NIS: ${nis}`,`Sudah scan ${sudah.jam_masuk?.slice(11,16)||'—'}`);
-    return;
-  }
-
-  // Simpan ke Firestore
-  try {
-    await addDoc(collection(db,'Presensi_Harian'), {
-      nis, nama, kelas,
-      tanggal:   TGL,
-      jam_masuk: tsStr,
-      status:    'hadir',
-    });
-    tampilHasil('sukses','✅',nama,`${kelas} · NIS: ${nis}`,jamStr);
-    flashLayar();
-    bunyikanBeep();
-  } catch(e) {
-    tampilHasil('error','❌','Gagal menyimpan',e.message,'—');
-  }
-}
-
-function tampilHasil(tipe, ikon, nama, info, jam) {
-  const card = document.getElementById('hasil-card');
-  const warnaJam = tipe==='sukses'?'var(--hijau)':tipe==='duplikat'?'var(--kuning)':'var(--merah)';
-  card.className = `hasil-card ${tipe}`;
-  document.getElementById('hasil-ikon').textContent = ikon;
-  document.getElementById('hasil-nama').textContent = nama;
-  document.getElementById('hasil-info').textContent = info;
-  document.getElementById('hasil-jam').textContent  = jam;
-  document.getElementById('hasil-jam').style.color  = warnaJam;
-}
-
-function flashLayar(){
-  const el = document.getElementById('notif-flash');
-  el.classList.add('aktif');
-  setTimeout(() => el.classList.remove('aktif'), 150);
-}
-
-function bunyikanBeep(){
-  try {
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.15);
-    osc.start(); osc.stop(ctx.currentTime+0.15);
-  } catch(e){}
-}
-
-window.filterKelas = function(kelas, el) {
-  filterKelasAktif = kelas;
-  document.querySelectorAll('.kelas-btn').forEach(b => b.classList.remove('aktif'));
-  el.classList.add('aktif');
-  renderLog();
+window.filterKls=function(k,el){
+  filterAktif=k;
+  document.querySelectorAll('.kbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); renderLog();
 };
 
-// Inisialisasi scanner
-async function initScanner(){
-  await muatDataSiswa();
-  const scanner = new Html5Qrcode('qr-reader');
+// ── KAMERA — kompatibel Safari iOS ──
+let stream=null, scanTimer=null;
+const video=document.getElementById('video');
+const canvas=document.getElementById('canvas-hidden');
+
+window.mulaiKamera=async function(){
+  document.getElementById('kamera-idle').style.display='none';
+  document.getElementById('scan-hint').textContent='Meminta izin kamera...';
   try {
-    await scanner.start(
-      { facingMode:'environment' },
-      { fps:10, qrbox:{width:220,height:220}, aspectRatio:1.0 },
-      (data) => prosesQR(data),
-      () => {}
-    );
-  } catch(e) {
-    // Fallback ke kamera depan
-    try {
-      await scanner.start(
-        { facingMode:'user' },
-        { fps:10, qrbox:{width:220,height:220} },
-        (data) => prosesQR(data),
-        () => {}
-      );
-    } catch(e2) {
-      document.getElementById('qr-reader').innerHTML =
-        `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">
-          Kamera tidak dapat diakses.<br>Pastikan izin kamera sudah diberikan.<br><small>${e2.message}</small>
-        </div>`;
+    // iOS Safari butuh constraints spesifik
+    const constraints={
+      video:{
+        facingMode:{ideal:'environment'},
+        width:{ideal:1280},
+        height:{ideal:720}
+      }
+    };
+    stream=await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject=stream;
+    video.style.display='block';
+    document.getElementById('frame-overlay').style.display='flex';
+    document.getElementById('scan-hint').textContent='Arahkan QR Code siswa ke kamera · Otomatis terbaca';
+    video.onloadedmetadata=()=>{
+      video.play();
+      mulaiScan();
+    };
+  } catch(err) {
+    document.getElementById('kamera-idle').style.display='flex';
+    document.getElementById('kamera-idle').innerHTML=`
+      <div style="font-size:36px">⚠️</div>
+      <div style="font-size:13px;font-weight:700">Kamera tidak dapat diakses</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6;text-align:center">${err.message}<br><br>
+        Pastikan:<br>
+        • Buka via HTTPS (bukan HTTP)<br>
+        • Izin kamera sudah diberikan di Settings<br>
+        • Safari: Settings → Safari → Camera → Allow
+      </div>
+      <button class="btn-mulai" onclick="mulaiKamera()">🔄 Coba Lagi</button>`;
+    document.getElementById('scan-hint').textContent='Kamera tidak dapat diakses';
+  }
+};
+
+function mulaiScan(){
+  scanning=true;
+  // Import jsQR secara dinamis
+  import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js').then(()=>{
+    scanFrame();
+  }).catch(()=>{
+    // Fallback: load via script tag
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+    s.onload=scanFrame;
+    document.head.appendChild(s);
+  });
+}
+
+function scanFrame(){
+  if(!scanning) return;
+  if(video.readyState===video.HAVE_ENOUGH_DATA && !cooldown){
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+    if(typeof jsQR !== 'undefined'){
+      const code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+      if(code && code.data) prosesQR(code.data);
     }
+  }
+  requestAnimationFrame(scanFrame);
+}
+
+async function prosesQR(data){
+  if(cooldown) return;
+  cooldown=true;
+  setTimeout(()=>{cooldown=false;},2500);
+
+  const parts=data.split('|');
+  if(parts.length<3){
+    tampilHasil('error','❌','QR tidak valid','Format tidak dikenali','—','var(--merah)');
+    return;
+  }
+  const [nis,nama,kelas]=parts.map(p=>p.trim());
+  const n=new Date();
+  const jam=`${pad(n.getHours())}:${pad(n.getMinutes())}`;
+
+  const sudah=presensi.find(p=>p.nis===nis);
+  if(sudah){
+    tampilHasil('duplikat','⚠️',nama,`${kelas} · NIS: ${nis}`,`Sudah scan ${(sudah.jam_masuk||'').slice(11,16)||'—'}`,'var(--kuning)');
+    return;
+  }
+  try {
+    await addDoc(collection(db,'Presensi_Harian'),{nis,nama,kelas,tanggal:TGL,jam_masuk:n.toISOString(),status:'hadir'});
+    tampilHasil('sukses','✅',nama,`${kelas} · NIS: ${nis}`,jam,'var(--hijau)');
+    flash(); beep();
+  } catch(e){
+    tampilHasil('error','❌','Gagal simpan',e.message,'—','var(--merah)');
   }
 }
 
-initScanner();
+function tampilHasil(tipe,ikon,nama,info,jam,warna){
+  const c=document.getElementById('hasil-card');
+  c.className='hasil-card '+tipe;
+  document.getElementById('hasil-ikon').textContent=ikon;
+  document.getElementById('hasil-nama').textContent=nama;
+  document.getElementById('hasil-info').textContent=info;
+  const jEl=document.getElementById('hasil-jam');
+  jEl.textContent=jam; jEl.style.color=warna;
+}
+
+function flash(){
+  const el=document.getElementById('flash');
+  el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),150);
+}
+
+function beep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=880;
+    g.gain.setValueAtTime(0.3,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
+    o.start();o.stop(ctx.currentTime+0.15);
+  }catch(e){}
+}
+
+muatSiswa();
 </script>
 </body>
 </html>
