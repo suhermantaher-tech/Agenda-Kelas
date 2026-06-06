@@ -1500,6 +1500,10 @@
         📂 Import Excel
       </button>
       <input type="file" id="file-materi" accept=".xlsx,.xls" style="display:none" onchange="importMateriExcel(this)">
+      <button class="btn-aksi" onclick="document.getElementById('file-test').click()" style="background:#546E7A;color:white;border-color:#37474F">
+        🔍 Test Baca Excel
+      </button>
+      <input type="file" id="file-test" accept=".xlsx,.xls" style="display:none" onchange="testBacaExcel(this)">
       <button class="btn-aksi" onclick="unduhTemplateMateri()">📋 Template Excel</button>
       <button class="btn-aksi primary" onclick="tampilFormMateri()">+ Tambah Manual</button>
     </div>
@@ -4336,7 +4340,6 @@
     if (!file) return;
     input.value = '';
 
-    // 3 pertanyaan wajib
     const kelas = (prompt('Kelas? (ketik: X atau XI atau XII)') || '').trim().toUpperCase();
     if (!kelas) return;
     const mapelInput = (prompt('Nama Mata Pelajaran?\nContoh: Ekonomi') || '').trim();
@@ -4344,7 +4347,6 @@
     const smt = (prompt('Semester? (Ganjil atau Genap)') || 'Ganjil').trim();
     const fase = kelas === 'X' ? 'E' : 'F';
 
-    // Cari data mapel
     const mapelData = cacheMapelAdmin.find(m =>
       (m.nama_mapel||'').toLowerCase().includes(mapelInput.toLowerCase())
     );
@@ -4353,61 +4355,77 @@
     const reader = new FileReader();
     reader.onload = async e => {
       try {
-        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        // Baca dengan raw:true agar angka tidak diformat ulang
+        const wb = XLSX.read(new Uint8Array(e.target.result), {
+          type: 'array',
+          raw: true,
+          cellText: true,
+          cellNF: false
+        });
 
-        // Ambil sheet pertama yang bukan PANDUAN
-        let ws = null;
+        // Ambil sheet pertama bukan PANDUAN
+        let ws = null, wsName = '';
         for (const sn of wb.SheetNames) {
           if (!sn.toUpperCase().includes('PANDUAN')) {
-            ws = wb.Sheets[sn];
-            break;
+            ws = wb.Sheets[sn]; wsName = sn; break;
           }
         }
-        if (!ws) ws = wb.Sheets[wb.SheetNames[0]];
+        if (!ws) { ws = wb.Sheets[wb.SheetNames[0]]; wsName = wb.SheetNames[0]; }
 
-        // Baca semua sel langsung dari worksheet
         const ref = ws['!ref'];
         if (!ref) { tampilToast('⚠ Sheet kosong'); return; }
 
-        // Decode range
         const range = XLSX.utils.decode_range(ref);
-        const rows = [];
+        const dataRows = [];
 
         for (let R = range.s.r; R <= range.e.r; R++) {
           const cellA = ws[XLSX.utils.encode_cell({r:R, c:0})];
           const cellB = ws[XLSX.utils.encode_cell({r:R, c:1})];
-          const valA = cellA ? String(cellA.v || '').trim() : '';
-          const valB = cellB ? String(cellB.v || '').trim() : '';
-          if (valA && valB) rows.push({ no: valA, nama: valB });
+
+          if (!cellA || !cellB) continue;
+
+          // Ambil nilai teks asli — coba w (formatted), lalu v (raw value)
+          // Untuk angka desimal seperti 1.1, Excel simpan sebagai number
+          let valA = '';
+          if (cellA.w) {
+            valA = String(cellA.w).trim();
+          } else if (cellA.v !== undefined) {
+            valA = String(cellA.v).trim();
+          }
+
+          let valB = '';
+          if (cellB.w) {
+            valB = String(cellB.w).trim();
+          } else if (cellB.v !== undefined) {
+            valB = String(cellB.v).trim();
+          }
+
+          if (!valA || !valB) continue;
+          // Skip header
+          if (valA.toLowerCase() === 'no') continue;
+
+          dataRows.push({ no: valA, nama: valB });
         }
 
-        // Filter baris header
-        const dataRows = rows.filter(r =>
-          r.no.toLowerCase() !== 'no' &&
-          !r.nama.toLowerCase().includes('materi pokok') &&
-          r.no !== ''
-        );
-
         if (!dataRows.length) {
-          tampilToast('⚠ Tidak ada data terbaca. Cek format file.');
+          tampilToast('⚠ Tidak ada data terbaca. Cek format file Excel.');
           return;
         }
 
         // Simpan ke Firestore
-        let count = 0;
         const batch = writeBatch(db);
+        let count = 0;
         dataRows.forEach(row => {
-          const isPokok = !row.no.includes('.');
           const docRef = doc(collection(db, 'Materi_Kurikulum'));
           batch.set(docRef, {
-            no: row.no,
-            nama: row.nama,
+            no:         row.no,
+            nama:       row.nama,
             kelas, fase,
             id_mapel:   mapelData?.id || namaMapel,
             nama_mapel: namaMapel,
             mapel:      namaMapel,
             semester:   smt,
-            is_pokok:   isPokok,
+            is_pokok:   !row.no.includes('.'),
             timestamp:  new Date().toISOString()
           });
           count++;
@@ -4419,13 +4437,55 @@
 
       } catch(err) {
         console.error('Import error:', err);
-        tampilToast('⚠ Gagal baca file: ' + err.message);
+        tampilToast('⚠ Error: ' + err.message);
       }
     };
     reader.readAsArrayBuffer(file);
   };
 
   // unduhTemplateMateri sudah didefinisikan di atas
+
+
+
+  window.testBacaExcel = function(input) {
+    const file = input.files[0]; if (!file) return; input.value = '';
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
+      let hasil = `File: ${file.name}\n`;
+      hasil += `Sheets: ${wb.SheetNames.join(', ')}\n\n`;
+
+      wb.SheetNames.forEach(sn => {
+        const ws = wb.Sheets[sn];
+        hasil += `=== Sheet: ${sn} ===\n`;
+        if (!ws['!ref']) { hasil += '(kosong)\n'; return; }
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        hasil += `Range: ${ws['!ref']} (${range.e.r+1} baris x ${range.e.c+1} kolom)\n\n`;
+        // Tampilkan 10 baris pertama
+        for (let R = range.s.r; R <= Math.min(range.e.r, 9); R++) {
+          let baris = `Baris ${R}: `;
+          for (let C = range.s.c; C <= Math.min(range.e.c, 5); C++) {
+            const cell = ws[XLSX.utils.encode_cell({r:R,c:C})];
+            const val = cell ? `[${cell.t}]"${cell.v}"` : '(kosong)';
+            baris += `K${C}=${val}  `;
+          }
+          hasil += baris + '\n';
+        }
+        hasil += '\n';
+      });
+
+      // Tampilkan di dialog
+      const div = document.createElement('div');
+      div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+      div.innerHTML = `<div style="background:white;border-radius:12px;padding:20px;max-width:800px;width:90%;max-height:80vh;overflow:auto;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">🔍 Hasil Baca Excel</div>
+        <pre style="font-size:11px;font-family:monospace;background:#F5F5F5;padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap">${hasil}</pre>
+        <button onclick="this.closest('div[style]').remove()" style="margin-top:12px;padding:8px 20px;background:#E07020;color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700">Tutup</button>
+      </div>`;
+      document.body.appendChild(div);
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
 
 </script>
