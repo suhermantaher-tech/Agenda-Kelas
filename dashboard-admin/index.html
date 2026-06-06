@@ -3020,19 +3020,53 @@
   };
 
   window.unduhTemplateMateri = function() {
-    const ws = XLSX.utils.aoa_to_sheet([
-      ['No','Materi Pokok/Sub Materi','Mapel','Kelas','Fase'],
-      ['1','Konsep Dasar Ilmu Ekonomi','Ekonomi','X','E'],
-      ['1.1','Kelangkaan (scarcity)','Ekonomi','X','E'],
-      ['1.2','Skala prioritas','Ekonomi','X','E'],
-      ['1.3','Biaya peluang (opportunity cost)','Ekonomi','X','E'],
-      ['2','Kegiatan Ekonomi','Ekonomi','X','E'],
-      ['2.1','Peran rumah tangga konsumen (RTK)','Ekonomi','X','E'],
-      ['2.2','Rumah tangga produsen (RTP)','Ekonomi','X','E'],
+    // ── Sheet 1: Panduan ──
+    const wsPanduan = XLSX.utils.aoa_to_sheet([
+      ['PANDUAN PENGISIAN BANK MATERI KURIKULUM — CMA SMAN 5 SAROLANGUN'],
+      [''],
+      ['KOLOM YANG WAJIB DIISI:'],
+      ['Kolom A (No)',          'Nomor urut materi. INTEGER (1,2,3) = Pokok Bahasan. DESIMAL (1.1, 1.2, 2.1) = Sub Materi'],
+      ['Kolom B (Materi)',      'Nama pokok bahasan atau sub materi'],
+      ['Kolom C (Kelas)',       'Isi dengan: X   atau   XI   atau   XII   (tanpa spasi lebih)'],
+      ['Kolom D (Fase)',        'Isi dengan: E   (untuk kelas X)   atau   F   (untuk kelas XI dan XII)'],
+      ['Kolom E (Mapel)',       'Nama mata pelajaran PERSIS seperti di data master mapel di Dashboard Admin'],
+      ['Kolom F (Semester)',    'Isi dengan: Ganjil   atau   Genap'],
+      [''],
+      ['ATURAN PENOMORAN:'],
+      ['No 1, 2, 3 ...',       '→ Pokok Bahasan (baris tebal/utama)'],
+      ['No 1.1, 1.2, 1.3 ...', '→ Sub Materi dari Pokok Bahasan 1'],
+      ['No 2.1, 2.2, 2.3 ...', '→ Sub Materi dari Pokok Bahasan 2'],
+      [''],
+      ['PENTING:'],
+      ['1. Satu file Excel untuk SATU mata pelajaran dan SATU kelas'],
+      ['2. Jangan gabungkan beberapa mapel dalam satu file'],
+      ['3. Baris pertama adalah HEADER — jangan dihapus'],
+      ['4. Kolom No harus berupa TEKS (format sel = Text), bukan angka'],
     ]);
-    ws['!cols'] = [{wch:8},{wch:40},{wch:20},{wch:8},{wch:6}];
+    wsPanduan['!cols'] = [{wch:28},{wch:70}];
+
+    // ── Sheet 2: Template isi ──
+    const wsData = XLSX.utils.aoa_to_sheet([
+      ['No', 'Materi', 'Kelas', 'Fase', 'Mapel', 'Semester'],
+      ['1',   'Konsep Dasar Ilmu Ekonomi',              'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['1.1', 'Kelangkaan (scarcity)',                  'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['1.2', 'Skala prioritas',                        'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['1.3', 'Biaya peluang (opportunity cost)',       'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['2',   'Kegiatan Ekonomi',                       'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['2.1', 'Peran rumah tangga konsumen (RTK)',      'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['2.2', 'Rumah tangga produsen (RTP)',            'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['2.3', 'Rumah tangga pemerintah',                'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['2.4', 'Masyarakat luar negeri dalam perekonomian', 'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['3',   'Permintaan dan Penawaran',               'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['3.1', 'Hukum permintaan',                      'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['3.2', 'Hukum penawaran',                       'X', 'E', 'Ekonomi', 'Ganjil'],
+      ['3.3', 'Keseimbangan pasar',                    'X', 'E', 'Ekonomi', 'Ganjil'],
+    ]);
+    wsData['!cols'] = [{wch:8},{wch:45},{wch:7},{wch:6},{wch:20},{wch:10}];
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Bank Materi');
+    XLSX.utils.book_append_sheet(wb, wsPanduan, '1. PANDUAN');
+    XLSX.utils.book_append_sheet(wb, wsData,    '2. ISI DATA DISINI');
     XLSX.writeFile(wb, 'Template_Bank_Materi_CMA.xlsx');
     tampilToast('✅ Template berhasil diunduh!');
   };
@@ -4322,46 +4356,73 @@
 
   window.importMateriExcel = async function(input) {
     const file = input.files[0]; if (!file) return; input.value = '';
-    const kelasFilter = document.getElementById('materi-filter-kelas').value;
-    if (!kelasFilter) { tampilToast('⚠ Pilih kelas terlebih dahulu sebelum import'); return; }
-
-    // Tanya mapel
-    const mapelSel = prompt('Masukkan nama mata pelajaran untuk file ini:');
-    if (!mapelSel) return;
-    const mapelData = cacheMapelAdmin.find(m =>
-      (m.nama_mapel||'').toLowerCase().includes(mapelSel.toLowerCase()) ||
-      (m.nama||'').toLowerCase().includes(mapelSel.toLowerCase())
-    );
 
     const reader = new FileReader();
     reader.onload = async e => {
-      const wb   = XLSX.read(e.target.result, { type:'array' });
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
-      if (!rows.length) { tampilToast('⚠ File kosong'); return; }
+      const wb = XLSX.read(e.target.result, { type:'array' });
 
-      let count = 0;
+      // Cari sheet data — sheet ke-2 jika ada (skip panduan), atau sheet pertama
+      const sheetName = wb.SheetNames.length > 1 ? wb.SheetNames[1] : wb.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval:'', raw:false });
+      if (!rows.length) { tampilToast('⚠ File kosong atau format salah'); return; }
+
+      // Validasi kolom — pastikan ada kolom No dan Materi
+      const firstRow = rows[0];
+      const kolomNo     = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'no');
+      const kolomMateri = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'materi');
+      const kolomKelas  = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'kelas');
+      const kolomFase   = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'fase');
+      const kolomMapel  = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'mapel');
+      const kolomSmt    = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'semester');
+
+      if (!kolomNo || !kolomMateri) {
+        tampilToast('⚠ Kolom "No" dan "Materi" wajib ada. Gunakan template yang disediakan.');
+        return;
+      }
+
+      // Ambil nilai dari baris pertama data untuk kelas & mapel
+      const kelasFromFile = kolomKelas ? String(rows[0][kolomKelas]||'').trim() : '';
+      const mapelFromFile = kolomMapel ? String(rows[0][kolomMapel]||'').trim() : '';
+      const smtFromFile   = kolomSmt   ? String(rows[0][kolomSmt]||'').trim()  : 'Ganjil';
+      const faseFromFile  = kolomFase  ? String(rows[0][kolomFase]||'').trim() : '';
+
+      // Cari data mapel di cache
+      const mapelData = cacheMapelAdmin.find(m =>
+        (m.nama_mapel||'').toLowerCase() === mapelFromFile.toLowerCase() ||
+        (m.nama_mapel||'').toLowerCase().includes(mapelFromFile.toLowerCase())
+      );
+
+      let count = 0, skip = 0;
       const batch = writeBatch(db);
+
       rows.forEach(row => {
-        const no   = String(row['No'] || row['no'] || '').trim();
-        const nama = String(row['Materi Pokok/Sub Materi'] || row['Materi'] || row['nama'] || '').trim();
-        if (!no || !nama) return;
+        const no   = String(row[kolomNo]||'').trim();
+        const nama = String(row[kolomMateri]||'').trim();
+        if (!no || !nama) { skip++; return; }
+
+        // Ambil kelas & fase per baris (bisa berbeda tiap baris)
+        const kelas = kolomKelas ? String(row[kolomKelas]||kelasFromFile).trim() : kelasFromFile;
+        const fase  = kolomFase  ? String(row[kolomFase]||faseFromFile).trim()  :
+                      (kelas==='X'?'E':'F');
+        const smt   = kolomSmt   ? String(row[kolomSmt]||smtFromFile).trim()   : smtFromFile;
+        const mapelNama = kolomMapel ? String(row[kolomMapel]||mapelFromFile).trim() : mapelFromFile;
+
         const isPokok = !no.includes('.');
         const ref = doc(collection(db, 'Materi_Kurikulum'));
         batch.set(ref, {
-          no, nama,
-          kelas: kelasFilter,
-          fase: kelasFilter==='X'?'E':'F',
-          id_mapel: mapelData?.id || mapelSel,
-          nama_mapel: mapelData?.nama_mapel || mapelSel,
-          mapel: mapelData?.nama_mapel || mapelSel,
-          semester: 'Ganjil',
+          no, nama, kelas, fase,
+          id_mapel:   mapelData?.id || mapelNama,
+          nama_mapel: mapelData?.nama_mapel || mapelNama,
+          mapel:      mapelData?.nama_mapel || mapelNama,
+          semester: smt,
           is_pokok: isPokok,
           timestamp: new Date().toISOString()
         });
         count++;
       });
+
       await batch.commit();
-      tampilToast(`✅ ${count} materi berhasil diimport`);
+      tampilToast(`✅ ${count} materi diimport${skip?' ('+skip+' baris kosong dilewati)':''}`);
       await muatBankMateri();
     };
     reader.readAsArrayBuffer(file);
