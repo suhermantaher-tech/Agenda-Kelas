@@ -556,6 +556,35 @@
     .rombel-nama { font-size:16px; font-weight:800; color:var(--teks); }
     .rombel-info { font-size:12px; color:var(--abu); margin-top:3px; line-height:1.6; }
     .rombel-mapel-count { font-size:11px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; margin-top:6px; display:inline-block; }
+    /* PROFIL SEKOLAH */
+    .profil-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+    .profil-field { display:flex; flex-direction:column; gap:4px; }
+    .profil-label { font-size:11px; font-weight:700; color:var(--teks-muted); text-transform:uppercase; letter-spacing:0.5px; }
+    .profil-input { padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:13px; font-family:"Plus Jakarta Sans",sans-serif; color:var(--teks); outline:none; transition:border-color 0.2s; background:var(--abu-bg); }
+    .profil-input:focus { border-color:var(--oranye); background:white; }
+    .profil-logo-wrap { display:flex; align-items:center; gap:14px; padding:14px; background:var(--abu-bg); border-radius:var(--radius-sm); border:1.5px dashed var(--border); }
+    .profil-logo-prev { width:72px; height:72px; border-radius:12px; object-fit:contain; background:white; border:1px solid var(--border); }
+    .profil-header { background:white; border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px; display:flex; align-items:center; gap:16px; box-shadow:var(--shadow); }
+    .profil-header-logo { width:64px; height:64px; border-radius:12px; object-fit:contain; }
+    .profil-header-nama { font-size:18px; font-weight:800; color:var(--teks); }
+    .profil-header-sub { font-size:12px; color:var(--teks-muted); margin-top:3px; }
+    .profil-header-badge { font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:4px 12px; border-radius:20px; margin-top:6px; display:inline-block; }
+
+    /* BANK MATERI */
+    .bm-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+    .bm-tab { padding:6px 16px; border:1px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:"Plus Jakarta Sans",sans-serif; transition:all 0.15s; }
+    .bm-tab.aktif { background:var(--biru-tua); border-color:var(--biru-tua); color:white; }
+    .bm-mapel-sel { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+    .bm-pohon { border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .bm-pokok-row { display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--biru-muda); border-bottom:1px solid var(--border); cursor:pointer; }
+    .bm-pokok-no { font-family:"DM Mono",monospace; font-size:12px; font-weight:700; color:var(--biru-tua); min-width:28px; }
+    .bm-pokok-nama { font-size:13px; font-weight:700; color:var(--biru-tua); flex:1; }
+    .bm-sub-row { display:flex; align-items:center; gap:8px; padding:8px 14px 8px 40px; border-bottom:0.5px solid var(--border); background:white; }
+    .bm-sub-no { font-family:"DM Mono",monospace; font-size:11px; color:var(--abu); min-width:28px; }
+    .bm-sub-nama { font-size:12px; color:var(--teks); flex:1; }
+    .bm-sub-row:last-child { border-bottom:none; }
+    .bm-add-row { display:flex; gap:8px; padding:10px 14px; background:var(--abu-bg); border-top:1px solid var(--border); }
+
     .kal-card { background:var(--putih); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px; }
     .kal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
     .kal-field { display:flex; flex-direction:column; gap:4px; }
@@ -669,6 +698,12 @@
       <span class="nav-ikon">📋</span> Penyusunan Roster
     </button>
     <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
+    <button class="nav-item" onclick="gantiPage('profil', this)">
+      <span class="nav-ikon">🏫</span> Profil Sekolah
+    </button>
+    <button class="nav-item" onclick="gantiPage('bank-materi', this)">
+      <span class="nav-ikon">📚</span> Bank Materi
+    </button>
     <button class="nav-item" onclick="gantiPage('jambaku', this)">
       <span class="nav-ikon">⏰</span> Jam Baku
     </button>
@@ -1124,6 +1159,191 @@
     </div>
   </div>
 
+  <!-- PAGE: PROFIL SEKOLAH -->
+  <div class="page" id="page-profil">
+
+    <!-- Preview profil aktif -->
+    <div class="profil-header" id="profil-header-prev" style="display:none">
+      <img id="prev-logo" src="../shared/logo.jpg" class="profil-header-logo" alt="Logo">
+      <div>
+        <div class="profil-header-nama" id="prev-nama">—</div>
+        <div class="profil-header-sub" id="prev-npsn">NPSN: —</div>
+        <div class="profil-header-sub" id="prev-alamat">—</div>
+        <span class="profil-header-badge" id="prev-ta">—</span>
+      </div>
+    </div>
+
+    <div class="tabel-card" style="padding:22px;margin-bottom:14px;">
+      <div class="section-judul" style="margin-bottom:16px;">🏫 Data Profil Sekolah</div>
+
+      <div class="profil-grid">
+        <div class="profil-field">
+          <label class="profil-label">Nama Sekolah *</label>
+          <input type="text" class="profil-input" id="pf-nama" placeholder="SMA Negeri 5 Sarolangun">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">NPSN *</label>
+          <input type="text" class="profil-input" id="pf-npsn" placeholder="10504567">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Kepala Sekolah</label>
+          <input type="text" class="profil-input" id="pf-kepsek" placeholder="Nama Kepala Sekolah, M.Pd">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">NIP Kepala Sekolah</label>
+          <input type="text" class="profil-input" id="pf-nip-kepsek" placeholder="197001012000011001">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Alamat Sekolah</label>
+          <input type="text" class="profil-input" id="pf-alamat" placeholder="Jl. Lintas Sumatera, Sarolangun">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Telepon / Email</label>
+          <input type="text" class="profil-input" id="pf-telp" placeholder="0745-91234 / sman5sarolangun@gmail.com">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Kabupaten / Provinsi</label>
+          <input type="text" class="profil-input" id="pf-kab" placeholder="Sarolangun / Jambi">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Akreditasi</label>
+          <select class="filter-select" id="pf-akreditasi" style="width:100%;padding:9px 12px;">
+            <option value="">Pilih akreditasi</option>
+            <option>A (Unggul)</option>
+            <option>B (Baik)</option>
+            <option>C (Cukup)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-judul" style="margin-bottom:12px;margin-top:8px;">📅 Periode Aktif</div>
+      <div class="profil-grid">
+        <div class="profil-field">
+          <label class="profil-label">Tahun Ajaran *</label>
+          <input type="text" class="profil-input" id="pf-tahun" placeholder="2025/2026">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Semester Aktif *</label>
+          <select class="filter-select" id="pf-semester" style="width:100%;padding:9px 12px;">
+            <option value="Ganjil">Ganjil</option>
+            <option value="Genap">Genap</option>
+          </select>
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Tanggal Mulai Semester</label>
+          <input type="date" class="profil-input" id="pf-mulai">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Tanggal Selesai Semester</label>
+          <input type="date" class="profil-input" id="pf-selesai">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Jumlah Minggu Efektif</label>
+          <input type="number" class="profil-input" id="pf-minggu" placeholder="18" min="1" max="26">
+        </div>
+        <div class="profil-field">
+          <label class="profil-label">Kurikulum</label>
+          <select class="filter-select" id="pf-kurikulum" style="width:100%;padding:9px 12px;">
+            <option>Merdeka Belajar</option>
+            <option>K13</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanProfil()">💾 Simpan Profil</button>
+        <button class="btn-ekspor" style="background:var(--abu-bg);border:1px solid var(--border);" onclick="muatProfil()">🔄 Muat Tersimpan</button>
+      </div>
+      <div id="profil-msg" style="font-size:12px;margin-top:8px;font-weight:600;"></div>
+    </div>
+
+    <!-- Info penggunaan -->
+    <div class="tabel-card" style="padding:16px;background:var(--biru-muda);border:1px solid #90CAF9;">
+      <div style="font-size:12px;color:var(--biru-tua);line-height:1.7;">
+        <strong>ℹ️ Profil sekolah digunakan sebagai:</strong><br>
+        • Header otomatis di semua laporan cetak (harian, bulanan, semester)<br>
+        • Acuan tahun ajaran dan semester aktif di seluruh modul<br>
+        • Data dasar untuk Dashboard Kepala Sekolah<br>
+        • Identitas dalam ekspor Excel dan PDF
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: BANK MATERI -->
+  <div class="page" id="page-bank-materi">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div class="section-judul" style="margin:0">📚 Bank Materi Kurikulum</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="document.getElementById('imp-materi-file').click()">📥 Import Excel</button>
+        <input type="file" id="imp-materi-file" accept=".xlsx,.xls" style="display:none" onchange="importBankMateri(this)">
+        <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="unduhTemplateMateri()">📋 Template Excel</button>
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormPokok()">+ Tambah Pokok Bahasan</button>
+      </div>
+    </div>
+
+    <div style="background:var(--oranye-terang);border:1px solid #FFCC80;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--oranye-gelap);margin-bottom:14px;line-height:1.7;">
+      <strong>Format Excel:</strong> Kolom <code>No</code> · <code>Materi Pokok/Sub Materi</code> · <code>Mapel</code> · <code>Kelas</code> · <code>Fase</code><br>
+      No berupa angka (1, 2, 3...) untuk pokok bahasan, dan desimal (1.1, 1.2...) untuk sub materi. Satu file bisa berisi semua mapel.
+    </div>
+
+    <!-- Filter -->
+    <div class="bm-mapel-sel">
+      <select class="filter-select" id="bm-filter-kelas" onchange="bmFilter()">
+        <option value="">Semua Kelas</option>
+        <option value="X">Kelas X (Fase E)</option>
+        <option value="XI">Kelas XI (Fase F)</option>
+        <option value="XII">Kelas XII (Fase F)</option>
+      </select>
+      <select class="filter-select" id="bm-filter-mapel" onchange="bmFilter()">
+        <option value="">Semua Mapel</option>
+      </select>
+      <input type="text" class="filter-input" id="bm-cari" placeholder="Cari materi..." oninput="bmFilter()" style="flex:1;max-width:260px">
+      <span id="bm-stat" style="font-size:11px;color:var(--abu)">—</span>
+    </div>
+
+    <!-- Form tambah pokok bahasan -->
+    <div id="form-pokok-wrap" style="display:none;margin-bottom:14px;">
+      <div class="tabel-card" style="padding:16px;">
+        <div class="section-judul" style="margin-bottom:12px;" id="form-pokok-judul">➕ Tambah Pokok Bahasan</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label class="form-lbl">Nomor Urut *</label>
+            <input type="text" class="filter-input" id="fp-no" placeholder="1" style="width:100%;margin-top:4px;font-family:DM Mono,monospace">
+          </div>
+          <div>
+            <label class="form-lbl">Kelas *</label>
+            <select class="filter-select" id="fp-kelas" style="width:100%;margin-top:4px;">
+              <option value="">Pilih kelas</option>
+              <option value="X">X (Fase E)</option>
+              <option value="XI">XI (Fase F)</option>
+              <option value="XII">XII (Fase F)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-lbl">Mata Pelajaran *</label>
+            <select class="filter-select" id="fp-mapel" style="width:100%;margin-top:4px;">
+              <option value="">Pilih mapel</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="form-lbl">Materi Pokok / Sub Materi *</label>
+          <input type="text" class="filter-input" id="fp-nama" placeholder="Konsep Dasar Ilmu Ekonomi" style="width:100%;margin-top:4px;">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanPokok()">💾 Simpan</button>
+          <button class="btn-ekspor" onclick="tutupFormPokok()">Batal</button>
+        </div>
+        <div id="pokok-err" style="color:var(--merah);font-size:12px;margin-top:6px;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Tampilan pohon materi -->
+    <div id="bm-konten">
+      <div class="loading-inline">Pilih kelas dan mapel untuk melihat materi</div>
+    </div>
+  </div>
+
   <!-- PAGE: KALENDER AKADEMIK -->
   <div class="page" id="page-kalender">
 
@@ -1243,6 +1463,102 @@
     <div class="jb-preview" id="jb-preview"></div>
   </div>
 
+
+
+<!-- PAGE: BANK MATERI KURIKULUM -->
+<div class="page" id="page-materi">
+  <div class="page-header">
+    <div>
+      <div class="page-title">📚 Bank Materi Kurikulum</div>
+      <div class="page-sub">Kelola pokok bahasan dan sub materi per mapel per kelas — sumber dropdown di Portal Guru</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="materi-toolbar">
+    <div class="materi-filter">
+      <label>Kelas</label>
+      <select id="materi-filter-kelas" onchange="filterMateri()">
+        <option value="">Semua Kelas</option>
+        <option value="X">Kelas X (Fase E)</option>
+        <option value="XI">Kelas XI (Fase F)</option>
+        <option value="XII">Kelas XII (Fase F)</option>
+      </select>
+    </div>
+    <div class="materi-filter">
+      <label>Mata Pelajaran</label>
+      <select id="materi-filter-mapel" onchange="filterMateri()">
+        <option value="">Semua Mapel</option>
+      </select>
+    </div>
+    <div class="materi-filter">
+      <label>Cari</label>
+      <input type="text" id="materi-cari" placeholder="Nama materi..." oninput="filterMateri()">
+    </div>
+    <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+      <button class="btn-aksi" onclick="document.getElementById('file-materi').click()" style="background:var(--hijau);color:white;border-color:#1B5E20">
+        📂 Import Excel
+      </button>
+      <input type="file" id="file-materi" accept=".xlsx,.xls" style="display:none" onchange="importMateriExcel(this)">
+      <button class="btn-aksi" onclick="unduhTemplateMateri()">📋 Template Excel</button>
+      <button class="btn-aksi primary" onclick="tampilFormMateri()">+ Tambah Manual</button>
+    </div>
+  </div>
+
+  <!-- INFO FORMAT -->
+  <div style="background:#E3EEF8;border-radius:10px;padding:10px 14px;font-size:12px;color:var(--biru-tua);margin-bottom:14px;line-height:1.7">
+    <strong>Format Excel:</strong> Kolom <code>No</code> · <code>Materi Pokok/Sub Materi</code> · <code>Mapel</code> · <code>Kelas</code> · <code>Fase</code><br>
+    No integer (1, 2, 3) = Pokok Bahasan · No desimal (1.1, 1.2, 2.1) = Sub Materi
+  </div>
+
+  <!-- FORM TAMBAH MANUAL -->
+  <div id="form-materi" style="display:none;background:#F8F9FA;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Tambah Materi Manual</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">No</label>
+        <input type="text" id="fm-no" placeholder="1 atau 1.1" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+      </div>
+      <div style="grid-column:span 2">
+        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Nama Materi</label>
+        <input type="text" id="fm-nama" placeholder="Nama pokok/sub materi" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Kelas</label>
+        <select id="fm-kelas" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+          <option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Mata Pelajaran</label>
+        <select id="fm-mapel" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+          <option value="">Pilih Mapel...</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Semester</label>
+        <select id="fm-semester" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+          <option value="Ganjil">Ganjil</option><option value="Genap">Genap</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-aksi primary" onclick="simpanMateriManual()">💾 Simpan</button>
+      <button class="btn-aksi" onclick="document.getElementById('form-materi').style.display='none'">Batal</button>
+    </div>
+  </div>
+
+  <!-- POHON MATERI -->
+  <div id="materi-konten">
+    <div style="text-align:center;padding:40px;color:var(--abu)">
+      <div style="font-size:36px;margin-bottom:8px">📚</div>
+      <div>Belum ada materi · Import Excel atau tambah manual</div>
+    </div>
+  </div>
+</div>
+
 </div><!-- .main -->
 
 <div class="toast" id="toast"></div>
@@ -1317,10 +1633,13 @@
     document.getElementById('topbar-sub').textContent   = sub[page]||'';
 
     if (page === 'laporan')  renderLaporan().catch(e => console.error(e));
+    if (page === 'materi')   muatBankMateri();
     if (page === 'guru')     renderGuru();
     if (page === 'jadwal')   renderJadwal();
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
     if (page === 'jambaku')  { if(!jbSudahMuat) initJamBaku(); else { jbRenderTabel(); jbRenderPreview(); } }
+    if (page === 'profil')      { muatProfil(); }
+    if (page === 'bank-materi') { muatBankMateri(); bmIsiFilterMapel(); }
     if (page === 'kalender') initKalender();
     if (page === 'roster')   { if(!rosterSudahMuat) rosterMuat(); else rosterRenderGrid(); }
     if (page === 'mapel')    { renderMapelGrid(allMapel); }
@@ -2426,6 +2745,296 @@
       tutupFormRombel();
       renderRombelGrid();
     } catch(e) { errEl.textContent = 'Gagal: ' + e.message; }
+  };
+
+
+  // ══════════════════════════════════════
+  // PROFIL SEKOLAH
+  // ══════════════════════════════════════
+  let profilSekolah = {};
+
+  async function muatProfil() {
+    try {
+      const snap = await getDocs(collection(db, 'Profil_Sekolah'));
+      if (!snap.empty) {
+        profilSekolah = snap.docs[0].data();
+        profilSekolah._docId = snap.docs[0].id;
+        isiForms();
+        tampilHeaderProfil();
+      }
+    } catch(e) { console.log('Profil:', e.message); }
+  }
+
+  function isiForms() {
+    const p = profilSekolah;
+    const fields = {
+      'pf-nama':p.nama_sekolah||'','pf-npsn':p.npsn||'',
+      'pf-kepsek':p.kepala_sekolah||'','pf-nip-kepsek':p.nip_kepsek||'',
+      'pf-alamat':p.alamat||'','pf-telp':p.telp||'',
+      'pf-kab':p.kabupaten||'','pf-tahun':p.tahun_ajaran||'',
+      'pf-mulai':p.tanggal_mulai||'','pf-selesai':p.tanggal_selesai||'',
+      'pf-minggu':p.minggu_efektif||''
+    };
+    Object.entries(fields).forEach(([id,val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+    if (p.semester) document.getElementById('pf-semester').value = p.semester;
+    if (p.akreditasi) document.getElementById('pf-akreditasi').value = p.akreditasi;
+    if (p.kurikulum) document.getElementById('pf-kurikulum').value = p.kurikulum;
+  }
+
+  function tampilHeaderProfil() {
+    const p = profilSekolah;
+    const h = document.getElementById('profil-header-prev');
+    if (!p.nama_sekolah) return;
+    h.style.display = 'flex';
+    document.getElementById('prev-nama').textContent = p.nama_sekolah || '—';
+    document.getElementById('prev-npsn').textContent = 'NPSN: ' + (p.npsn || '—');
+    document.getElementById('prev-alamat').textContent = (p.alamat||'') + (p.kabupaten ? ' · ' + p.kabupaten : '');
+    document.getElementById('prev-ta').textContent = `T.A. ${p.tahun_ajaran||'—'} · Semester ${p.semester||'—'} · ${p.minggu_efektif||'?'} minggu efektif`;
+  }
+
+  window.simpanProfil = async function() {
+    const nama = document.getElementById('pf-nama').value.trim();
+    const npsn = document.getElementById('pf-npsn').value.trim();
+    const msg  = document.getElementById('profil-msg');
+    if (!nama) { msg.textContent = '⚠ Nama sekolah wajib diisi!'; msg.style.color = 'var(--merah)'; return; }
+
+    const data = {
+      nama_sekolah:    nama,
+      npsn:            npsn,
+      kepala_sekolah:  document.getElementById('pf-kepsek').value.trim(),
+      nip_kepsek:      document.getElementById('pf-nip-kepsek').value.trim(),
+      alamat:          document.getElementById('pf-alamat').value.trim(),
+      telp:            document.getElementById('pf-telp').value.trim(),
+      kabupaten:       document.getElementById('pf-kab').value.trim(),
+      akreditasi:      document.getElementById('pf-akreditasi').value,
+      tahun_ajaran:    document.getElementById('pf-tahun').value.trim(),
+      semester:        document.getElementById('pf-semester').value,
+      tanggal_mulai:   document.getElementById('pf-mulai').value,
+      tanggal_selesai: document.getElementById('pf-selesai').value,
+      minggu_efektif:  parseInt(document.getElementById('pf-minggu').value) || 18,
+      kurikulum:       document.getElementById('pf-kurikulum').value,
+      updated_at:      new Date().toISOString(),
+    };
+
+    try {
+      const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const docId = profilSekolah._docId || 'profil_utama';
+      await setDoc(doc(db, 'Profil_Sekolah', docId), data);
+      profilSekolah = { ...data, _docId: docId };
+      msg.textContent = '✅ Profil sekolah berhasil disimpan!';
+      msg.style.color = 'var(--hijau)';
+      tampilHeaderProfil();
+      tampilToast('✅ Profil sekolah berhasil disimpan!');
+    } catch(e) {
+      msg.textContent = '❌ Gagal: ' + e.message;
+      msg.style.color = 'var(--merah)';
+    }
+  };
+
+  // ══════════════════════════════════════
+  // BANK MATERI KURIKULUM
+  // ══════════════════════════════════════
+  let allBankMateri = [];
+  let editPokokId   = null;
+
+  async function muatBankMateri() {
+    try {
+      const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
+      allBankMateri = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+      bmIsiFilterMapel();
+      bmFilter();
+    } catch(e) { console.log('Bank materi:', e.message); }
+  }
+
+  function bmIsiFilterMapel() {
+    const mapelSet = [...new Set(allBankMateri.map(m => m.mapel||'').filter(Boolean))].sort();
+    const sel = document.getElementById('bm-filter-mapel');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Semua Mapel</option>' +
+      mapelSet.map(m => `<option>${m}</option>`).join('');
+
+    // Juga isi dropdown di form tambah
+    const fpMapel = document.getElementById('fp-mapel');
+    if (fpMapel) {
+      // Gunakan allMapel dari cache global
+      fpMapel.innerHTML = '<option value="">Pilih mapel</option>' +
+        allMapel.map(m => `<option value="${m.id}">${m.nama_mapel}</option>`).join('');
+    }
+  }
+
+  window.bmFilter = function() {
+    const kelas = document.getElementById('bm-filter-kelas')?.value || '';
+    const mapel = document.getElementById('bm-filter-mapel')?.value || '';
+    const cari  = (document.getElementById('bm-cari')?.value || '').toLowerCase();
+
+    const filtered = allBankMateri.filter(m => {
+      if (kelas && m.kelas !== kelas) return false;
+      if (mapel && m.mapel !== mapel) return false;
+      if (cari && !(m.nama||'').toLowerCase().includes(cari)) return false;
+      return true;
+    });
+
+    renderBankMateri(filtered);
+    document.getElementById('bm-stat').textContent = filtered.length + ' materi ditemukan';
+  };
+
+  function renderBankMateri(data) {
+    const el = document.getElementById('bm-konten');
+    if (!data.length) {
+      el.innerHTML = '<div class="loading-inline">Tidak ada materi. Pilih filter atau import Excel.</div>';
+      return;
+    }
+
+    // Kelompokkan per kelas + mapel
+    const grupMap = {};
+    data.forEach(m => {
+      const key = (m.kelas||'?') + '||' + (m.mapel||'?');
+      if (!grupMap[key]) grupMap[key] = { kelas:m.kelas, mapel:m.mapel, items:[] };
+      grupMap[key].items.push(m);
+    });
+
+    el.innerHTML = Object.entries(grupMap).map(([key, grup]) => {
+      // Pisahkan pokok dan sub
+      const pokok = grup.items.filter(m => !String(m.no||'').includes('.'))
+        .sort((a,b) => parseFloat(a.no||0) - parseFloat(b.no||0));
+
+      const html = pokok.map(p => {
+        const subs = grup.items.filter(m =>
+          String(m.no||'').startsWith(String(p.no||'')+'.')
+        ).sort((a,b) => parseFloat(a.no||0) - parseFloat(b.no||0));
+
+        return `<div class="bm-pokok-row">
+            <div class="bm-pokok-no">${p.no}</div>
+            <div class="bm-pokok-nama">${p.nama||'—'}</div>
+            <button onclick="hapusBankMateri('${p.id}')" title="Hapus" style="background:none;border:none;cursor:pointer;color:var(--merah);font-size:12px;opacity:0.6;padding:0 4px;">✕</button>
+          </div>` +
+          subs.map(s => `<div class="bm-sub-row">
+            <div class="bm-sub-no">${s.no}</div>
+            <div class="bm-sub-nama">${s.nama||'—'}</div>
+            <button onclick="hapusBankMateri('${s.id}')" title="Hapus" style="background:none;border:none;cursor:pointer;color:var(--merah);font-size:11px;opacity:0.5;padding:0 4px;">✕</button>
+          </div>`).join('');
+      }).join('');
+
+      const fase = grup.kelas === 'X' ? 'Fase E' : 'Fase F';
+      return `<div class="tabel-card" style="margin-bottom:14px;padding:0;overflow:hidden;">
+        <div style="padding:12px 16px;background:var(--biru-tua);display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <span style="font-size:14px;font-weight:700;color:white">${grup.mapel}</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.5);margin-left:8px">Kelas ${grup.kelas} · ${fase}</span>
+          </div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.4)">${pokok.length} pokok · ${grup.items.length - pokok.length} sub</span>
+        </div>
+        <div class="bm-pohon">${html || '<div style="padding:14px;color:var(--abu);font-size:12px;text-align:center">Belum ada materi</div>'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.tampilFormPokok = function() {
+    document.getElementById('form-pokok-wrap').style.display = 'block';
+    document.getElementById('form-pokok-wrap').scrollIntoView({behavior:'smooth'});
+  };
+  window.tutupFormPokok = function() {
+    document.getElementById('form-pokok-wrap').style.display = 'none';
+  };
+
+  window.simpanPokok = async function() {
+    const no    = document.getElementById('fp-no').value.trim();
+    const kelas = document.getElementById('fp-kelas').value;
+    const mapelId = document.getElementById('fp-mapel').value;
+    const nama  = document.getElementById('fp-nama').value.trim();
+    const errEl = document.getElementById('pokok-err');
+    errEl.textContent = '';
+
+    if (!no || !kelas || !mapelId || !nama) {
+      errEl.textContent = 'Semua field wajib diisi!'; return;
+    }
+    const mapelData = allMapel.find(m => m.id === mapelId);
+    const namaMapel = mapelData?.nama_mapel || mapelId;
+    const fase = kelas === 'X' ? 'E' : 'F';
+
+    const data = { no, kelas, mapel:namaMapel, id_mapel:mapelId, fase, nama };
+    try {
+      const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      const ref = await addDoc(collection(db, 'Materi_Kurikulum'), data);
+      allBankMateri.push({ id:ref.id, ...data });
+      tutupFormPokok();
+      bmFilter();
+      tampilToast('✅ Materi berhasil ditambahkan!');
+      ['fp-no','fp-nama'].forEach(i => document.getElementById(i).value = '');
+    } catch(e) { errEl.textContent = 'Gagal: ' + e.message; }
+  };
+
+  window.hapusBankMateri = async function(id) {
+    if (!confirm('Hapus materi ini?')) return;
+    try {
+      const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      await deleteDoc(doc(db, 'Materi_Kurikulum', id));
+      allBankMateri = allBankMateri.filter(m => m.id !== id);
+      bmFilter();
+      tampilToast('✅ Materi dihapus!');
+    } catch(e) { tampilToast('❌ ' + e.message); }
+  };
+
+  // Import Excel bank materi
+  window.importBankMateri = async function(input) {
+    const file = input.files[0]; if (!file) return; input.value = '';
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const wb   = XLSX.read(e.target.result, { type:'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+        if (!rows.length) { tampilToast('⚠ File kosong!'); return; }
+
+        const { addDoc: addD } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        let berhasil = 0, gagal = [];
+
+        for (const row of rows) {
+          const no    = String(row['No']||row['no']||'').trim();
+          const nama  = String(row['Materi Pokok/Sub Materi']||row['Materi']||row['nama']||'').trim();
+          const mapel = String(row['Mapel']||row['mapel']||row['Mata Pelajaran']||'').trim();
+          const kelas = String(row['Kelas']||row['kelas']||'').trim();
+          const fase  = kelas === 'X' ? 'E' : 'F';
+
+          if (!no || !nama || !mapel || !kelas) { gagal.push(`Baris kosong: ${no||'?'}`); continue; }
+
+          try {
+            const data = { no, nama, mapel, kelas, fase };
+            const ref = await addD(collection(db, 'Materi_Kurikulum'), data);
+            allBankMateri.push({ id:ref.id, ...data });
+            berhasil++;
+          } catch(e) { gagal.push(`${no}: ${e.message}`); }
+        }
+
+        bmIsiFilterMapel();
+        bmFilter();
+        tampilModalHasil(
+          `✅ Import Selesai — ${berhasil} materi ditambahkan`,
+          '', gagal.length ? ['Gagal:', ...gagal] : [], berhasil > 0 ? 'success' : 'error'
+        );
+      } catch(err) { tampilToast('❌ ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  window.unduhTemplateMateri = function() {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['No','Materi Pokok/Sub Materi','Mapel','Kelas','Fase'],
+      ['1','Konsep Dasar Ilmu Ekonomi','Ekonomi','X','E'],
+      ['1.1','Kelangkaan (scarcity)','Ekonomi','X','E'],
+      ['1.2','Skala prioritas','Ekonomi','X','E'],
+      ['1.3','Biaya peluang (opportunity cost)','Ekonomi','X','E'],
+      ['2','Kegiatan Ekonomi','Ekonomi','X','E'],
+      ['2.1','Peran rumah tangga konsumen (RTK)','Ekonomi','X','E'],
+      ['2.2','Rumah tangga produsen (RTP)','Ekonomi','X','E'],
+    ]);
+    ws['!cols'] = [{wch:8},{wch:40},{wch:20},{wch:8},{wch:6}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Bank Materi');
+    XLSX.writeFile(wb, 'Template_Bank_Materi_CMA.xlsx');
+    tampilToast('✅ Template berhasil diunduh!');
   };
 
   // ══════════════════════════════════════
@@ -3539,6 +4148,15 @@
   // expose semua fungsi ke global (wajib untuk onclick di HTML + module scope)
   window.loginAdmin  = loginAdmin;
   window.initJamBaku = initJamBaku;
+  window.simpanProfil = simpanProfil;
+  window.muatProfil = muatProfil;
+  window.bmFilter = bmFilter;
+  window.tampilFormPokok = tampilFormPokok;
+  window.tutupFormPokok = tutupFormPokok;
+  window.simpanPokok = simpanPokok;
+  window.hapusBankMateri = hapusBankMateri;
+  window.importBankMateri = importBankMateri;
+  window.unduhTemplateMateri = unduhTemplateMateri;
   window.rosterMuat = rosterMuat;
   window.rosterPilihGuru = rosterPilihGuru;
   window.rosterGantiHari = rosterGantiHari;
@@ -3572,6 +4190,201 @@
   window.gantiPage   = gantiPage;
   window.eksporExcel = eksporExcel;
   window.eksporPDF   = eksporPDF;
+
+  // ══════════════════════════════════════════
+  // BANK MATERI KURIKULUM
+  // ══════════════════════════════════════════
+  let allMateri = [];
+  let cacheMapelAdmin = [];
+
+  async function muatBankMateri() {
+    const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
+    allMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Isi filter mapel dari Data Mapel
+    const mSnap = await getDocs(collection(db, 'Mata_Pelajaran'));
+    cacheMapelAdmin = mSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const selMapelFilter = document.getElementById('materi-filter-mapel');
+    const selMapelForm   = document.getElementById('fm-mapel');
+    if (selMapelFilter) {
+      selMapelFilter.innerHTML = '<option value="">Semua Mapel</option>' +
+        cacheMapelAdmin.map(m => `<option value="${m.id}">${m.nama_mapel||m.nama||m.id}</option>`).join('');
+    }
+    if (selMapelForm) {
+      selMapelForm.innerHTML = '<option value="">Pilih Mapel...</option>' +
+        cacheMapelAdmin.map(m => `<option value="${m.id}">${m.nama_mapel||m.nama||m.id}</option>`).join('');
+    }
+    filterMateri();
+  }
+
+  window.filterMateri = function() {
+    const kelas  = document.getElementById('materi-filter-kelas')?.value || '';
+    const mapel  = document.getElementById('materi-filter-mapel')?.value || '';
+    const cari   = (document.getElementById('materi-cari')?.value || '').toLowerCase();
+
+    let data = allMateri.filter(m => {
+      if (kelas && m.kelas !== kelas) return false;
+      if (mapel && m.id_mapel !== mapel) return false;
+      if (cari && !(m.nama||'').toLowerCase().includes(cari)) return false;
+      return true;
+    });
+    renderPohonMateri(data);
+  };
+
+  function renderPohonMateri(data) {
+    const el = document.getElementById('materi-konten');
+    if (!data.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--abu)"><div style="font-size:36px;margin-bottom:8px">📚</div><div>Belum ada materi ditemukan</div></div>';
+      return;
+    }
+
+    // Kelompokkan per mapel+kelas
+    const perMapelKelas = {};
+    data.forEach(m => {
+      const key = `${m.id_mapel||m.mapel}__${m.kelas}`;
+      if (!perMapelKelas[key]) perMapelKelas[key] = { mapel: m.nama_mapel||m.mapel||m.id_mapel, kelas: m.kelas, fase: m.fase||'', items: [] };
+      perMapelKelas[key].items.push(m);
+    });
+
+    el.innerHTML = Object.entries(perMapelKelas).sort((a,b) => {
+      const kA = a[1].kelas, kB = b[1].kelas;
+      return kA.localeCompare(kB) || (a[1].mapel||'').localeCompare(b[1].mapel||'');
+    }).map(([key, grp]) => {
+      // Pisahkan pokok dan sub
+      const pokok = grp.items.filter(m => !String(m.no).includes('.')).sort((a,b) => Number(a.no)-Number(b.no));
+
+      const pohon = pokok.map(p => {
+        const subs = grp.items.filter(m => String(m.no).startsWith(String(p.no)+'.'))
+          .sort((a,b) => String(a.no).localeCompare(String(b.no), undefined, {numeric:true}));
+        return `<div class="pokok-item">
+          <div class="pokok-header">
+            <div class="pokok-num">${p.no}</div>
+            <div class="pokok-nama">${p.nama||'—'}</div>
+            <span class="pokok-badge">${subs.length} sub materi</span>
+            <button class="btn-hapus-materi" onclick="hapusMateri('${p.id}')">×</button>
+          </div>
+          ${subs.length ? `<div class="sub-list">${subs.map(s => `
+            <div class="sub-item">
+              <div class="sub-num">${s.no}</div>
+              <div class="sub-nama">${s.nama||'—'}</div>
+              <button class="btn-hapus-materi" onclick="hapusMateri('${s.id}')">×</button>
+            </div>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      return `<div class="mapel-group">
+        <div class="mapel-group-header">
+          <div class="mapel-group-nama">${grp.mapel}</div>
+          <span class="mapel-group-badge">Kelas ${grp.kelas} · Fase ${grp.fase}</span>
+          <span class="mapel-group-badge">${grp.items.length} materi</span>
+        </div>
+        <div class="pohon-wrap">${pohon}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.tampilFormMateri = function() {
+    document.getElementById('form-materi').style.display = 'block';
+    document.getElementById('form-materi').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.simpanMateriManual = async function() {
+    const no     = document.getElementById('fm-no').value.trim();
+    const nama   = document.getElementById('fm-nama').value.trim();
+    const kelas  = document.getElementById('fm-kelas').value;
+    const idMapel= document.getElementById('fm-mapel').value;
+    const smt    = document.getElementById('fm-semester').value;
+    if (!no || !nama || !kelas || !idMapel) { tampilToast('⚠ Lengkapi semua field'); return; }
+    const mapelData = cacheMapelAdmin.find(m => m.id === idMapel);
+    const isPokok   = !String(no).includes('.');
+    await addDoc(collection(db, 'Materi_Kurikulum'), {
+      no, nama,
+      kelas, fase: kelas==='X'?'E':'F',
+      id_mapel: idMapel,
+      nama_mapel: mapelData?.nama_mapel || idMapel,
+      mapel: mapelData?.nama_mapel || idMapel,
+      semester: smt,
+      is_pokok: isPokok,
+      timestamp: new Date().toISOString()
+    });
+    tampilToast('✅ Materi berhasil disimpan');
+    document.getElementById('form-materi').style.display = 'none';
+    ['fm-no','fm-nama'].forEach(id => document.getElementById(id).value = '');
+    await muatBankMateri();
+  };
+
+  window.hapusMateri = async function(id) {
+    if (!confirm('Hapus materi ini?')) return;
+    await deleteDoc(doc(db, 'Materi_Kurikulum', id));
+    tampilToast('✅ Materi dihapus');
+    await muatBankMateri();
+  };
+
+  window.importMateriExcel = async function(input) {
+    const file = input.files[0]; if (!file) return; input.value = '';
+    const kelasFilter = document.getElementById('materi-filter-kelas').value;
+    if (!kelasFilter) { tampilToast('⚠ Pilih kelas terlebih dahulu sebelum import'); return; }
+
+    // Tanya mapel
+    const mapelSel = prompt('Masukkan nama mata pelajaran untuk file ini:');
+    if (!mapelSel) return;
+    const mapelData = cacheMapelAdmin.find(m =>
+      (m.nama_mapel||'').toLowerCase().includes(mapelSel.toLowerCase()) ||
+      (m.nama||'').toLowerCase().includes(mapelSel.toLowerCase())
+    );
+
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const wb   = XLSX.read(e.target.result, { type:'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval:'' });
+      if (!rows.length) { tampilToast('⚠ File kosong'); return; }
+
+      let count = 0;
+      const batch = writeBatch(db);
+      rows.forEach(row => {
+        const no   = String(row['No'] || row['no'] || '').trim();
+        const nama = String(row['Materi Pokok/Sub Materi'] || row['Materi'] || row['nama'] || '').trim();
+        if (!no || !nama) return;
+        const isPokok = !no.includes('.');
+        const ref = doc(collection(db, 'Materi_Kurikulum'));
+        batch.set(ref, {
+          no, nama,
+          kelas: kelasFilter,
+          fase: kelasFilter==='X'?'E':'F',
+          id_mapel: mapelData?.id || mapelSel,
+          nama_mapel: mapelData?.nama_mapel || mapelSel,
+          mapel: mapelData?.nama_mapel || mapelSel,
+          semester: 'Ganjil',
+          is_pokok: isPokok,
+          timestamp: new Date().toISOString()
+        });
+        count++;
+      });
+      await batch.commit();
+      tampilToast(`✅ ${count} materi berhasil diimport`);
+      await muatBankMateri();
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  window.unduhTemplateMateri = function() {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['No', 'Materi Pokok/Sub Materi'],
+      ['1',  'Konsep Dasar Ilmu Ekonomi'],
+      ['1.1','Kelangkaan (scarcity)'],
+      ['1.2','Skala prioritas'],
+      ['1.3','Biaya peluang (opportunity cost)'],
+      ['2',  'Kegiatan Ekonomi'],
+      ['2.1','Peran rumah tangga konsumen (RTK)'],
+      ['2.2','Rumah tangga produsen (RTP)'],
+    ]);
+    ws['!cols'] = [{wch:8},{wch:50}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Bank Materi');
+    XLSX.writeFile(wb, 'Template_Bank_Materi.xlsx');
+  };
+
+
 </script>
 </body>
 </html>
