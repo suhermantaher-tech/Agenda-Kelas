@@ -2840,7 +2840,7 @@
   let allBankMateri = [];
   let editPokokId   = null;
 
-  async function muatBankMateri() {
+  async function muatBankMateriLegacy() {
     try {
       const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
       allBankMateri = snap.docs.map(d => ({ id:d.id, ...d.data() }));
