@@ -4194,12 +4194,12 @@
   // ══════════════════════════════════════════
   // BANK MATERI KURIKULUM
   // ══════════════════════════════════════════
-  let allMateri = [];
+  let allMateriKurikulum = [];
   let cacheMapelAdmin = [];
 
   async function muatBankMateri() {
     const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
-    allMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allMateriKurikulum = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     // Isi filter mapel dari Data Mapel
     const mSnap = await getDocs(collection(db, 'Mata_Pelajaran'));
@@ -4222,7 +4222,7 @@
     const mapel  = document.getElementById('materi-filter-mapel')?.value || '';
     const cari   = (document.getElementById('materi-cari')?.value || '').toLowerCase();
 
-    let data = allMateri.filter(m => {
+    let data = allMateriKurikulum.filter(m => {
       if (kelas && m.kelas !== kelas) return false;
       if (mapel && m.id_mapel !== mapel) return false;
       if (cari && !(m.nama||'').toLowerCase().includes(cari)) return false;
