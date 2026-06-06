@@ -4334,72 +4334,93 @@
   window.importMateriExcel = async function(input) {
     const file = input.files[0]; if (!file) return; input.value = '';
 
+    // Tanya info yang tidak ada di file
+    const kelasInput = prompt('Untuk kelas berapa materi ini?\nKetik: X  atau  XI  atau  XII');
+    if (!kelasInput) return;
+    const kelas = kelasInput.trim().toUpperCase();
+
+    const mapelInput = prompt('Nama mata pelajaran (ketik sebagian saja):\nContoh: Ekonomi');
+    if (!mapelInput) return;
+
+    const smtInput = prompt('Semester:\nKetik: Ganjil  atau  Genap') || 'Ganjil';
+
+    const fase = kelas === 'X' ? 'E' : 'F';
+
+    // Cari mapel di cache
+    const mapelData = cacheMapelAdmin.find(m =>
+      (m.nama_mapel||'').toLowerCase().includes(mapelInput.toLowerCase()) ||
+      (m.kode_mapel||'').toLowerCase().includes(mapelInput.toLowerCase())
+    );
+    const namaMapel = mapelData?.nama_mapel || mapelInput;
+
     const reader = new FileReader();
     reader.onload = async e => {
       const wb = XLSX.read(e.target.result, { type:'array' });
 
-      // Cari sheet data — sheet ke-2 jika ada (skip panduan), atau sheet pertama
-      const sheetName = wb.SheetNames.length > 1 ? wb.SheetNames[1] : wb.SheetNames[0];
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval:'', raw:false });
-      if (!rows.length) { tampilToast('⚠ File kosong atau format salah'); return; }
-
-      // Validasi kolom — pastikan ada kolom No dan Materi
-      const firstRow = rows[0];
-      const kolomNo     = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'no');
-      const kolomMateri = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'materi');
-      const kolomKelas  = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'kelas');
-      const kolomFase   = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'fase');
-      const kolomMapel  = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'mapel');
-      const kolomSmt    = Object.keys(firstRow).find(k => k.trim().toLowerCase() === 'semester');
-
-      if (!kolomNo || !kolomMateri) {
-        tampilToast('⚠ Kolom "No" dan "Materi" wajib ada. Gunakan template yang disediakan.');
-        return;
+      // Ambil sheet — skip sheet "PANDUAN" jika ada, ambil sheet data
+      let sheetName = wb.SheetNames[0];
+      for (const sn of wb.SheetNames) {
+        if (!sn.toUpperCase().includes('PANDUAN')) { sheetName = sn; break; }
       }
 
-      // Ambil nilai dari baris pertama data untuk kelas & mapel
-      const kelasFromFile = kolomKelas ? String(rows[0][kolomKelas]||'').trim() : '';
-      const mapelFromFile = kolomMapel ? String(rows[0][kolomMapel]||'').trim() : '';
-      const smtFromFile   = kolomSmt   ? String(rows[0][kolomSmt]||'').trim()  : 'Ganjil';
-      const faseFromFile  = kolomFase  ? String(rows[0][kolomFase]||'').trim() : '';
+      // Baca sebagai array (bukan object) agar tidak bergantung pada nama header
+      const rawRows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {
+        header: 1,
+        defval: '',
+        raw: false
+      });
 
-      // Cari data mapel di cache
-      const mapelData = cacheMapelAdmin.find(m =>
-        (m.nama_mapel||'').toLowerCase() === mapelFromFile.toLowerCase() ||
-        (m.nama_mapel||'').toLowerCase().includes(mapelFromFile.toLowerCase())
-      );
+      if (!rawRows.length) { tampilToast('⚠ File kosong'); return; }
 
-      let count = 0, skip = 0;
+      // Deteksi baris header — cari baris yang mengandung "No" di kolom pertama
+      let headerRow = 0;
+      for (let i = 0; i < Math.min(5, rawRows.length); i++) {
+        const col0 = String(rawRows[i][0]||'').toLowerCase().trim();
+        if (col0 === 'no') { headerRow = i; break; }
+      }
+
+      // Data mulai setelah header
+      const dataRows = rawRows.slice(headerRow + 1);
+
+      let count = 0, skip = 0, gagal = [];
       const batch = writeBatch(db);
 
-      rows.forEach(row => {
-        const no   = String(row[kolomNo]||'').trim();
-        const nama = String(row[kolomMateri]||'').trim();
-        if (!no || !nama) { skip++; return; }
+      dataRows.forEach((row, idx) => {
+        // Kolom A = No, Kolom B = Materi
+        const no   = String(row[0]||'').trim();
+        const nama = String(row[1]||'').trim();
 
-        // Ambil kelas & fase per baris (bisa berbeda tiap baris)
-        const kelas = kolomKelas ? String(row[kolomKelas]||kelasFromFile).trim() : kelasFromFile;
-        const fase  = kolomFase  ? String(row[kolomFase]||faseFromFile).trim()  :
-                      (kelas==='X'?'E':'F');
-        const smt   = kolomSmt   ? String(row[kolomSmt]||smtFromFile).trim()   : smtFromFile;
-        const mapelNama = kolomMapel ? String(row[kolomMapel]||mapelFromFile).trim() : mapelFromFile;
+        if (!no || !nama) {
+          skip++;
+          if (no || nama) gagal.push(`Baris ${idx+headerRow+2}: No="${no}" Materi="${nama}"`);
+          return;
+        }
 
         const isPokok = !no.includes('.');
         const ref = doc(collection(db, 'Materi_Kurikulum'));
         batch.set(ref, {
           no, nama, kelas, fase,
-          id_mapel:   mapelData?.id || mapelNama,
-          nama_mapel: mapelData?.nama_mapel || mapelNama,
-          mapel:      mapelData?.nama_mapel || mapelNama,
-          semester: smt,
-          is_pokok: isPokok,
-          timestamp: new Date().toISOString()
+          id_mapel:   mapelData?.id || namaMapel,
+          nama_mapel: namaMapel,
+          mapel:      namaMapel,
+          semester:   smtInput.trim(),
+          is_pokok:   isPokok,
+          timestamp:  new Date().toISOString()
         });
         count++;
       });
 
+      if (!count && !gagal.length) {
+        tampilToast('⚠ Tidak ada data yang terbaca. Pastikan data mulai dari kolom A dan B.');
+        return;
+      }
+
       await batch.commit();
-      tampilToast(`✅ ${count} materi diimport${skip?' ('+skip+' baris kosong dilewati)':''}`);
+
+      let pesan = `✅ ${count} materi berhasil diimport`;
+      if (skip) pesan += ` · ${skip} baris kosong dilewati`;
+      tampilToast(pesan);
+
       await muatBankMateri();
     };
     reader.readAsArrayBuffer(file);
