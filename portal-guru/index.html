@@ -1635,8 +1635,8 @@
 
     // Muat bank materi untuk mapel & kelas ini
     const idMapel  = jadwalDipilih.id_mapel  || jadwalDipilih.kode_mapel || '';
-    const namaKelas = jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '';
-    muatBankMateri(idMapel, namaKelas);
+    const kelasGuruAktif = jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '';
+    muatBankMateri(idMapel, kelasGuruAktif);
   };
 
   async function simpanAgenda() {
@@ -1918,10 +1918,9 @@
   };
 
   window.gantiTab    = gantiTab;
-  window.gantiHariRoster = gantiHariRoster;
   window.simpanAgenda = simpanAgenda;
   window.tutupForm   = tutupForm;
-  window.pilihJadwal = pilihJadwal;
+
   // ══════════════════════════════════════════
   // BANK MATERI — dropdown di form agenda
   // ══════════════════════════════════════════
