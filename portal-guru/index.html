@@ -122,8 +122,8 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 /* ══════════════════════════════════════════
    HALAMAN UTAMA
 ══════════════════════════════════════════ */
-#hal-utama{display:none;min-height:100vh;flex-direction:column}
-#hal-utama.aktif{display:flex}
+#hal-utama{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden}
+#hal-utama.on{display:flex}
 
 /* Topbar */
 .topbar{background:linear-gradient(135deg,var(--biru-tua),#2563A8);color:white;
@@ -156,8 +156,8 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 .tab-btn.aktif{color:var(--oranye);border-bottom-color:var(--oranye)}
 
 /* Tab konten */
-.tab-konten{flex:1;overflow-y:auto}
-.tab-page{display:none;padding:14px;max-width:800px;margin:0 auto}
+.tab-konten{flex:1;overflow-y:auto;min-height:0}
+.tab-page{display:none;padding:14px;max-width:800px;margin:0 auto;min-height:200px}
 .tab-page.aktif{display:block}
 
 /* Kartu jadwal */
@@ -881,10 +881,13 @@ import {
 
   async function masukDashboard() {
     document.getElementById('hal-login').style.display = 'none';
-    document.getElementById('hal-utama').style.display = 'flex'; document.getElementById('hal-utama').style.flexDirection = 'column';
+    const appEl = document.getElementById('hal-utama');
+    appEl.style.display = '';
+    appEl.classList.add('on');
     document.getElementById('teks-guru').textContent = guruAktif.nama_lengkap;
     await muatJadwal();
     await muatRiwayat();
+    muatRosterGuru(); // preload roster di background
   }
 
   // ── JADWAL ──
@@ -1416,14 +1419,14 @@ import {
     document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('aktif'));
     btn?.classList.add('aktif');
     document.getElementById('tab-'+tab)?.classList.add('aktif');
-    if (tab === 'roster'  && guruAktif) muatRosterGuru();
+    if (tab === 'roster'  && guruAktif && !rosterCache) muatRosterGuru();
     if (tab === 'riwayat' && guruAktif) muatRiwayat();
   }
 
   function keluar() {
     guruAktif = null; jadwalDipilih = null;
     resetPin();
-    document.getElementById('hal-utama').style.display = 'none';
+    const appElOut = document.getElementById('hal-utama'); appElOut.classList.remove('on'); appElOut.style.display = '';
     document.getElementById('hal-login').style.display = 'flex';
     document.getElementById('pesan-error').textContent = '';
   }
