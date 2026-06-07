@@ -594,12 +594,6 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
         border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:12px;
         font-weight:600;color:var(--oranye-gelap)"></div>
       <!-- Panel kehadiran kelas dari scan pagi -->
-      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:10px">
-        <div class="kartu-kehadiran" id="kehadiran-wrap">
-          <div id="kehadiran-summary" style="font-size:11px;font-weight:700;color:var(--biru-tua);margin-bottom:6px"></div>
-          <div id="kehadiran-per-kelas"></div>
-        </div>
-      </div>
       <div id="jadwal-container">
         <div class="loading-inline">Memuat jadwal hari ini...</div>
       </div>
@@ -887,7 +881,7 @@ import {
 
   async function masukDashboard() {
     document.getElementById('hal-login').style.display = 'none';
-    document.getElementById('hal-utama').style.display = 'block';
+    document.getElementById('hal-utama').style.display = 'flex'; document.getElementById('hal-utama').style.flexDirection = 'column';
     document.getElementById('teks-guru').textContent = guruAktif.nama_lengkap;
     await muatJadwal();
     await muatRiwayat();
@@ -1463,7 +1457,7 @@ import {
   async function muatRosterGuru() {
     const el = document.getElementById('roster-container');
     if (!el) return;
-    el.innerHTML = '<div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>';
+    el.innerHTML = '<div class="loading-inline">⏳ Memuat roster...</div>';
 
     try {
       const snap = await getDocs(query(
