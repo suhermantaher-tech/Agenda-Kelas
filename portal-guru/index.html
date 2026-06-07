@@ -1381,13 +1381,15 @@ import {
     if (!el) return;
     el.innerHTML = '<div class="loading-inline">⏳ Memuat riwayat...</div>';
     try {
+      el.innerHTML = `<div class="loading-inline">🔍 Query Agenda_Harian id_guru=${guruAktif?.id}...</div>`;
       const snap = await getDocs(query(
         collection(db,'Agenda_Harian'),
         where('id_guru','==',guruAktif.id),
         limit(100)
       ));
+      el.innerHTML = `<div class="loading-inline">📦 Dapat ${snap.size} dokumen agenda</div>`;
       if (snap.empty) {
-        el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>Mulai isi agenda hari ini.</small></p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>id_guru: ' + guruAktif.id + '</small></p></div>';
         return;
       }
       const HARI = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -1471,13 +1473,15 @@ import {
     el.innerHTML = '<div class="loading-inline">⏳ Memuat roster...</div>';
 
     try {
+      el.innerHTML = `<div class="loading-inline">🔍 Query Jadwal_Pelajaran id_guru=${guruAktif?.id}...</div>`;
       const snap = await getDocs(query(
         collection(db, 'Jadwal_Pelajaran'),
         where('id_guru', '==', guruAktif.id)
       ));
+      el.innerHTML = `<div class="loading-inline">📦 Dapat ${snap.size} dokumen jadwal</div>`;
 
       if (snap.empty) {
-        el.innerHTML = '<div class="empty-state"><div class="ikon">📭</div><p>Belum ada jadwal tersusun.<br><small>Hubungi admin untuk menyusun roster.</small></p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📭</div><p>Belum ada jadwal tersusun untuk ID guru ini.<br><small>id_guru: ' + guruAktif.id + '</small></p></div>';
         return;
       }
 
