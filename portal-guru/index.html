@@ -2341,25 +2341,16 @@
   // ══════════════════════════════════════════
   // VERIFIKASI QR RUANG KELAS
   // ══════════════════════════════════════════
-  // Load jsQR sekali saja
-  function loadJsQR() {
-    return new Promise(res => {
-      if (window.jsQR) { res(); return; }
-      // Coba unpkg dulu, fallback ke cdnjs
-      const urls = [
-        'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
-        'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
-      ];
-      let idx = 0;
-      function tryLoad() {
-        if (idx >= urls.length) { console.error('Semua CDN jsQR gagal'); res(); return; }
-        const s = document.createElement('script');
-        s.src = urls[idx++];
-        s.onload = res;
-        s.onerror = () => { console.warn('jsQR CDN gagal, coba berikutnya...'); tryLoad(); };
-        document.head.appendChild(s);
-      }
-      tryLoad();
+  // ── QR SCAN RUANG KELAS (sama dengan presensi) ──
+  let qrScanning = false;
+
+  async function loadJsQRKelas() {
+    if (window.jsQR) return;
+    await new Promise(res => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+      s.onload = res;
+      document.head.appendChild(s);
     });
   }
 
@@ -2369,58 +2360,54 @@
     const info  = document.getElementById('qr-scan-info');
     if (!wrap || !video) return;
 
-    wrap.style.display = 'block';
-    info.textContent   = '⏳ Memuat kamera...';
+    // Stop jika sudah ada stream
+    if (qrStream) { qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
+    qrScanning = false;
 
-    // Load jsQR dulu sebelum buka kamera
-    await loadJsQR();
-    if (!window.jsQR) {
-      info.textContent = '❌ Library QR gagal dimuat. Coba refresh halaman.';
-      return;
-    }
+    wrap.style.display = 'block';
+    info.textContent   = '📷 Memulai kamera...';
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
       });
-      qrStream = stream;
+      qrStream   = stream;
+      qrScanning = true;
       video.srcObject = stream;
       video.setAttribute('playsinline', true);
-      await video.play();
-      info.textContent = '📷 Arahkan kamera ke QR Code ruang kelas';
-      startQRTick(video, info);
-    } catch(err) {
-      info.textContent = '❌ Kamera tidak tersedia: ' + err.message;
-      wrap.style.display = 'none';
+      video.style.display = 'block';
+      video.play();
+      info.textContent = 'Arahkan ke QR Code yang ditempel di kelas';
+      qrScanTick(video, info);
+    } catch(e) {
+      info.textContent = '❌ Kamera tidak bisa diakses: ' + e.message;
     }
   };
 
-  function startQRTick(video, info) {
-    const canvas = document.createElement('canvas');
-    const ctx    = canvas.getContext('2d');
+  async function qrScanTick(video, info) {
+    if (!qrScanning) return;
 
-    function tick() {
-      // Cek kamera masih aktif
-      if (!qrStream || !qrStream.active) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      // Load jsQR tiap tick (akan skip jika sudah ada)
+      await loadJsQRKelas();
 
-      if (video.readyState >= video.HAVE_ENOUGH_DATA &&
-          video.videoWidth > 0 && video.videoHeight > 0) {
+      if (window.jsQR && video.videoWidth > 0) {
+        const canvas = document.createElement('canvas');
         canvas.width  = video.videoWidth;
         canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
-        try {
-          const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = window.jsQR(img.data, img.width, img.height,
-                                   { inversionAttempts: 'attemptBoth' });
-          if (code && code.data) {
-            prosesQRKelas(code.data, info);
-            return; // Berhenti setelah berhasil scan
-          }
-        } catch(e) {}
+        const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = window.jsQR(img.data, img.width, img.height,
+                                 { inversionAttempts: 'dontInvert' });
+        if (code && code.data) {
+          qrScanning = false;
+          prosesQRKelas(code.data, info);
+          return;
+        }
       }
-      qrAnimFrame = requestAnimationFrame(tick);
     }
-    qrAnimFrame = requestAnimationFrame(tick);
+    qrAnimFrame = requestAnimationFrame(() => qrScanTick(video, info));
   }
 
   function prosesQRKelas(data, info) {
@@ -2505,10 +2492,13 @@
   }
 
   window.tutupQRScan = function() {
+    qrScanning = false;
     if (qrStream) { qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
     if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame=null; }
-    const wrap = document.getElementById('qr-scan-wrap');
-    if (wrap) wrap.style.display = 'none';
+    const wrap  = document.getElementById('qr-scan-wrap');
+    const video = document.getElementById('qr-video');
+    if (wrap)  wrap.style.display  = 'none';
+    if (video) video.style.display = 'none';
   };
 
   // ══════════════════════════════════════════
