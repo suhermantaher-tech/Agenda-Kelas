@@ -160,6 +160,47 @@
     .metode-val { font-size:11px; color:var(--abu); min-width:30px; text-align:right; font-family:'DM Mono',monospace; }
 
     @media (max-width:1100px) { .kpi-grid { grid-template-columns:repeat(2,1fr); } .grid-2,.grid-3,.grid-13,.grid-31 { grid-template-columns:1fr; } }
+
+    /* KETERCAPAIAN KURIKULUM */
+    .kur-mapel-group { margin-bottom:18px; }
+    .kur-mapel-header { display:flex; align-items:center; gap:12px; padding:12px 16px;
+      background:linear-gradient(135deg,#1A3A5C,#2563A8); border-radius:10px;
+      margin-bottom:8px; cursor:pointer; }
+    .kur-mapel-nama { font-size:14px; font-weight:800; color:white; flex:1; }
+    .kur-mapel-kelas { font-size:11px; font-weight:700; background:rgba(255,255,255,.15);
+      color:white; padding:2px 10px; border-radius:10px; }
+    .kur-pct-bar-wrap { display:flex; align-items:center; gap:8px; min-width:180px; }
+    .kur-pct-bar { flex:1; height:8px; background:rgba(255,255,255,.2); border-radius:4px; overflow:hidden; }
+    .kur-pct-bar-fill { height:100%; border-radius:4px; transition:width .4s; }
+    .kur-pct-txt { font-size:13px; font-weight:800; font-family:'DM Mono',monospace; color:white; min-width:36px; text-align:right; }
+
+    .kur-materi-list { padding-left:12px; display:flex; flex-direction:column; gap:4px; }
+    .kur-pokok-item { background:white; border-radius:8px; border:1.5px solid #E0E0E0; overflow:hidden; }
+    .kur-pokok-header { display:grid; grid-template-columns:40px 1fr auto auto; align-items:center;
+      gap:10px; padding:9px 14px; background:#F8F9FA; border-bottom:1px solid #E0E0E0; }
+    .kur-pokok-no { font-family:'DM Mono',monospace; font-size:12px; font-weight:800;
+      color:#E07020; background:#FFF3E0; padding:2px 6px; border-radius:5px; text-align:center; }
+    .kur-pokok-nama { font-size:12px; font-weight:700; color:#1A1A2E; }
+    .kur-sub-list { padding:4px 8px 6px; }
+    .kur-sub-item { display:grid; grid-template-columns:40px 1fr auto; align-items:center;
+      gap:8px; padding:5px 6px; border-radius:6px; margin-bottom:2px; }
+    .kur-sub-item:hover { background:#F8F9FA; }
+    .kur-sub-no { font-family:'DM Mono',monospace; font-size:10px; color:#78909C;
+      background:#F5F5F5; padding:1px 5px; border-radius:4px; text-align:center; }
+    .kur-sub-nama { font-size:11px; color:#546E7A; }
+    .kur-badge-done { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px;
+      background:#E8F5E9; color:#2E7D32; white-space:nowrap; }
+    .kur-badge-todo { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px;
+      background:#F5F5F5; color:#9E9E9E; border:1px solid #E0E0E0; white-space:nowrap; }
+
+    .kur-kelas-card { background:white; border-radius:12px; border:1px solid #E0E0E0;
+      padding:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+    .kur-kelas-nama { font-size:16px; font-weight:800; color:#1A3A5C; margin-bottom:10px; }
+    .kur-kelas-mapel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .kur-kelas-mapel-nama { font-size:12px; font-weight:600; color:#546E7A; min-width:140px; }
+    .kur-kelas-bar { flex:1; height:6px; background:#E0E0E0; border-radius:3px; overflow:hidden; }
+    .kur-kelas-bar-fill { height:100%; border-radius:3px; }
+    .kur-kelas-pct { font-size:11px; font-weight:700; font-family:'DM Mono',monospace; min-width:36px; text-align:right; }
   </style>
 </head>
 <body>
@@ -204,6 +245,7 @@
     <button class="nav-item" onclick="gantiPage('realisasi',this)"><span class="nav-ikon">📊</span> Realisasi JP Guru</button>
     <button class="nav-item" onclick="gantiPage('tren',this)"><span class="nav-ikon">📈</span> Tren Mingguan</button>
     <button class="nav-item" onclick="gantiPage('rombel',this)"><span class="nav-ikon">🏫</span> Capaian Rombel</button>
+    <button class="nav-item" onclick="gantiPage('kurikulum',this)"><span class="nav-ikon">📚</span> Ketercapaian Kurikulum</button>
     <div class="nav-label" style="margin-top:8px">Analisis</div>
     <button class="nav-item" onclick="gantiPage('scorecard',this)"><span class="nav-ikon">🏆</span> Scorecard Guru</button>
     <button class="nav-item" onclick="gantiPage('metode',this)"><span class="nav-ikon">🎯</span> Metode & Media</button>
@@ -461,6 +503,78 @@
       </div>
     </div>
 
+
+  <!-- PAGE: KETERCAPAIAN KURIKULUM -->
+  <div class="page" id="page-kurikulum" style="display:none">
+
+    <!-- KPI strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+      <div class="kartu kpi-card" style="padding:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#1A3A5C"></div>
+        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:#1A3A5C" id="kur-total-materi">—</div>
+        <div style="font-size:11px;color:#78909C;margin-top:3px">Total Materi Bank</div>
+      </div>
+      <div class="kartu kpi-card" style="padding:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2E7D32"></div>
+        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:#2E7D32" id="kur-sudah">—</div>
+        <div style="font-size:11px;color:#78909C;margin-top:3px">Sudah Diajarkan</div>
+      </div>
+      <div class="kartu kpi-card" style="padding:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#E07020"></div>
+        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:#E07020" id="kur-belum">—</div>
+        <div style="font-size:11px;color:#78909C;margin-top:3px">Belum Diajarkan</div>
+      </div>
+      <div class="kartu kpi-card" style="padding:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2E7D32"></div>
+        <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:#2E7D32" id="kur-pct">—</div>
+        <div style="font-size:11px;color:#78909C;margin-top:3px">Rata-rata Ketercapaian</div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="kartu" style="padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#78909C;margin-bottom:4px;text-transform:uppercase">Kelas</div>
+        <select id="kur-filter-kelas" onchange="renderKurikulum()"
+          style="padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          <option value="">Semua Kelas</option>
+          <option value="X">Kelas X</option>
+          <option value="XI">Kelas XI</option>
+          <option value="XII">Kelas XII</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#78909C;margin-bottom:4px;text-transform:uppercase">Semester</div>
+        <select id="kur-filter-smt" onchange="renderKurikulum()"
+          style="padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          <option value="">Semua</option>
+          <option value="Ganjil">Ganjil</option>
+          <option value="Genap">Genap</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#78909C;margin-bottom:4px;text-transform:uppercase">Tampilan</div>
+        <select id="kur-filter-view" onchange="renderKurikulum()"
+          style="padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          <option value="mapel">Per Mata Pelajaran</option>
+          <option value="kelas">Per Kelas</option>
+          <option value="detail">Detail Materi</option>
+        </select>
+      </div>
+      <button onclick="muatKurikulum()" style="padding:8px 18px;background:#1A3A5C;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+        🔄 Refresh
+      </button>
+    </div>
+
+    <!-- Konten -->
+    <div id="kur-konten">
+      <div style="text-align:center;padding:48px;color:#78909C">
+        <div style="font-size:36px;margin-bottom:8px">📚</div>
+        <div>Memuat data ketercapaian...</div>
+      </div>
+    </div>
+  </div>
+
   </div><!-- .main -->
 </div><!-- .konten -->
 
@@ -607,9 +721,10 @@ window.gantiPage = function(page, el) {
   el?.classList.add('aktif');
   const judulMap = {
     beranda:'Beranda',harian:'Harian Real-Time',realisasi:'Realisasi JP Guru',
-    tren:'Tren Mingguan',rombel:'Capaian Rombel',scorecard:'Scorecard Guru',
-    metode:'Metode & Media',hambatan:'Log Hambatan',laporan:'Ekspor Laporan'
+    tren:'Tren Mingguan',rombel:'Capaian Rombel',kurikulum:'Ketercapaian Kurikulum',
+    scorecard:'Scorecard Guru',metode:'Metode & Media',hambatan:'Log Hambatan',laporan:'Ekspor Laporan'
   };
+  if (page === 'kurikulum') muatKurikulum();
   document.getElementById('topbar-judul').textContent = judulMap[page]||page;
   const showFilter = ['realisasi','tren','rombel','scorecard','metode'].includes(page);
   document.getElementById('topbar-filter').style.display = showFilter ? 'flex' : 'none';
@@ -1206,6 +1321,264 @@ window.eksporHambatanExcel = function() {
 function destroyChart(id) {
   if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
 }
+  // ══════════════════════════════════════════════════════
+  // KETERCAPAIAN KURIKULUM
+  // ══════════════════════════════════════════════════════
+  let kurBankMateri  = [];   // semua materi dari Materi_Kurikulum
+  let kurAgendaMateri = [];  // semua materi_pokok yang sudah diajarkan dari Agenda_Harian
+
+  window.muatKurikulum = async function() {
+    document.getElementById('kur-konten').innerHTML =
+      '<div style="text-align:center;padding:40px;color:#78909C"><div style="font-size:32px">⏳</div><div style="margin-top:8px">Memuat data...</div></div>';
+
+    try {
+      // Muat bank materi
+      const snapBank = await getDocs(collection(db, 'Materi_Kurikulum'));
+      kurBankMateri = snapBank.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Muat semua agenda (ambil materi_pokok dan sub_materi yang sudah diajarkan)
+      const snapAgenda = await getDocs(collection(db, 'Agenda_Harian'));
+      const agendaList = snapAgenda.docs.map(d => d.data());
+
+      // Bangun set materi yang sudah diajarkan: key = "kelas|mapel|materi_pokok"
+      kurAgendaMateri = [];
+      agendaList.forEach(a => {
+        if (a.materi_pokok) {
+          kurAgendaMateri.push({
+            kelas:  (a.kelas||'').trim(),
+            mapel:  (a.mapel||a.kode_mapel||'').trim(),
+            materi: (a.materi_pokok||'').trim(),
+            sub:    (a.sub_materi||'').trim(),
+            tanggal: a.tanggal||'',
+            guru:   a.id_guru||''
+          });
+        }
+      });
+
+      renderKurikulum();
+
+    } catch(e) {
+      console.error('muatKurikulum:', e);
+      document.getElementById('kur-konten').innerHTML =
+        `<div style="text-align:center;padding:40px;color:#C62828">❌ Error: ${e.message}</div>`;
+    }
+  };
+
+  function sudahDiajarkan(namaMateri, namaKelas, namaMapel) {
+    const nm = (namaMateri||'').toLowerCase().trim();
+    const nk = (namaKelas||'').trim().toUpperCase();
+    const np = (namaMapel||'').toLowerCase().trim();
+    return kurAgendaMateri.some(a => {
+      const mk = (a.kelas||'').trim().toUpperCase();
+      const mp = (a.mapel||'').toLowerCase().trim();
+      const mm = (a.materi||'').toLowerCase().trim();
+      const kelasMatch = !nk || mk === nk || mk.startsWith(nk);
+      const mapelMatch = !np || mp.includes(np) || np.includes(mp);
+      const materiMatch = mm === nm || mm.includes(nm) || nm.includes(mm);
+      return kelasMatch && mapelMatch && materiMatch;
+    });
+  }
+
+  window.renderKurikulum = function() {
+    const filterKelas = document.getElementById('kur-filter-kelas')?.value || '';
+    const filterSmt   = document.getElementById('kur-filter-smt')?.value  || '';
+    const filterView  = document.getElementById('kur-filter-view')?.value  || 'mapel';
+    const el = document.getElementById('kur-konten');
+
+    // Filter bank materi
+    let bank = kurBankMateri;
+    if (filterKelas) bank = bank.filter(m => (m.kelas||'').startsWith(filterKelas));
+    if (filterSmt)   bank = bank.filter(m => m.semester === filterSmt);
+
+    if (!bank.length) {
+      el.innerHTML = '<div style="text-align:center;padding:48px;color:#78909C"><div style="font-size:36px">📭</div><div style="margin-top:8px">Tidak ada data materi di bank kurikulum</div><div style="font-size:12px;margin-top:4px">Tambahkan materi di Dashboard Admin → Bank Materi</div></div>';
+      return;
+    }
+
+    // Hitung KPI global
+    const pokokAll = bank.filter(m => m.is_pokok);
+    let sudahCount = 0;
+    pokokAll.forEach(m => {
+      if (sudahDiajarkan(m.nama, m.kelas, m.nama_mapel||m.mapel)) sudahCount++;
+    });
+    const pct = pokokAll.length ? Math.round(sudahCount/pokokAll.length*100) : 0;
+
+    document.getElementById('kur-total-materi').textContent = bank.length;
+    document.getElementById('kur-sudah').textContent = sudahCount;
+    document.getElementById('kur-belum').textContent = pokokAll.length - sudahCount;
+    document.getElementById('kur-pct').textContent = pct + '%';
+
+    if (filterView === 'mapel')  el.innerHTML = renderViewMapel(bank);
+    else if (filterView === 'kelas') el.innerHTML = renderViewKelas(bank);
+    else el.innerHTML = renderViewDetail(bank);
+  };
+
+  function warnaPct(pct) {
+    if (pct >= 80) return '#2E7D32';
+    if (pct >= 50) return '#E07020';
+    return '#C62828';
+  }
+
+  // ── TAMPILAN PER MATA PELAJARAN ──
+  function renderViewMapel(bank) {
+    // Kelompokkan per mapel + kelas
+    const grp = {};
+    bank.forEach(m => {
+      const key = `${m.kelas}__${m.nama_mapel||m.mapel||m.id_mapel}`;
+      if (!grp[key]) grp[key] = {
+        kelas: m.kelas, fase: m.fase||'',
+        mapel: m.nama_mapel||m.mapel||m.id_mapel||'—',
+        items: []
+      };
+      grp[key].items.push(m);
+    });
+
+    return Object.entries(grp)
+      .sort((a,b) => a[1].kelas.localeCompare(b[1].kelas) || a[1].mapel.localeCompare(b[1].mapel))
+      .map(([key, g]) => {
+        const pokok = g.items.filter(m => m.is_pokok)
+          .sort((a,b) => String(a.no).localeCompare(String(b.no),undefined,{numeric:true}));
+        const subs  = g.items.filter(m => !m.is_pokok);
+
+        let sdh = 0;
+        pokok.forEach(p => { if (sudahDiajarkan(p.nama, g.kelas, g.mapel)) sdh++; });
+        const pct = pokok.length ? Math.round(sdh/pokok.length*100) : 0;
+        const w = warnaPct(pct);
+
+        const pohon = pokok.map(p => {
+          const pDone = sudahDiajarkan(p.nama, g.kelas, g.mapel);
+          const subP  = subs.filter(s => String(s.no).startsWith(String(p.no)+'.'))
+            .sort((a,b) => String(a.no).localeCompare(String(b.no),undefined,{numeric:true}));
+          const subDone = subP.filter(s => sudahDiajarkan(s.nama, g.kelas, g.mapel)).length;
+
+          return `<div class="kur-pokok-item">
+            <div class="kur-pokok-header">
+              <div class="kur-pokok-no">${p.no}</div>
+              <div class="kur-pokok-nama">${p.nama}</div>
+              <span class="${pDone?'kur-badge-done':'kur-badge-todo'}">${pDone?'✅ Diajarkan':'○ Belum'}</span>
+              ${subP.length?`<span style="font-size:10px;color:#78909C">${subDone}/${subP.length} sub</span>`:''}
+            </div>
+            ${subP.length?`<div class="kur-sub-list">${subP.map(s=>{
+              const sDone = sudahDiajarkan(s.nama, g.kelas, g.mapel);
+              return `<div class="kur-sub-item">
+                <div class="kur-sub-no">${s.no}</div>
+                <div class="kur-sub-nama">${s.nama}</div>
+                <span class="${sDone?'kur-badge-done':'kur-badge-todo'}">${sDone?'✅':'○'}</span>
+              </div>`;
+            }).join('')}</div>`:''}
+          </div>`;
+        }).join('');
+
+        return `<div class="kur-mapel-group">
+          <div class="kur-mapel-header">
+            <div class="kur-mapel-nama">📖 ${g.mapel}</div>
+            <span class="kur-mapel-kelas">Kelas ${g.kelas} · Fase ${g.fase}</span>
+            <div class="kur-pct-bar-wrap">
+              <div class="kur-pct-bar">
+                <div class="kur-pct-bar-fill" style="width:${pct}%;background:${w}"></div>
+              </div>
+              <span class="kur-pct-txt" style="color:${w}">${pct}%</span>
+            </div>
+            <span style="font-size:11px;color:rgba(255,255,255,.7)">${sdh}/${pokok.length} pokok</span>
+          </div>
+          <div class="kur-materi-list">${pohon}</div>
+        </div>`;
+      }).join('');
+  }
+
+  // ── TAMPILAN PER KELAS ──
+  function renderViewKelas(bank) {
+    const grpKelas = {};
+    bank.forEach(m => {
+      if (!grpKelas[m.kelas]) grpKelas[m.kelas] = [];
+      grpKelas[m.kelas].push(m);
+    });
+
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">` +
+      Object.keys(grpKelas).sort().map(kelas => {
+        const items = grpKelas[kelas];
+        // Kelompokkan per mapel
+        const grpMapel = {};
+        items.forEach(m => {
+          const nm = m.nama_mapel||m.mapel||'—';
+          if (!grpMapel[nm]) grpMapel[nm] = [];
+          grpMapel[nm].push(m);
+        });
+
+        const mapelRows = Object.entries(grpMapel).map(([mapel, mitems]) => {
+          const pokok = mitems.filter(m => m.is_pokok);
+          const sdh   = pokok.filter(p => sudahDiajarkan(p.nama, kelas, mapel)).length;
+          const pct   = pokok.length ? Math.round(sdh/pokok.length*100) : 0;
+          const w     = warnaPct(pct);
+          return `<div class="kur-kelas-mapel-row">
+            <div class="kur-kelas-mapel-nama">${mapel}</div>
+            <div class="kur-kelas-bar">
+              <div class="kur-kelas-bar-fill" style="width:${pct}%;background:${w}"></div>
+            </div>
+            <div class="kur-kelas-pct" style="color:${w}">${pct}%</div>
+          </div>`;
+        }).join('');
+
+        // Hitung rata kelas
+        const pokokAll = items.filter(m=>m.is_pokok);
+        const sdhAll   = pokokAll.filter(p=>sudahDiajarkan(p.nama,kelas,p.nama_mapel||p.mapel)).length;
+        const pctAll   = pokokAll.length ? Math.round(sdhAll/pokokAll.length*100) : 0;
+        const wAll     = warnaPct(pctAll);
+
+        return `<div class="kur-kelas-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="kur-kelas-nama">🏫 Kelas ${kelas}</div>
+            <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${wAll}">${pctAll}%</div>
+          </div>
+          <div style="height:6px;background:#E0E0E0;border-radius:3px;overflow:hidden;margin-bottom:12px">
+            <div style="height:100%;width:${pctAll}%;background:${wAll};border-radius:3px"></div>
+          </div>
+          ${mapelRows}
+        </div>`;
+      }).join('') + `</div>`;
+  }
+
+  // ── TAMPILAN DETAIL MATERI ──
+  function renderViewDetail(bank) {
+    const sorted = [...bank].sort((a,b) =>
+      (a.kelas||'').localeCompare(b.kelas||'') ||
+      (a.nama_mapel||a.mapel||'').localeCompare(b.nama_mapel||b.mapel||'') ||
+      String(a.no).localeCompare(String(b.no),undefined,{numeric:true})
+    );
+
+    return `<div class="kartu" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#F0F4F8">
+            <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">No</th>
+            <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">Materi</th>
+            <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">Kelas</th>
+            <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">Mapel</th>
+            <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">Semester</th>
+            <th style="padding:10px 12px;text-align:center;font-size:10px;font-weight:700;color:#546E7A;border-bottom:1.5px solid #E0E0E0;text-transform:uppercase">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sorted.map(m => {
+            const done = sudahDiajarkan(m.nama, m.kelas, m.nama_mapel||m.mapel);
+            const isPokok = m.is_pokok;
+            return `<tr style="${done?'background:#F9FFF9':''}" onmouseover="this.style.background='#F8F9FA'" onmouseout="this.style.background='${done?'#F9FFF9':''}'">
+              <td style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:${isPokok?700:400};color:${isPokok?'#E07020':'#78909C'};border-bottom:.5px solid #F0F0F0">${m.no}</td>
+              <td style="padding:8px 12px;font-weight:${isPokok?600:400};color:${isPokok?'#1A1A2E':'#546E7A'};border-bottom:.5px solid #F0F0F0;${isPokok?'':'padding-left:24px'}">${m.nama}</td>
+              <td style="padding:8px 12px;border-bottom:.5px solid #F0F0F0"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:#E3EEF8;color:#1A3A5C">${m.kelas||'—'}</span></td>
+              <td style="padding:8px 12px;font-size:11px;color:#546E7A;border-bottom:.5px solid #F0F0F0">${m.nama_mapel||m.mapel||'—'}</td>
+              <td style="padding:8px 12px;font-size:11px;color:#546E7A;border-bottom:.5px solid #F0F0F0">${m.semester||'—'}</td>
+              <td style="padding:8px 12px;text-align:center;border-bottom:.5px solid #F0F0F0">
+                <span class="${done?'kur-badge-done':'kur-badge-todo'}">${done?'✅ Diajarkan':'○ Belum'}</span>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+
 </script>
 </body>
 </html>
