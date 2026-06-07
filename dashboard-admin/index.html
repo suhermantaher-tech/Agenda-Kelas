@@ -1519,18 +1519,9 @@
       <input type="text" id="materi-cari" placeholder="Nama materi..." oninput="filterMateri()">
     </div>
     <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
-      <button class="btn-aksi" onclick="document.getElementById('file-materi').click()" style="background:var(--hijau);color:white;border-color:#1B5E20">
-        📂 Import Excel
-      </button>
-      <input type="file" id="file-materi" accept=".xlsx,.xls" style="display:none" onchange="importMateriExcel(this)">
-      <button class="btn-aksi" onclick="document.getElementById('file-test').click()" style="background:#546E7A;color:white;border-color:#37474F">
-        🔍 Test Baca Excel
-      </button>
-      <input type="file" id="file-test" accept=".xlsx,.xls" style="display:none" onchange="testBacaExcel(this)">
       <button class="btn-aksi" onclick="tampilImportTeks()" style="background:#1A3A5C;color:white;border-color:#0D2137">
-        📋 Import dari Copy-Paste
+        📋 Import Copy-Paste
       </button>
-      <button class="btn-aksi" onclick="unduhTemplateMateri()">📋 Template Excel</button>
       <button class="btn-aksi primary" onclick="tampilFormMateri()">+ Tambah Manual</button>
     </div>
   </div>
@@ -4673,44 +4664,68 @@
     const div = document.createElement('div');
     div.id = 'panel-import-teks';
     div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center';
+    // Bangun opsi mapel dari allMapel
+    const mapelOpts = (allMapel||[])
+      .sort((a,b)=>(a.nama_mapel||'').localeCompare(b.nama_mapel||''))
+      .map(m=>`<option value="${m.id}">${m.nama_mapel||m.kode_mapel||m.id}</option>`)
+      .join('');
+
     div.innerHTML = `
-      <div style="background:white;border-radius:16px;padding:24px;max-width:700px;width:95%;max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px">
-        <div style="font-size:16px;font-weight:800;color:#1A3A5C">📋 Import dari Copy-Paste Excel</div>
-        <div style="font-size:12px;color:#78909C;background:#F0F4F8;padding:10px 12px;border-radius:8px;line-height:1.7">
+      <div style="background:white;border-radius:16px;padding:24px;max-width:680px;width:95%;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:16px;font-weight:800;color:#1A3A5C">📋 Import dari Copy-Paste</div>
+        <div style="font-size:12px;color:#546E7A;background:#F0F4F8;padding:10px 14px;border-radius:8px;line-height:1.8">
           <strong>Cara:</strong><br>
-          1. Buka file Excel bank materi<br>
-          2. Pilih semua data (Ctrl+A) → Copy (Ctrl+C)<br>
-          3. Klik di kotak teks di bawah → Paste (Ctrl+V)<br>
-          4. Isi kelas, mapel, semester → klik Simpan
+          1. Buka file Excel → pilih kolom <strong>No</strong> dan <strong>Nama Materi</strong> → Ctrl+C<br>
+          2. Klik di kotak teks di bawah → Ctrl+V<br>
+          3. Pilih Kelas, Mapel, Semester dari dropdown → Simpan
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+
+        <!-- FORM: 3 dropdown -->
+        <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px">
           <div>
-            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:3px">KELAS</label>
-            <select id="it-kelas" style="width:100%;padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px">
-              <option value="X">X (Fase E)</option>
-              <option value="XI">XI (Fase F)</option>
-              <option value="XII">XII (Fase F)</option>
+            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Kelas</label>
+            <select id="it-kelas" style="width:100%;padding:8px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none">
+              <option value="X">X — Fase E</option>
+              <option value="XI">XI — Fase F</option>
+              <option value="XII">XII — Fase F</option>
             </select>
           </div>
           <div>
-            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:3px">MATA PELAJARAN</label>
-            <input type="text" id="it-mapel" placeholder="Ekonomi" style="width:100%;padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px">
+            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Mata Pelajaran</label>
+            <select id="it-mapel" style="width:100%;padding:8px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;border-color:#E07020">
+              <option value="">-- Pilih Mata Pelajaran --</option>
+              ${mapelOpts}
+            </select>
           </div>
           <div>
-            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:3px">SEMESTER</label>
-            <select id="it-smt" style="width:100%;padding:7px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px">
-              <option>Ganjil</option><option>Genap</option>
+            <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Semester</label>
+            <select id="it-smt" style="width:100%;padding:8px 10px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none">
+              <option>Ganjil</option>
+              <option>Genap</option>
             </select>
           </div>
         </div>
+
+        <!-- TEXTAREA paste -->
         <div>
-          <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:3px">PASTE DATA EXCEL DI SINI</label>
-          <textarea id="it-teks" rows="12" placeholder="Copy dari Excel lalu paste di sini..." 
-            style="width:100%;padding:10px 12px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none"></textarea>
+          <label style="font-size:11px;font-weight:700;color:#78909C;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">
+            Paste Data di Sini (Kolom No + Nama Materi)
+          </label>
+          <textarea id="it-teks" rows="10"
+            placeholder="Contoh hasil paste dari Excel:
+1	Konsep Dasar Ilmu Ekonomi
+1.1	Kelangkaan (scarcity)
+1.2	Skala prioritas
+2	Kegiatan Ekonomi"
+            style="width:100%;padding:10px 12px;border:1.5px solid #E0E0E0;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;resize:vertical;outline:none;line-height:1.7"
+            oninput="previewIt()"></textarea>
         </div>
-        <div id="it-preview" style="font-size:11px;color:#546E7A"></div>
+
+        <!-- Preview -->
+        <div id="it-preview" style="font-size:12px;min-height:20px"></div>
+
         <div style="display:flex;gap:8px">
-          <button onclick="prosesImportTeks()" style="padding:10px 24px;background:#E07020;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">
+          <button onclick="prosesImportTeks()" style="padding:10px 28px;background:#E07020;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">
             💾 Simpan ke Firestore
           </button>
           <button onclick="document.getElementById('panel-import-teks').remove()" style="padding:10px 16px;background:#F5F5F5;color:#546E7A;border:1px solid #E0E0E0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">
@@ -4752,29 +4767,30 @@
   }
 
   window.prosesImportTeks = async function() {
-    const teks   = document.getElementById('it-teks').value;
-    const kelas  = document.getElementById('it-kelas').value;
-    const mapelInput = document.getElementById('it-mapel').value.trim();
-    const smt    = document.getElementById('it-smt').value;
-    const fase   = kelas === 'X' ? 'E' : 'F';
+    const teks    = document.getElementById('it-teks').value;
+    const kelas   = document.getElementById('it-kelas').value;
+    const idMapel = document.getElementById('it-mapel').value;
+    const smt     = document.getElementById('it-smt').value;
+    const fase    = kelas === 'X' ? 'E' : 'F';
 
-    if (!teks || !mapelInput) { alert('Isi semua field dan paste data Excel'); return; }
+    if (!teks)    { tampilToast('⚠ Paste data materi terlebih dahulu'); return; }
+    if (!idMapel) { tampilToast('⚠ Pilih Mata Pelajaran terlebih dahulu'); return; }
 
     const parsed = parseTabData(teks);
-    if (!parsed.length) { alert('Tidak ada data terbaca. Pastikan copy dari Excel dengan benar.'); return; }
+    if (!parsed.length) { tampilToast('⚠ Tidak ada data terbaca. Coba paste ulang dari Excel.'); return; }
 
-    const mapelData = cacheMapelAdmin.find(m =>
-      (m.nama_mapel||'').toLowerCase().includes(mapelInput.toLowerCase())
-    );
-    const namaMapel = mapelData?.nama_mapel || mapelInput;
+    // Ambil data mapel dari allMapel berdasarkan ID yang dipilih
+    const mapelData = allMapel.find(m => m.id === idMapel);
+    const namaMapel = mapelData?.nama_mapel || mapelData?.kode_mapel || idMapel;
 
     const batch = writeBatch(db);
     parsed.forEach(row => {
       const docRef = doc(collection(db, 'Materi_Kurikulum'));
       batch.set(docRef, {
-        no: row.no, nama: row.nama,
-        kelas, fase,
-        id_mapel:   mapelData?.id || namaMapel,
+        no:         row.no,
+        nama:       row.nama,
+        kelas,      fase,
+        id_mapel:   idMapel,
         nama_mapel: namaMapel,
         mapel:      namaMapel,
         semester:   smt,
@@ -4785,7 +4801,7 @@
 
     await batch.commit();
     document.getElementById('panel-import-teks').remove();
-    tampilToast(`✅ ${parsed.length} materi berhasil disimpan!`);
+    tampilToast(`✅ ${parsed.length} materi "${namaMapel}" berhasil disimpan!`);
     await muatBankMateri();
   };
 
@@ -5192,6 +5208,24 @@
   };
 
   // Hook tambahan page baru dipanggil dari gantiPage asli
+
+
+  window.previewIt = function() {
+    const teks = document.getElementById('it-teks')?.value || '';
+    const el   = document.getElementById('it-preview');
+    if (!el) return;
+    if (!teks.trim()) { el.textContent = ''; return; }
+    const parsed = parseTabData(teks);
+    const pokok  = parsed.filter(r => !r.no.includes('.')).length;
+    const sub    = parsed.filter(r =>  r.no.includes('.')).length;
+    if (parsed.length) {
+      el.innerHTML = `<span style="color:#2E7D32;font-weight:700">✅ ${parsed.length} materi terdeteksi</span>
+        — <span style="color:#1A3A5C">${pokok} pokok bahasan</span>
+        · <span style="color:#78909C">${sub} sub materi</span>`;
+    } else {
+      el.innerHTML = '<span style="color:#C62828">⚠ Tidak ada data terdeteksi. Pastikan format benar.</span>';
+    }
+  };
 
 
 </script>
