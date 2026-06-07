@@ -4372,19 +4372,29 @@
     const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
     allMateriKurikulum = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Isi filter mapel dari Data Mapel
-    const mSnap = await getDocs(collection(db, 'Mata_Pelajaran'));
-    cacheMapelAdmin = mSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const selMapelFilter = document.getElementById('materi-filter-mapel');
-    const selMapelForm   = document.getElementById('fm-mapel');
-    if (selMapelFilter) {
-      selMapelFilter.innerHTML = '<option value="">Semua Mapel</option>' +
-        cacheMapelAdmin.map(m => `<option value="${m.id}">${m.nama_mapel||m.nama||m.id}</option>`).join('');
+    // Pakai allMapel yang sudah dimuat saat init, atau muat ulang jika kosong
+    if (!allMapel || !allMapel.length) {
+      const mSnap = await getDocs(collection(db, 'Mata_Pelajaran'));
+      allMapel = mSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
-    if (selMapelForm) {
-      selMapelForm.innerHTML = '<option value="">Pilih Mapel...</option>' +
-        cacheMapelAdmin.map(m => `<option value="${m.id}">${m.nama_mapel||m.nama||m.id}</option>`).join('');
-    }
+    cacheMapelAdmin = allMapel;
+
+    // Isi dropdown filter mapel
+    const isiDropdown = (elId, withAll) => {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.innerHTML = (withAll ? '<option value="">Semua Mapel</option>' : '<option value="">-- Pilih Mata Pelajaran --</option>') +
+        allMapel
+          .sort((a,b) => (a.nama_mapel||'').localeCompare(b.nama_mapel||''))
+          .map(m => {
+            const label = m.nama_mapel || m.nama || m.kode_mapel || m.id;
+            return `<option value="${m.id}">${label}${m.kode_mapel ? ' ['+m.kode_mapel+']' : ''}</option>`;
+          }).join('');
+    };
+
+    isiDropdown('materi-filter-mapel', true);
+    isiDropdown('fm-mapel', false);
+
     filterMateri();
   }
 
@@ -4479,17 +4489,18 @@
     const idMapel= document.getElementById('fm-mapel').value;
     const smt    = document.getElementById('fm-semester').value;
     if (!no || !nama || !kelas || !idMapel) { tampilToast('⚠ Lengkapi semua field'); return; }
-    const mapelData = cacheMapelAdmin.find(m => m.id === idMapel);
+    const mapelData = allMapel.find(m => m.id === idMapel);
+    const namaMapel = mapelData?.nama_mapel || mapelData?.nama || mapelData?.kode_mapel || idMapel;
     const isPokok   = !String(no).includes('.');
     await addDoc(collection(db, 'Materi_Kurikulum'), {
       no, nama,
       kelas, fase: kelas==='X'?'E':'F',
-      id_mapel: idMapel,
-      nama_mapel: mapelData?.nama_mapel || idMapel,
-      mapel: mapelData?.nama_mapel || idMapel,
-      semester: smt,
-      is_pokok: isPokok,
-      timestamp: new Date().toISOString()
+      id_mapel:   idMapel,
+      nama_mapel: namaMapel,
+      mapel:      namaMapel,
+      semester:   smt,
+      is_pokok:   isPokok,
+      timestamp:  new Date().toISOString()
     });
     tampilToast('✅ Materi berhasil disimpan');
     document.getElementById('form-materi').style.display = 'none';
