@@ -635,89 +635,102 @@
 
     <div class="modul-grid">
 
-      <!-- MONITOR TV — HERO CARD -->
+      <!-- 01 MONITOR TV — HERO CARD -->
       <a href="monitor-tv/index.html" class="modul-card hero-card" style="--card-color:var(--oranye)">
         <div class="modul-number">01</div>
         <div class="modul-ikon-wrap">🖥️</div>
         <div class="modul-tag">Layar Ruang Guru</div>
-        <div class="modul-nama">Monitor Agenda Kelas Real-Time</div>
-        <div class="modul-desc">Pantau status pengisian agenda seluruh kelas secara langsung. Dilengkapi bell otomatis, slider foto kegiatan, progress per rombel, dan capaian guru hari ini.</div>
+        <div class="modul-nama">Monitor Agenda Real-Time</div>
+        <div class="modul-desc">Tampilkan status agenda seluruh kelas di layar TV ruang guru. Bell otomatis berbunyi sesuai jam baku, progress rombel, dan kehadiran siswa hari ini.</div>
         <div class="fitur-list">
           <span class="fitur-chip">🔔 Bell Otomatis</span>
           <span class="fitur-chip">📊 Progress Rombel</span>
           <span class="fitur-chip">👥 Kehadiran Siswa</span>
-          <span class="fitur-chip">📸 Slider Foto</span>
           <span class="fitur-chip">⚡ Real-time</span>
         </div>
         <div class="modul-aksi">Buka Monitor →</div>
       </a>
 
-      <!-- PORTAL GURU -->
+      <!-- 02 PORTAL GURU -->
       <a href="portal-guru/index.html" class="modul-card" style="--card-color:#1A3A6E;--ikon-bg:rgba(26,58,110,0.07)">
         <div class="modul-number">02</div>
         <div class="modul-ikon-wrap">👨‍🏫</div>
         <div class="modul-tag">Akses Guru</div>
         <div class="modul-nama">Portal Guru</div>
-        <div class="modul-desc">Login PIN, isi agenda harian, lihat roster jadwal, dan pantau kehadiran siswa per kelas.</div>
+        <div class="modul-desc">Login PIN, isi agenda harian dengan picker materi dari bank kurikulum, pilih metode & media lewat chip, verifikasi GPS & scan QR kelas, lihat roster dan riwayat.</div>
         <div class="fitur-list">
           <span class="fitur-chip">🔐 Login PIN</span>
-          <span class="fitur-chip">📋 Isi Agenda</span>
-          <span class="fitur-chip">🗓 Roster</span>
-          <span class="fitur-chip">⏰ Notifikasi Jam</span>
+          <span class="fitur-chip">📖 Bank Materi</span>
+          <span class="fitur-chip">📍 Verif GPS</span>
+          <span class="fitur-chip">📷 Scan QR Kelas</span>
+          <span class="fitur-chip">🗓 Roster & Riwayat</span>
         </div>
         <div class="modul-aksi">Masuk Portal →</div>
       </a>
 
-      <!-- PRESENSI QR -->
+      <!-- 03 PRESENSI QR -->
       <a href="presensi/index.html" class="modul-card" style="--card-color:#2E7D32;--ikon-bg:rgba(46,125,50,0.07)">
         <div class="modul-number">03</div>
         <div class="modul-ikon-wrap">📷</div>
-        <div class="modul-tag">Pintu Gerbang</div>
+        <div class="modul-tag">Pintu Gerbang Sekolah</div>
         <div class="modul-nama">Presensi QR Siswa</div>
-        <div class="modul-desc">Scan QR Code kartu siswa untuk presensi masuk pagi. Data langsung tersimpan dan terhubung ke semua modul.</div>
+        <div class="modul-desc">Guru login PIN lalu buka kamera. Siswa scan QR untuk presensi masuk pagi. Daftar siswa hadir muncul real-time, terhubung ke semua modul.</div>
         <div class="fitur-list">
+          <span class="fitur-chip">🔐 Login Guru</span>
           <span class="fitur-chip">📱 Scan QR</span>
-          <span class="fitur-chip">⚡ Instan</span>
-          <span class="fitur-chip">📊 Log Harian</span>
+          <span class="fitur-chip">👥 Daftar Hadir Live</span>
+          <span class="fitur-chip">🔍 Filter Kelas</span>
         </div>
         <div class="modul-aksi">Buka Scanner →</div>
-        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
-          <a href="presensi/rekap.html" onclick="event.stopPropagation()" style="font-size:11px;font-weight:600;color:var(--hijau);background:var(--hijau-muda,#E8F5E9);padding:3px 10px;border-radius:10px;text-decoration:none">📊 Rekap</a>
-          <a href="presensi/kelola-siswa.html" onclick="event.stopPropagation()" style="font-size:11px;font-weight:600;color:var(--biru);background:var(--biru-muda,#E3EEF8);padding:3px 10px;border-radius:10px;text-decoration:none">👥 Kelola Siswa</a>
-        </div>
       </a>
 
-      <!-- DASHBOARD KEPSEK -->
-      <a href="dashboard-kepsek/index.html" class="modul-card" style="--card-color:#7B1FA2;--ikon-bg:rgba(123,31,162,0.07)">
+      <!-- 04 PORTAL WALI KELAS -->
+      <a href="wali-kelas/index.html" class="modul-card" style="--card-color:#00695C;--ikon-bg:rgba(0,105,92,0.07)">
         <div class="modul-number">04</div>
+        <div class="modul-ikon-wrap">🏫</div>
+        <div class="modul-tag">Wali Kelas</div>
+        <div class="modul-nama">Portal Wali Kelas</div>
+        <div class="modul-desc">Pantau kehadiran dan agenda kelas yang diampu. Rekap absensi per periode, ketercapaian materi, dan alert siswa bolos dengan tombol WA orang tua otomatis.</div>
+        <div class="fitur-list">
+          <span class="fitur-chip">📊 Rekap Absensi</span>
+          <span class="fitur-chip">📚 Ketercapaian Materi</span>
+          <span class="fitur-chip">⚠️ Alert Bolos</span>
+          <span class="fitur-chip">💬 WA Orang Tua</span>
+        </div>
+        <div class="modul-aksi">Masuk Portal →</div>
+      </a>
+
+      <!-- 05 DASHBOARD KEPSEK -->
+      <a href="dashboard-kepsek/index.html" class="modul-card" style="--card-color:#7B1FA2;--ikon-bg:rgba(123,31,162,0.07)">
+        <div class="modul-number">05</div>
         <div class="modul-ikon-wrap">👔</div>
         <div class="modul-tag">Kepala Sekolah</div>
         <div class="modul-nama">Dashboard Kepsek</div>
-        <div class="modul-desc">Monitoring & evaluasi KBM komprehensif — realisasi JP, scorecard guru, tren mingguan, dan ekspor laporan.</div>
+        <div class="modul-desc">Monitoring KBM menyeluruh — realisasi JP per guru, ketercapaian kurikulum per kelas, tren kepatuhan mingguan, dan alert kelas kosong.</div>
         <div class="fitur-list">
-          <span class="fitur-chip">📈 Tren</span>
-          <span class="fitur-chip">🏆 Scorecard</span>
-          <span class="fitur-chip">📊 Ekspor</span>
+          <span class="fitur-chip">📈 Tren Mingguan</span>
+          <span class="fitur-chip">📚 Ketercapaian Kurikulum</span>
+          <span class="fitur-chip">🏆 Realisasi JP</span>
+          <span class="fitur-chip">🔔 Alert Kelas Kosong</span>
         </div>
         <div class="modul-aksi">Buka Dashboard →</div>
       </a>
 
-      <!-- DASHBOARD ADMIN -->
+      <!-- 06 DASHBOARD ADMIN -->
       <a href="dashboard-admin/index.html" class="modul-card" style="--card-color:var(--oranye-gelap);--ikon-bg:rgba(184,85,16,0.08)">
-        <div class="modul-number">05</div>
+        <div class="modul-number">06</div>
         <div class="modul-ikon-wrap">⚙️</div>
         <div class="modul-tag">Administrator</div>
         <div class="modul-nama">Dashboard Admin</div>
-        <div class="modul-desc">Kelola data guru, mata pelajaran, rombel, roster visual, jam baku, dan kalender akademik.</div>
+        <div class="modul-desc">Pusat kendali sistem — kelola data guru, siswa, mata pelajaran, rombel, roster visual, jam baku, bank materi kurikulum, dan profil sekolah.</div>
         <div class="fitur-list">
           <span class="fitur-chip">📋 Roster Visual</span>
-          <span class="fitur-chip">👥 Data Guru</span>
-          <span class="fitur-chip">📅 Kalender</span>
+          <span class="fitur-chip">👥 Data Guru & Siswa</span>
+          <span class="fitur-chip">📖 Bank Materi</span>
+          <span class="fitur-chip">🏫 Profil Sekolah</span>
         </div>
         <div class="modul-aksi">Buka Admin →</div>
       </a>
-
-
 
     </div>
   </div>
@@ -733,42 +746,42 @@
       <div class="fitur-item">
         <div class="fitur-ikon">⚡</div>
         <div class="fitur-judul">Real-Time Firebase</div>
-        <div class="fitur-teks">Data agenda, presensi, dan monitoring diperbarui instan tanpa perlu refresh halaman.</div>
+        <div class="fitur-teks">Data agenda, presensi, dan monitoring diperbarui instan tanpa perlu refresh — semua modul terhubung satu database.</div>
       </div>
       <div class="fitur-item">
         <div class="fitur-ikon">📱</div>
         <div class="fitur-judul">Tanpa Instalasi APK</div>
-        <div class="fitur-teks">Cukup buka browser di HP, tablet, atau layar TV. Tidak perlu install aplikasi apapun.</div>
+        <div class="fitur-teks">Cukup buka browser di HP, tablet, atau layar TV. Semua fitur berjalan langsung tanpa install apapun.</div>
       </div>
       <div class="fitur-item">
         <div class="fitur-ikon">🔔</div>
         <div class="fitur-judul">Bell Otomatis</div>
-        <div class="fitur-teks">8 jenis suara bell berbunyi otomatis sesuai jadwal jam baku — mulai PBM, pergantian jam, hingga pulang.</div>
+        <div class="fitur-teks">Suara bell berbunyi otomatis sesuai jadwal jam baku — masuk, pergantian jam, istirahat, hingga pulang.</div>
       </div>
       <div class="fitur-item">
-        <div class="fitur-ikon">📷</div>
-        <div class="fitur-judul">Presensi QR Code</div>
-        <div class="fitur-teks">Siswa scan kartu QR saat masuk pagi. Data hadir otomatis terisi di form agenda guru.</div>
+        <div class="fitur-ikon">📖</div>
+        <div class="fitur-judul">Bank Materi Kurikulum</div>
+        <div class="fitur-teks">Materi pokok dan sub materi dari bank kurikulum — guru pilih dari daftar, lebih cepat dan terstruktur.</div>
+      </div>
+      <div class="fitur-item">
+        <div class="fitur-ikon">📍</div>
+        <div class="fitur-judul">Verifikasi GPS & QR Kelas</div>
+        <div class="fitur-teks">Agenda hanya bisa diisi dari dalam sekolah dan ruang kelas yang benar — mencegah pengisian fiktif.</div>
       </div>
       <div class="fitur-item">
         <div class="fitur-ikon">🗓</div>
         <div class="fitur-judul">Roster Visual</div>
-        <div class="fitur-teks">Susun jadwal pelajaran dengan grid visual seperti aSc. Validasi bentrok guru otomatis.</div>
+        <div class="fitur-teks">Susun jadwal pelajaran mingguan dengan grid visual. Guru lihat roster sendiri langsung di portal.</div>
       </div>
       <div class="fitur-item">
-        <div class="fitur-ikon">📊</div>
-        <div class="fitur-judul">Laporan Lengkap</div>
-        <div class="fitur-teks">Ekspor laporan harian, bulanan, dan semester ke Excel atau PDF langsung dari browser.</div>
+        <div class="fitur-ikon">📚</div>
+        <div class="fitur-judul">Ketercapaian Kurikulum</div>
+        <div class="fitur-teks">Kepsek dan wali kelas pantau materi yang sudah diajarkan vs belum, per mata pelajaran dan kelas.</div>
       </div>
       <div class="fitur-item">
-        <div class="fitur-ikon">👔</div>
-        <div class="fitur-judul">Monev Kepsek</div>
-        <div class="fitur-teks">Dashboard kepala sekolah dengan scorecard guru, tren kepatuhan, dan alert kelas kosong.</div>
-      </div>
-      <div class="fitur-item">
-        <div class="fitur-ikon">🔒</div>
-        <div class="fitur-judul">Akses Terpisah</div>
-        <div class="fitur-teks">Guru login PIN, admin login email Firebase, kepsek login email tersendiri. Data aman dan terstruktur.</div>
+        <div class="fitur-ikon">💬</div>
+        <div class="fitur-judul">Alert Bolos ke WhatsApp</div>
+        <div class="fitur-teks">Wali kelas kirim pesan WA ke orang tua siswa yang sering tidak hadir — langsung dari portal, satu klik.</div>
       </div>
     </div>
   </div>
@@ -780,7 +793,7 @@
     <div class="footer-brand"><span>CMA</span> · Class Monitoring Application</div>
     <div class="footer-sekolah">SMAN 5 Sarolangun · Kabupaten Sarolangun · Provinsi Jambi</div>
   </div>
-  <div class="footer-copy">v2.0 · T.A. 2025/2026 · Firebase + GitHub Pages</div>
+  <div class="footer-copy">v3.0 · T.A. 2025/2026 · Firebase + GitHub Pages</div>
 </footer>
 
 <script>
