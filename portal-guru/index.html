@@ -818,356 +818,54 @@
       from { opacity:0; transform:translateX(-50%) translateY(20px); }
       to   { opacity:1; transform:translateX(-50%) translateY(0); }
     }
-    @media (max-width: 360px) {
-      .pin-kotak { width: 52px; height: 60px; font-size: 22px; }
-      .form-row { grid-template-columns: 1fr; }
-    }
+    /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 768px) {
+    /* Cegah auto-zoom iOS saat focus input */
+    input, select, textarea { font-size: 16px !important; }
 
-    /* DROPDOWN MATERI */
-    .materi-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
-      padding:3px 10px; border-radius:10px; }
-    .materi-chip-done { background:#E8F5E9; color:#2E7D32; }
-    .materi-chip-todo { background:#F5F5F5; color:#78909C; border:1px solid #E0E0E0; }
-    .materi-chip-current { background:var(--oranye-terang); color:var(--oranye-gelap); border:1px solid #FFCC80; }
+    /* Topbar */
+    .topbar { padding: 10px 14px; gap: 8px; flex-wrap: wrap; }
+    .topbar-kanan { flex-wrap: wrap; gap: 6px; }
 
-    /* PANEL VERIFIKASI */
-    .verif-panel { background:#F8F9FA; border-radius:12px; border:1.5px solid var(--border);
-      padding:14px 16px; margin-bottom:14px; }
-    .verif-title { font-size:13px; font-weight:800; color:var(--biru-tua); margin-bottom:4px; }
-    .verif-info { font-size:11px; color:var(--abu); margin-bottom:12px; line-height:1.5; }
-    .verif-item { display:flex; align-items:center; gap:10px; padding:10px 12px;
-      border-radius:9px; border:1.5px solid var(--border); margin-bottom:8px;
-      background:white; transition:border-color .2s, background .2s; }
-    .verif-item.ok { border-color:#4CAF50; background:#F1F8E9; }
-    .verif-item.fail { border-color:#EF5350; background:#FFEBEE; }
-    .verif-ikon { font-size:22px; flex-shrink:0; }
-    .verif-detail { flex:1 }
-    .verif-label { font-size:12px; font-weight:700; color:var(--teks); }
-    .verif-sub { font-size:11px; color:var(--abu); margin-top:1px; }
-    .verif-btn { font-size:11px; font-weight:700; padding:5px 12px; border-radius:8px;
-      border:1.5px solid var(--oranye); color:var(--oranye); background:white;
-      cursor:pointer; font-family:inherit; white-space:nowrap; transition:all .15s; }
-    .verif-btn:hover { background:var(--oranye); color:white; }
-    .verif-btn.done { border-color:#4CAF50; color:#4CAF50; }
-    .verif-btn.done:hover { background:#4CAF50; color:white; }
-    .verif-btn.fail { border-color:#EF5350; color:#EF5350; }
-  </style>
-</head>
-<body>
+    /* Header guru info */
+    .guru-nama { font-size: 13px; }
+    .guru-kode { font-size: 10px; }
 
-<!-- ══ LOGIN ══ -->
-<div id="hal-login">
-  <div class="login-bg-top"></div>
-  <div class="login-bg-circle1"></div>
-  <div class="login-bg-circle2"></div>
+    /* Form agenda */
+    .form-row { grid-template-columns: 1fr !important; }
+    .form-materi-grid { grid-template-columns: 1fr 1fr !important; }
+    .btn-simpan { width: 100%; font-size: 15px; }
 
-  <div class="login-card">
-    <div class="login-header-card">
-      <div class="logo-wrap">
-        <div class="logo-img-wrap">
-          <div class="logo-img-inner">
-            <img class="logo-img" src="../shared/logo.jpg" alt="Logo SMAN 5 Sarolangun" onerror="this.style.display='none'">
-          </div>
-        </div>
-        <div>
-          <div class="logo-nama">SMAN 5 Sarolangun</div>
-          <div class="logo-sub">Kreatif &amp; Berkarakter</div>
-        </div>
-      </div>
-    </div>
+    /* Panel kehadiran siswa */
+    .hadir-kelas-grid { grid-template-columns: 1fr !important; }
 
-    <div class="login-body">
-      <div class="login-label">🔐 Masukkan PIN Guru</div>
+    /* Verifikasi panel */
+    .verif-panel { padding: 12px; }
+    .verif-item { gap: 8px; flex-wrap: wrap; }
+    .verif-btn { padding: 6px 12px; font-size: 11px; }
 
-      <div class="pin-wrap">
-        <div class="pin-kotak" id="p1"></div>
-        <div class="pin-kotak" id="p2"></div>
-        <div class="pin-kotak" id="p3"></div>
-        <div class="pin-kotak" id="p4"></div>
-      </div>
+    /* QR scan video */
+    #qr-video { max-height: 240px; }
 
-      <div class="numpad">
-        <button class="numpad-btn" onclick="inputPin('1')">1</button>
-        <button class="numpad-btn" onclick="inputPin('2')">2</button>
-        <button class="numpad-btn" onclick="inputPin('3')">3</button>
-        <button class="numpad-btn" onclick="inputPin('4')">4</button>
-        <button class="numpad-btn" onclick="inputPin('5')">5</button>
-        <button class="numpad-btn" onclick="inputPin('6')">6</button>
-        <button class="numpad-btn" onclick="inputPin('7')">7</button>
-        <button class="numpad-btn" onclick="inputPin('8')">8</button>
-        <button class="numpad-btn" onclick="inputPin('9')">9</button>
-        <button class="numpad-btn kosong"></button>
-        <button class="numpad-btn" onclick="inputPin('0')">0</button>
-        <button class="numpad-btn hapus" onclick="hapusPin()">⌫</button>
-      </div>
+    /* Roster */
+    .roster-hari-btn { padding: 6px 10px; font-size: 11px; }
+    .roster-sesi-item { gap: 8px; }
 
-      <button class="btn-login" id="btn-login" disabled onclick="prosesLogin()">Masuk →</button>
-      <div class="pesan-error" id="pesan-error"></div>
-    </div>
-  </div>
+    /* Tab buttons */
+    .tab-btn { padding: 8px; font-size: 12px; }
 
-  <div class="footer-login">Egenda Kelas · SMAN 5 Sarolangun © 2025</div>
-</div>
+    /* Presensi siswa grid */
+    .presensi-row { flex-direction: column; gap: 6px; }
+  }
 
-<!-- ══ HALAMAN UTAMA ══ -->
-<div id="hal-utama">
-  <div class="header">
-    <div class="header-deko"></div>
-    <div class="header-deko2"></div>
-    <div class="header-inner">
-      <div class="header-top">
-        <div class="header-kiri">
-          <div class="header-logo-wrap">
-            <img class="header-logo" src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
-          </div>
-          <div class="header-teks">
-            <div class="header-judul">Selamat datang,</div>
-            <div class="header-nama" id="nama-guru">—</div>
-          </div>
-        </div>
-        <button class="btn-keluar" onclick="keluar()">Keluar</button>
-      </div>
-      <div class="tanggal-chip">📅 <span id="teks-tanggal">—</span></div>
-      <div id="chip-sisa-jam" style="display:none;margin-top:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:12px;color:white;font-weight:500;"></div>
-    </div>
-    <div class="header-wave"></div>
-  </div>
-
-  <div class="konten">
-
-    <div class="status-card">
-      <div class="status-dot belum" id="status-dot">📋</div>
-      <div class="status-info">
-        <div class="status-label">Agenda hari ini</div>
-        <div class="status-nilai" id="status-nilai">Memuat...</div>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn aktif" onclick="gantiTab('jadwal', this)">📚 Hari Ini</button>
-      <button class="tab-btn" onclick="gantiTab('roster', this)">🗓 Roster Saya</button>
-      <button class="tab-btn" onclick="gantiTab('riwayat', this)">🗂 Riwayat</button>
-    </div>
-
-    <!-- TAB JADWAL -->
-    <div class="tab-konten aktif" id="tab-jadwal">
-      <!-- KEHADIRAN SISWA PER KELAS -->
-      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:14px;background:linear-gradient(135deg,rgba(26,58,92,0.08),rgba(224,112,32,0.06));border:1px solid rgba(26,58,92,0.12);border-radius:var(--radius);padding:14px 16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="font-size:12px;font-weight:700;color:var(--biru-tua);display:flex;align-items:center;gap:6px;">
-            👥 Kehadiran Siswa Hari Ini
-          </div>
-          <div id="kehadiran-summary" style="font-size:11px;color:var(--teks-muted)">—</div>
-        </div>
-        <div id="kehadiran-per-kelas" style="display:flex;flex-direction:column;gap:6px;"></div>
-        <div style="margin-top:8px;font-size:11px;color:var(--teks-muted);padding-top:8px;border-top:1px solid rgba(26,58,92,0.1);">
-          ⚠ Siswa merah = tidak hadir saat presensi pagi — perlu dicek di kelas
-        </div>
-      </div>
-
-      <div class="sec-label">Pilih kelas untuk isi agenda</div>
-      <div class="jadwal-list" id="jadwal-list">
-        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat jadwal...</p></div>
-      </div>
-
-      <div id="form-agenda" style="display:none;">
-        <div class="form-card">
-          <div class="form-aksen"></div>
-          <div class="form-judul">
-            <div class="form-judul-ico">📝</div>
-            <span id="form-judul-teks">Isi Agenda</span>
-          </div>
-
-          <!-- MATERI POKOK -->
-          <div class="form-grup">
-            <label class="form-label">Materi Pokok *
-              <span id="materi-status" style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px"></span>
-            </label>
-            <select class="form-select" id="inp-materi" onchange="onPilihMateriPokok()">
-              <option value="">-- Pilih atau loading... --</option>
-            </select>
-            <input type="text" class="form-input" id="inp-materi-manual" placeholder="Tulis materi jika tidak ada di daftar..."
-              style="display:none;margin-top:6px">
-            <div style="margin-top:5px">
-              <button type="button" onclick="toggleMateriManual()"
-                style="font-size:11px;color:var(--oranye);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600">
-                ✏️ Tulis manual jika tidak ada di daftar
-              </button>
-            </div>
-          </div>
-
-          <!-- SUB MATERI -->
-          <div class="form-grup">
-            <label class="form-label">Sub Materi</label>
-            <select class="form-select" id="inp-submateri" onchange="onPilihSubMateri()">
-              <option value="">-- Pilih sub materi (opsional) --</option>
-            </select>
-            <input type="text" class="form-input" id="inp-submateri-manual" placeholder="Tulis sub materi jika tidak ada..."
-              style="display:none;margin-top:6px">
-          </div>
-
-          <!-- BADGE MATERI SUDAH DIAJARKAN -->
-          <div id="materi-history-wrap" style="display:none;margin-bottom:12px">
-            <div style="font-size:11px;font-weight:700;color:var(--abu);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">
-              📚 Status Ketercapaian Materi
-            </div>
-            <div id="materi-history-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-grup">
-              <label class="form-label">Metode Pembelajaran *</label>
-              <select class="form-select" id="inp-metode">
-                <option value="">Pilih metode</option>
-                <option>Ceramah</option>
-                <option>Diskusi</option>
-                <option>Tanya Jawab</option>
-                <option>Demonstrasi</option>
-                <option>Praktikum</option>
-                <option>Project Based</option>
-                <option>Problem Based</option>
-                <option>Kooperatif</option>
-                <option>Inkuiri</option>
-              </select>
-            </div>
-            <div class="form-grup">
-              <label class="form-label">Media Ajar *</label>
-              <select class="form-select" id="inp-media">
-                <option value="">Pilih media</option>
-                <option>Papan tulis</option>
-                <option>PPT / Slide</option>
-                <option>Video</option>
-                <option>Modul / LKS</option>
-                <option>Buku Teks</option>
-                <option>Alat Peraga</option>
-                <option>Laptop / Proyektor</option>
-                <option>Internet</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-grup">
-            <label class="form-label">Data Kehadiran Siswa</label>
-            <div class="kehadiran-grid">
-              <!-- INFO PRESENSI PAGI -->
-              <div id="info-presensi-pagi" style="display:none;grid-column:1/-1;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:8px 12px;margin-bottom:4px;"></div>
-
-              <div class="kehadiran-item hadir">
-                <label>✅ Hadir</label>
-                <input type="number" id="inp-hadir" value="0" min="0">
-              </div>
-              <div class="kehadiran-item alfa">
-                <label>❌ Alfa</label>
-                <input type="number" id="inp-alfa" value="0" min="0">
-              </div>
-              <div class="kehadiran-item izin">
-                <label>📄 Izin</label>
-                <input type="number" id="inp-izin" value="0" min="0">
-              </div>
-              <div class="kehadiran-item sakit">
-                <label>🏥 Sakit</label>
-                <input type="number" id="inp-sakit" value="0" min="0">
-              </div>
-            </div>
-          </div>
-
-          <div class="form-grup">
-            <label class="form-label">Catatan (opsional)</label>
-            <textarea class="form-textarea" id="inp-catatan" placeholder="Contoh: Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
-          </div>
-
-          <!-- PANEL VERIFIKASI -->
-          <div class="verif-panel" id="verif-panel">
-            <div class="verif-title">🔐 Verifikasi Sebelum Simpan</div>
-            <div class="verif-info">Agenda hanya bisa disimpan jika diisi dari dalam lingkungan sekolah dan dari ruang kelas yang benar.</div>
-
-            <!-- GPS -->
-            <div class="verif-item" id="verif-gps-item">
-              <div class="verif-ikon" id="verif-gps-ikon">📍</div>
-              <div class="verif-detail">
-                <div class="verif-label">Verifikasi Lokasi (GPS)</div>
-                <div class="verif-sub" id="verif-gps-sub">Belum dicek</div>
-              </div>
-              <button class="verif-btn" id="verif-gps-btn" onclick="cekGPS()">Cek Lokasi</button>
-            </div>
-
-            <!-- QR KELAS -->
-            <div class="verif-item" id="verif-qr-item">
-              <div class="verif-ikon" id="verif-qr-ikon">📷</div>
-              <div class="verif-detail">
-                <div class="verif-label">Scan QR Ruang Kelas</div>
-                <div class="verif-sub" id="verif-qr-sub">Belum discan</div>
-              </div>
-              <button class="verif-btn" id="verif-qr-btn" onclick="bukaQRScan()">Scan QR</button>
-            </div>
-
-            <!-- Scanner QR tersembunyi -->
-            <div id="qr-scan-wrap" style="display:none;margin-top:10px">
-              <video id="qr-video" style="width:100%;border-radius:10px;max-height:220px;object-fit:cover;background:#000"></video>
-              <div id="qr-scan-info" style="font-size:12px;color:var(--abu);text-align:center;margin-top:5px">Arahkan kamera ke QR Code yang ditempel di kelas</div>
-              <button onclick="tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
-            </div>
-
-            <!-- Status override -->
-            <div id="verif-override" style="display:none;margin-top:8px">
-              <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--teks-muted)">
-                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="updateVerifStatus()">
-                <span>Simpan tanpa verifikasi lengkap <strong>(akan dicatat sebagai tidak terverifikasi)</strong></span>
-              </label>
-            </div>
-          </div>
-
-          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()" disabled
-            style="opacity:0.5;cursor:not-allowed">
-            🔐 Lengkapi Verifikasi Dulu
-          </button>
-          <button class="btn-batal" onclick="tutupForm()">Batal</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB ROSTER -->
-    <div class="tab-konten" id="tab-roster">
-      <div class="sec-label">Roster Jadwal Mengajar Saya</div>
-
-      <!-- Filter hari -->
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="roster-hari-filter">
-        <button class="roster-hari-btn aktif" onclick="gantiHariRoster('Semua',this)">Semua</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Senin',this)">Senin</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Selasa',this)">Selasa</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Rabu',this)">Rabu</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Kamis',this)">Kamis</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Jumat',this)">Jumat</button>
-        <button class="roster-hari-btn" onclick="gantiHariRoster('Sabtu',this)">Sabtu</button>
-      </div>
-
-      <div id="roster-konten">
-        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>
-      </div>
-    </div>
-
-    <!-- TAB RIWAYAT -->
-    <div class="tab-konten" id="tab-riwayat">
-      <div class="sec-label">Riwayat 30 hari terakhir</div>
-      <div id="riwayat-list">
-        <div class="empty-state"><div class="ikon">📂</div><p>Memuat riwayat...</p></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div class="toast" id="toast">✅ Agenda berhasil disimpan!</div>
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-teks">Memuat data...</div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getFirestore, collection, query, where, getDocs,
-    addDoc, orderBy, limit, doc, getDoc, writeBatch
+  @media (max-width: 480px) {
+    /* PIN kotak */
+    .pin-kotak { width: 52px; height: 60px; font-size: 22px; }
+    /* Numpad */
+    .numpad { gap: 6px; }
+    .numpad-btn { padding: 14px 10px; font-size: 18px; }
+    /* Form materi full width */
+    .form-materi-grid { grid-template-columns: 1fr !important; }
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
