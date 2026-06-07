@@ -1201,8 +1201,7 @@ import {
       const snap = await getDocs(query(
         collection(db,'Agenda_Harian'),
         where('id_guru','==',guruAktif.id),
-        orderBy('timestamp_input','desc'),
-        limit(50)
+        limit(100)
       ));
       if (snap.empty) {
         el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>Mulai isi agenda hari ini.</small></p></div>';
@@ -1210,7 +1209,13 @@ import {
       }
       const HARI = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
       const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-      el.innerHTML = snap.docs.map(d => {
+      // Sort client-side tanpa composite index
+      const docs = [...snap.docs].sort((a,b) => {
+        const tA = a.data().timestamp_input || a.data().tanggal || '';
+        const tB = b.data().timestamp_input || b.data().tanggal || '';
+        return tB.localeCompare(tA);
+      });
+      el.innerHTML = docs.map(d => {
         const r = d.data();
         const tgl = r.tanggal ? new Date(r.tanggal) : null;
         const tglStr = tgl ? `${HARI[tgl.getDay()]}, ${tgl.getDate()} ${BULAN[tgl.getMonth()]} ${tgl.getFullYear()}` : r.tanggal || '—';
