@@ -571,9 +571,9 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
   <!-- TAB BAR -->
   <div class="tab-bar">
-    <button class="tab-btn aktif" id="tab-btn-hari" onclick="gantiTab('hari',this)">📋 Hari Ini</button>
-    <button class="tab-btn" id="tab-btn-roster" onclick="gantiTab('roster',this)">📅 Roster Saya</button>
-    <button class="tab-btn" id="tab-btn-riwayat" onclick="gantiTab('riwayat',this)">🕐 Riwayat</button>
+    <button class="tab-btn aktif" id="tab-btn-hari" onclick="window.gantiTab('hari',this)">📋 Hari Ini</button>
+    <button class="tab-btn" id="tab-btn-roster" onclick="window.gantiTab('roster',this)">📅 Roster Saya</button>
+    <button class="tab-btn" id="tab-btn-riwayat" onclick="window.gantiTab('riwayat',this)">🕐 Riwayat</button>
   </div>
 
   <!-- KONTEN TABS -->
@@ -765,7 +765,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
             <div id="verif-override" style="display:none;margin-top:8px">
               <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--teks-muted)">
-                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="updateVerifStatus()">
+                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="window.updateVerifStatus()">
                 <span>Simpan tanpa verifikasi lengkap <strong>(akan dicatat sebagai tidak terverifikasi)</strong></span>
               </label>
             </div>
@@ -1510,7 +1510,7 @@ import {
     const hariAda = hariUrut.filter(h => perHari[h]);
     const filterBtns = ['Semua', ...hariAda].map(h =>
       `<button class="roster-hari-btn ${rosterHariAktif===h?'aktif':''}"
-        onclick="gantiHariRoster('${h}',this)">${h}</button>`
+        onclick="window.gantiHariRoster('${h}',this)">${h}</button>`
     ).join('');
 
     const hariTampil = rosterHariAktif === 'Semua'
