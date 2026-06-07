@@ -122,13 +122,13 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 /* ══════════════════════════════════════════
    HALAMAN UTAMA
 ══════════════════════════════════════════ */
-#hal-utama{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden}
+#hal-utama{display:none;height:100vh;height:100dvh;flex-direction:column}
 #hal-utama.on{display:flex}
 
 /* Topbar */
 .topbar{background:linear-gradient(135deg,var(--biru-tua),#2563A8);color:white;
   padding:10px 16px;display:flex;align-items:center;gap:10px;
-  position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-shrink:0}
 .topbar-kiri{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
 .topbar-logo{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.15);
   overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -148,7 +148,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
 /* Tab bar */
 .tab-bar{display:flex;background:white;border-bottom:2px solid var(--border);
-  position:sticky;top:55px;z-index:40;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+  position:sticky;top:55px;z-index:40;box-shadow:0 2px 4px rgba(0,0,0,.04);flex-shrink:0}
 .tab-btn{flex:1;padding:12px 8px;font-size:12px;font-weight:600;border:none;
   background:none;color:var(--abu);cursor:pointer;font-family:inherit;
   border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;
