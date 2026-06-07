@@ -565,7 +565,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
         <span id="status-dot" style="font-size:14px">📋</span>
         <span id="status-nilai" style="font-size:11px;color:var(--teks-muted);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
       </div>
-      <button class="btn-keluar" onclick="keluar()">Keluar</button>
+      <button class="btn-keluar" onclick="window.keluar()">Keluar</button>
     </div>
   </div>
 
@@ -622,14 +622,14 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
               <span id="materi-status" class="badge-materi" style="display:none"></span>
             </label>
             <select class="form-select" id="inp-materi"></select>
-            <button type="button" class="picker-btn" id="pb-materi" onclick="bukaPickerMateri()">
+            <button type="button" class="picker-btn" id="pb-materi" onclick="window.bukaPickerMateri()">
               <span class="pb-teks placeholder" id="pb-materi-teks">Pilih materi pokok...</span>
               <span class="pb-arr">▾</span>
             </button>
             <input type="text" class="form-input" id="inp-materi-manual"
               placeholder="Tulis materi pokok..." style="display:none;margin-top:8px">
             <div style="margin-top:6px">
-              <button type="button" onclick="toggleMateriManual()"
+              <button type="button" onclick="window.toggleMateriManual()"
                 style="font-size:12px;color:var(--oranye);background:none;border:none;
                 cursor:pointer;padding:0;font-family:inherit;font-weight:600">
                 ✏️ <span id="btn-manual-teks">Tulis manual</span>
@@ -641,7 +641,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
           <div class="form-grup" id="grup-submateri">
             <label class="form-label">📌 Sub Materi <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
             <select class="form-select" id="inp-submateri"></select>
-            <button type="button" class="picker-btn" id="pb-submateri" onclick="bukaPickerSubMateri()">
+            <button type="button" class="picker-btn" id="pb-submateri" onclick="window.bukaPickerSubMateri()">
               <span class="pb-teks placeholder" id="pb-submateri-teks">Pilih sub materi...</span>
               <span class="pb-arr">▾</span>
             </button>
@@ -659,15 +659,15 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
           <div class="form-grup">
             <label class="form-label">🎯 Metode Pembelajaran</label>
             <div id="chips-metode" class="materi-chip-row" style="gap:6px">
-              <span class="mc todo" onclick="pilihChip('metode',this,'Ceramah')">Ceramah</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Diskusi')">Diskusi</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Tanya Jawab')">Tanya Jawab</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Demonstrasi')">Demonstrasi</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Praktikum')">Praktikum</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Project Based')">Project Based</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Problem Based')">Problem Based</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Kooperatif')">Kooperatif</span>
-              <span class="mc todo" onclick="pilihChip('metode',this,'Inkuiri')">Inkuiri</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Ceramah')">Ceramah</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Diskusi')">Diskusi</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Tanya Jawab')">Tanya Jawab</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Demonstrasi')">Demonstrasi</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Praktikum')">Praktikum</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Project Based')">Project Based</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Problem Based')">Problem Based</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Kooperatif')">Kooperatif</span>
+              <span class="mc todo" onclick="window.pilihChip('metode',this,'Inkuiri')">Inkuiri</span>
             </div>
             <select class="form-select" id="inp-metode"><option value="">Pilih metode</option></select>
           </div>
@@ -676,14 +676,14 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
           <div class="form-grup">
             <label class="form-label">🖥️ Media Ajar</label>
             <div id="chips-media" class="materi-chip-row" style="gap:6px">
-              <span class="mc todo" onclick="pilihChip('media',this,'Papan tulis')">Papan tulis</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'PPT / Slide')">PPT / Slide</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Video')">Video</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Modul / LKS')">Modul / LKS</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Buku Teks')">Buku Teks</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Alat Peraga')">Alat Peraga</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Laptop/Proyektor')">Laptop/Proyektor</span>
-              <span class="mc todo" onclick="pilihChip('media',this,'Internet')">Internet</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Papan tulis')">Papan tulis</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'PPT / Slide')">PPT / Slide</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Video')">Video</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Modul / LKS')">Modul / LKS</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Buku Teks')">Buku Teks</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Alat Peraga')">Alat Peraga</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Laptop/Proyektor')">Laptop/Proyektor</span>
+              <span class="mc todo" onclick="window.pilihChip('media',this,'Internet')">Internet</span>
             </div>
             <select class="form-select" id="inp-media"><option value="">Pilih media</option></select>
           </div>
@@ -717,12 +717,12 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
           <div class="form-grup">
             <label class="form-label">⚠️ Hambatan <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
             <div id="chips-hambatan" class="materi-chip-row" style="gap:6px">
-              <span class="mc done active" onclick="pilihChip('hambatan',this,'')">✓ Tidak ada</span>
-              <span class="mc todo" onclick="pilihChip('hambatan',this,'Siswa kurang aktif')">Siswa kurang aktif</span>
-              <span class="mc todo" onclick="pilihChip('hambatan',this,'Materi terlalu sulit')">Materi sulit</span>
-              <span class="mc todo" onclick="pilihChip('hambatan',this,'Media tidak tersedia')">Media tidak ada</span>
-              <span class="mc todo" onclick="pilihChip('hambatan',this,'Gangguan waktu')">Gangguan waktu</span>
-              <span class="mc todo" onclick="pilihChip('hambatan',this,'Lainnya')">Lainnya</span>
+              <span class="mc done active" onclick="window.pilihChip('hambatan',this,'')">✓ Tidak ada</span>
+              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Siswa kurang aktif')">Siswa kurang aktif</span>
+              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Materi terlalu sulit')">Materi sulit</span>
+              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Media tidak tersedia')">Media tidak ada</span>
+              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Gangguan waktu')">Gangguan waktu</span>
+              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Lainnya')">Lainnya</span>
             </div>
             <select class="form-select" id="inp-hambatan"><option value="">Tidak ada hambatan</option></select>
           </div>
@@ -745,7 +745,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
                 <div class="verif-label">Verifikasi Lokasi (GPS)</div>
                 <div class="verif-sub" id="verif-gps-sub">Belum dicek</div>
               </div>
-              <button class="verif-btn" id="verif-gps-btn" onclick="cekGPS()">Cek Lokasi</button>
+              <button class="verif-btn" id="verif-gps-btn" onclick="window.cekGPS()">Cek Lokasi</button>
             </div>
 
             <div class="verif-item" id="verif-qr-item">
@@ -754,13 +754,13 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
                 <div class="verif-label">Scan QR Ruang Kelas</div>
                 <div class="verif-sub" id="verif-qr-sub">Belum discan</div>
               </div>
-              <button class="verif-btn" id="verif-qr-btn" onclick="bukaQRScan()">Scan QR</button>
+              <button class="verif-btn" id="verif-qr-btn" onclick="window.bukaQRScan()">Scan QR</button>
             </div>
 
             <div id="qr-scan-wrap" style="display:none;margin-top:10px">
               <video id="qr-video" style="width:100%;border-radius:10px;max-height:220px;object-fit:cover;background:#000"></video>
               <div id="qr-scan-info" style="font-size:12px;color:var(--abu);text-align:center;margin-top:5px">Arahkan kamera ke QR Code yang ditempel di kelas</div>
-              <button onclick="tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
+              <button onclick="window.tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
             </div>
 
             <div id="verif-override" style="display:none;margin-top:8px">
@@ -771,11 +771,11 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
             </div>
           </div>
 
-          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()" disabled
+          <button class="btn-simpan" id="btn-simpan" onclick="window.simpanAgenda()" disabled
             style="opacity:0.5;cursor:not-allowed">
             🔐 Lengkapi Verifikasi Dulu
           </button>
-          <button class="btn-batal" onclick="tutupForm()">Batal</button>
+          <button class="btn-batal" onclick="window.tutupForm()">Batal</button>
         </div>
       </div>
     </div>
@@ -1658,7 +1658,7 @@ import {
 
     if (!materiPokok.length) {
       sel.innerHTML = '<option value="">-- Belum ada materi di bank, tulis manual --</option>';
-      document.querySelector('[onclick="toggleMateriManual()"]').style.display = 'none';
+      document.querySelector('[onclick="window.toggleMateriManual()"]').style.display = 'none';
       document.getElementById('inp-materi-manual').style.display = 'block';
       return;
     }
@@ -1986,7 +1986,7 @@ import {
       const isSel = it.value === nilaiAktif;
       const isDone = it.done;
       return `<div class="picker-item${isDone?' done':''}${isSel?' selected':''}"
-          onclick="pilihPickerItem('${it.value.replace(/'/g,"\'")}','${(it.label||'').replace(/'/g,"\'")}')">
+          onclick="window.pilihPickerItem('${it.value.replace(/'/g,"\'")}','${(it.label||'').replace(/'/g,"\'")}')">
         ${it.no ? `<span class="pi-no">${it.no}</span>` : ''}
         <span class="pi-nama">${it.label}</span>
         ${it.done !== undefined
@@ -2163,12 +2163,12 @@ import {
 </script>
 
 <!-- BOTTOM SHEET PICKER -->
-<div class="picker-overlay" id="picker-overlay" onclick="tutupPicker()">
+<div class="picker-overlay" id="picker-overlay" onclick="window.tutupPicker()">
   <div class="picker-sheet" onclick="event.stopPropagation()">
     <div class="picker-handle"></div>
     <div class="picker-hdr">
       <div class="picker-title" id="picker-title">Pilih</div>
-      <button class="picker-close" onclick="tutupPicker()">✕ Tutup</button>
+      <button class="picker-close" onclick="window.tutupPicker()">✕ Tutup</button>
     </div>
     <div class="picker-search" id="picker-search-wrap">
       <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
@@ -2182,12 +2182,12 @@ import {
 
 
 <!-- BOTTOM SHEET PICKER -->
-<div class="picker-overlay" id="picker-overlay" onclick="tutupPicker()">
+<div class="picker-overlay" id="picker-overlay" onclick="window.tutupPicker()">
   <div class="picker-sheet" onclick="event.stopPropagation()">
     <div class="picker-handle"></div>
     <div class="picker-hdr">
       <div class="picker-title" id="picker-title">Pilih</div>
-      <button class="picker-close" onclick="tutupPicker()">✕ Tutup</button>
+      <button class="picker-close" onclick="window.tutupPicker()">✕ Tutup</button>
     </div>
     <div class="picker-search" id="picker-search-wrap">
       <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
