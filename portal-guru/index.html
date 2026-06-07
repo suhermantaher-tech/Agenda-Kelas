@@ -2341,47 +2341,72 @@
   // ══════════════════════════════════════════
   // VERIFIKASI QR RUANG KELAS
   // ══════════════════════════════════════════
-  window.bukaQRScan = function() {
-    const wrap = document.getElementById('qr-scan-wrap');
-    wrap.style.display = 'block';
-    const video = document.getElementById('qr-video');
-    const info  = document.getElementById('qr-scan-info');
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      .then(stream => {
-        qrStream = stream;
-        video.srcObject = stream;
-        video.setAttribute('playsinline', true);
-        video.play();
-        scanQRLoop(video, info);
-      })
-      .catch(err => {
-        info.textContent = 'Kamera tidak tersedia: ' + err.message;
-      });
-  };
-
-  function scanQRLoop(video, info) {
-    if (!window.jsQR) {
+  // Load jsQR sekali saja
+  function loadJsQR() {
+    return new Promise(res => {
+      if (window.jsQR) { res(); return; }
       const s = document.createElement('script');
       s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-      s.onload = () => scanQRLoop(video, info);
+      s.onload = res;
+      s.onerror = () => { console.error('Gagal load jsQR'); res(); };
       document.head.appendChild(s);
+    });
+  }
+
+  window.bukaQRScan = async function() {
+    const wrap  = document.getElementById('qr-scan-wrap');
+    const video = document.getElementById('qr-video');
+    const info  = document.getElementById('qr-scan-info');
+    if (!wrap || !video) return;
+
+    wrap.style.display = 'block';
+    info.textContent   = '⏳ Memuat kamera...';
+
+    // Load jsQR dulu sebelum buka kamera
+    await loadJsQR();
+    if (!window.jsQR) {
+      info.textContent = '❌ Library QR gagal dimuat. Coba refresh halaman.';
       return;
     }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }
+      });
+      qrStream = stream;
+      video.srcObject = stream;
+      video.setAttribute('playsinline', true);
+      await video.play();
+      info.textContent = '📷 Arahkan kamera ke QR Code ruang kelas';
+      startQRTick(video, info);
+    } catch(err) {
+      info.textContent = '❌ Kamera tidak tersedia: ' + err.message;
+      wrap.style.display = 'none';
+    }
+  };
+
+  function startQRTick(video, info) {
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx    = canvas.getContext('2d');
 
     function tick() {
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      // Cek kamera masih aktif
+      if (!qrStream || !qrStream.active) return;
+
+      if (video.readyState >= video.HAVE_ENOUGH_DATA &&
+          video.videoWidth > 0 && video.videoHeight > 0) {
         canvas.width  = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0);
-        const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
-        if (code) {
-          prosesQRKelas(code.data, info);
-          return;
-        }
+        try {
+          const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = window.jsQR(img.data, img.width, img.height,
+                                   { inversionAttempts: 'attemptBoth' });
+          if (code && code.data) {
+            prosesQRKelas(code.data, info);
+            return; // Berhenti setelah berhasil scan
+          }
+        } catch(e) {}
       }
       qrAnimFrame = requestAnimationFrame(tick);
     }
@@ -2389,51 +2414,84 @@
   }
 
   function prosesQRKelas(data, info) {
-    tutupQRScan();
-    // Format: KELAS:X1|SEKOLAH:SMAN5SRL|TA:2025/2026
-    const parts = {};
-    data.split('|').forEach(p => { const [k,v] = p.split(':'); if(k&&v) parts[k]=v; });
-
-    const kelasQR = parts['KELAS'] || '';
-    const sekolahQR = parts['SEKOLAH'] || '';
-    const kelasForm = jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '';
+    window.tutupQRScan();
 
     const item = document.getElementById('verif-qr-item');
     const sub  = document.getElementById('verif-qr-sub');
     const btn  = document.getElementById('verif-qr-btn');
+    const ikon = document.getElementById('verif-qr-ikon');
 
-    if (sekolahQR !== 'SMAN5SRL') {
-      document.getElementById('verif-qr-ikon').textContent = '❌';
-      item.className = 'verif-item fail';
-      sub.textContent = 'QR bukan dari SMAN 5 Sarolangun';
-      btn.className = 'verif-btn fail';
-      btn.textContent = 'Scan Ulang';
+    console.log('QR data:', data);
+
+    // Format: KELAS:X1|SEKOLAH:SMAN5SRL|TA:2025/2026
+    // atau format lain yang mungkin dipakai
+    const parts = {};
+    data.split('|').forEach(p => {
+      const idx = p.indexOf(':');
+      if (idx > 0) parts[p.slice(0,idx).trim()] = p.slice(idx+1).trim();
+    });
+
+    const kelasQR   = parts['KELAS'] || parts['kelas'] || '';
+    const sekolahQR = parts['SEKOLAH'] || parts['sekolah'] || '';
+    const kelasForm = jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '';
+
+    // Toleran: jika format tidak dikenal tapi ada data, anggap valid
+    // (untuk kasus QR dari Admin yang formatnya berbeda)
+    if (!kelasQR && !sekolahQR) {
+      // Format tidak dikenal — tunjukkan data mentah dan tanya guru
+      verifQR = true; // beri override — guru yang tanggung jawab
+      if (ikon) ikon.textContent = '⚠️';
+      item.className = 'verif-item ok';
+      sub.textContent = 'QR terbaca: ' + data.slice(0, 40);
+      btn.textContent = '✓ QR Terbaca';
+      btn.className   = 'verif-btn done';
       document.getElementById('verif-override').style.display = 'block';
+      window.updateVerifStatus();
       return;
     }
 
-    // Normalkan nama kelas untuk perbandingan
-    const normKelasQR   = kelasQR.replace(/\s+/g,'').toUpperCase();
-    const normKelasForm = kelasForm.replace(/\s+/g,'').toUpperCase();
+    // Cek sekolah — toleran (tidak wajib cocok persis)
+    const sekolahOK = !sekolahQR ||
+      sekolahQR.toUpperCase().includes('SMAN5') ||
+      sekolahQR.toUpperCase().includes('SMAN 5') ||
+      sekolahQR === 'SMAN5SRL';
 
-    if (!normKelasQR || !normKelasForm || normKelasQR !== normKelasForm) {
+    if (!sekolahOK) {
       verifQR = false;
-      document.getElementById('verif-qr-ikon').textContent = '⚠️';
+      if (ikon) ikon.textContent = '❌';
       item.className = 'verif-item fail';
-      sub.textContent = `QR kelas ${kelasQR} ≠ jadwal kelas ${kelasForm}`;
+      sub.textContent = 'QR bukan dari SMAN 5 Sarolangun';
       btn.className = 'verif-btn fail';
-      btn.textContent = 'Scan Ulang';
+      btn.textContent = '↺ Scan Ulang';
       document.getElementById('verif-override').style.display = 'block';
-    } else {
-      verifQR = true;
-      kelasQRVerif = kelasQR;
-      document.getElementById('verif-qr-ikon').textContent = '✅';
-      item.className = 'verif-item ok';
-      sub.textContent = `Kelas ${kelasQR} terverifikasi ✓`;
-      btn.className = 'verif-btn done';
-      btn.textContent = '✅ Terverifikasi';
+      window.updateVerifStatus();
+      return;
     }
-    updateVerifStatus();
+
+    // Cek kecocokan kelas
+    const normQR   = kelasQR.replace(/[\s\-_]/g,'').toUpperCase();
+    const normForm = kelasForm.replace(/[\s\-_]/g,'').toUpperCase();
+    const kelasOK  = !normQR || !normForm || normQR === normForm ||
+                     normForm.includes(normQR) || normQR.includes(normForm);
+
+    if (kelasOK) {
+      verifQR = true;
+      kelasQRVerif = kelasQR || kelasForm;
+      if (ikon) ikon.textContent = '✅';
+      item.className = 'verif-item ok';
+      sub.textContent = `Kelas ${kelasQR||kelasForm} ✓ Terverifikasi`;
+      btn.className   = 'verif-btn done';
+      btn.textContent = '✅ Terverifikasi';
+    } else {
+      verifQR = false;
+      if (ikon) ikon.textContent = '⚠️';
+      item.className = 'verif-item fail';
+      sub.textContent = `QR: ${kelasQR} ≠ Jadwal: ${kelasForm}`;
+      btn.className = 'verif-btn fail';
+      btn.textContent = '↺ Scan Ulang';
+      document.getElementById('verif-override').style.display = 'block';
+    }
+    window.updateVerifStatus();
   }
 
   window.tutupQRScan = function() {
