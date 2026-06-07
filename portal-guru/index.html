@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
   <title>Portal Guru — Egenda Kelas SMAN 5 Sarolangun</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -39,6 +40,24 @@
       color: var(--teks);
       min-height: 100vh;
     }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.85);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9998;
+      flex-direction: column; gap: 12px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--oranye);
+      border-radius: 50%;
+      animation: putar 0.75s linear infinite;
+    }
+    @keyframes putar { to { transform: rotate(360deg); } }
 
     /* ══════════════════════════════
        HALAMAN LOGIN
@@ -872,7 +891,8 @@
 <body>
 
 <!-- LOADING -->
-<div class="loading-overlay" id="loading-overlay">
+<div class="loading-overlay" id="loading-overlay" style="display:none">
+<div id="loading" style="display:none"></div>
   <div class="spinner"></div>
   <div style="font-size:13px;font-weight:600;color:var(--biru-tua)">Memuat...</div>
 </div>
@@ -958,7 +978,11 @@
         <div class="guru-kode" id="teks-tanggal">—</div>
       </div>
     </div>
-    <div class="topbar-kanan">
+    <div class="topbar-kanan" style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span id="status-dot" style="font-size:14px">📋</span>
+        <span id="status-nilai" style="font-size:11px;color:var(--teks-muted);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
       <button class="btn-keluar" onclick="keluarGuru()">Keluar</button>
     </div>
   </div>
@@ -977,10 +1001,14 @@
     <div class="tab-page aktif" id="tab-hari">
       <!-- Panel Kehadiran Siswa -->
       <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:12px">
-        <div class="kartu-kehadiran" id="kehadiran-wrap"></div>
+        <div class="kartu-kehadiran" id="kehadiran-wrap">
+          <div id="kehadiran-summary" style="font-size:11px;font-weight:700;color:var(--oranye-gelap);margin-bottom:6px"></div>
+          <div id="kehadiran-per-kelas"></div>
+        </div>
       </div>
       <!-- Jadwal hari ini -->
       <div id="jadwal-container">
+        <div style="display:none" id="chip-sisa-jam"></div>
         <div class="loading-inline">Memuat jadwal hari ini...</div>
       </div>
       <!-- Form Agenda -->
@@ -1057,6 +1085,16 @@
             <div class="form-grup">
               <label class="form-label">Alfa / Tidak Hadir</label>
               <input type="number" class="form-input" id="inp-alfa" min="0" value="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-grup">
+              <label class="form-label">Izin</label>
+              <input type="number" class="form-input" id="inp-izin" min="0" value="0">
+            </div>
+            <div class="form-grup">
+              <label class="form-label">Sakit</label>
+              <input type="number" class="form-input" id="inp-sakit" min="0" value="0">
             </div>
           </div>
 
@@ -1231,7 +1269,7 @@ import {
   async function masukDashboard() {
     document.getElementById('hal-login').style.display = 'none';
     document.getElementById('hal-utama').style.display = 'block';
-    document.getElementById('nama-guru').textContent = guruAktif.nama_lengkap;
+    document.getElementById('teks-guru').textContent = guruAktif.nama_lengkap;
     await muatJadwal();
     await muatRiwayat();
   }
@@ -1420,7 +1458,7 @@ import {
 
   async function muatJadwal() {
     tampilLoading(true);
-    const listEl = document.getElementById('jadwal-list');
+    const listEl = document.getElementById('jadwal-container');
     listEl.innerHTML = '';
     try {
       // Muat jam baku hari ini
@@ -1705,7 +1743,7 @@ import {
 
   // ── RIWAYAT ──
   async function muatRiwayat() {
-    const el = document.getElementById('riwayat-list');
+    const el = document.getElementById('riwayat-container');
     el.innerHTML = '';
     try {
       const snap = await getDocs(query(
@@ -1753,7 +1791,8 @@ import {
   }
 
   function tampilLoading(v) {
-    document.getElementById('loading').style.display = v ? 'flex' : 'none';
+    const el = document.getElementById('loading-overlay') || document.getElementById('loading');
+    if (el) el.style.display = v ? 'flex' : 'none';
   }
 
   let toastTimer;
@@ -1778,7 +1817,7 @@ import {
   const hariUrut = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
   async function muatRosterGuru() {
-    const el = document.getElementById('roster-konten');
+    const el = document.getElementById('roster-container');
     if (!el) return;
     el.innerHTML = '<div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>';
 
@@ -1819,7 +1858,7 @@ import {
   }
 
   function renderRoster() {
-    const el = document.getElementById('roster-konten');
+    const el = document.getElementById('roster-container');
     if (!el || !rosterCache) return;
     const { perHari, jamBakuAll } = rosterCache;
 
