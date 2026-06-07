@@ -822,6 +822,35 @@
       .pin-kotak { width: 52px; height: 60px; font-size: 22px; }
       .form-row { grid-template-columns: 1fr; }
     }
+
+    /* DROPDOWN MATERI */
+    .materi-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+      padding:3px 10px; border-radius:10px; }
+    .materi-chip-done { background:#E8F5E9; color:#2E7D32; }
+    .materi-chip-todo { background:#F5F5F5; color:#78909C; border:1px solid #E0E0E0; }
+    .materi-chip-current { background:var(--oranye-terang); color:var(--oranye-gelap); border:1px solid #FFCC80; }
+
+    /* PANEL VERIFIKASI */
+    .verif-panel { background:#F8F9FA; border-radius:12px; border:1.5px solid var(--border);
+      padding:14px 16px; margin-bottom:14px; }
+    .verif-title { font-size:13px; font-weight:800; color:var(--biru-tua); margin-bottom:4px; }
+    .verif-info { font-size:11px; color:var(--abu); margin-bottom:12px; line-height:1.5; }
+    .verif-item { display:flex; align-items:center; gap:10px; padding:10px 12px;
+      border-radius:9px; border:1.5px solid var(--border); margin-bottom:8px;
+      background:white; transition:border-color .2s, background .2s; }
+    .verif-item.ok { border-color:#4CAF50; background:#F1F8E9; }
+    .verif-item.fail { border-color:#EF5350; background:#FFEBEE; }
+    .verif-ikon { font-size:22px; flex-shrink:0; }
+    .verif-detail { flex:1 }
+    .verif-label { font-size:12px; font-weight:700; color:var(--teks); }
+    .verif-sub { font-size:11px; color:var(--abu); margin-top:1px; }
+    .verif-btn { font-size:11px; font-weight:700; padding:5px 12px; border-radius:8px;
+      border:1.5px solid var(--oranye); color:var(--oranye); background:white;
+      cursor:pointer; font-family:inherit; white-space:nowrap; transition:all .15s; }
+    .verif-btn:hover { background:var(--oranye); color:white; }
+    .verif-btn.done { border-color:#4CAF50; color:#4CAF50; }
+    .verif-btn.done:hover { background:#4CAF50; color:white; }
+    .verif-btn.fail { border-color:#EF5350; color:#EF5350; }
   </style>
 </head>
 <body>
@@ -949,14 +978,40 @@
             <span id="form-judul-teks">Isi Agenda</span>
           </div>
 
+          <!-- MATERI POKOK -->
           <div class="form-grup">
-            <label class="form-label">Materi Pokok *</label>
-            <input type="text" class="form-input" id="inp-materi" placeholder="Contoh: Persamaan Linear Satu Variabel">
+            <label class="form-label">Materi Pokok *
+              <span id="materi-status" style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px"></span>
+            </label>
+            <select class="form-select" id="inp-materi" onchange="onPilihMateriPokok()">
+              <option value="">-- Pilih atau loading... --</option>
+            </select>
+            <input type="text" class="form-input" id="inp-materi-manual" placeholder="Tulis materi jika tidak ada di daftar..."
+              style="display:none;margin-top:6px">
+            <div style="margin-top:5px">
+              <button type="button" onclick="toggleMateriManual()"
+                style="font-size:11px;color:var(--oranye);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600">
+                ✏️ Tulis manual jika tidak ada di daftar
+              </button>
+            </div>
           </div>
 
+          <!-- SUB MATERI -->
           <div class="form-grup">
             <label class="form-label">Sub Materi</label>
-            <input type="text" class="form-input" id="inp-submateri" placeholder="Contoh: Pengenalan variabel dan konstanta">
+            <select class="form-select" id="inp-submateri" onchange="onPilihSubMateri()">
+              <option value="">-- Pilih sub materi (opsional) --</option>
+            </select>
+            <input type="text" class="form-input" id="inp-submateri-manual" placeholder="Tulis sub materi jika tidak ada..."
+              style="display:none;margin-top:6px">
+          </div>
+
+          <!-- BADGE MATERI SUDAH DIAJARKAN -->
+          <div id="materi-history-wrap" style="display:none;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--abu);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">
+              📚 Status Ketercapaian Materi
+            </div>
+            <div id="materi-history-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
           </div>
 
           <div class="form-row">
@@ -1021,8 +1076,50 @@
             <textarea class="form-textarea" id="inp-catatan" placeholder="Contoh: Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
           </div>
 
-          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()">
-            💾 Simpan Agenda
+          <!-- PANEL VERIFIKASI -->
+          <div class="verif-panel" id="verif-panel">
+            <div class="verif-title">🔐 Verifikasi Sebelum Simpan</div>
+            <div class="verif-info">Agenda hanya bisa disimpan jika diisi dari dalam lingkungan sekolah dan dari ruang kelas yang benar.</div>
+
+            <!-- GPS -->
+            <div class="verif-item" id="verif-gps-item">
+              <div class="verif-ikon" id="verif-gps-ikon">📍</div>
+              <div class="verif-detail">
+                <div class="verif-label">Verifikasi Lokasi (GPS)</div>
+                <div class="verif-sub" id="verif-gps-sub">Belum dicek</div>
+              </div>
+              <button class="verif-btn" id="verif-gps-btn" onclick="cekGPS()">Cek Lokasi</button>
+            </div>
+
+            <!-- QR KELAS -->
+            <div class="verif-item" id="verif-qr-item">
+              <div class="verif-ikon" id="verif-qr-ikon">📷</div>
+              <div class="verif-detail">
+                <div class="verif-label">Scan QR Ruang Kelas</div>
+                <div class="verif-sub" id="verif-qr-sub">Belum discan</div>
+              </div>
+              <button class="verif-btn" id="verif-qr-btn" onclick="bukaQRScan()">Scan QR</button>
+            </div>
+
+            <!-- Scanner QR tersembunyi -->
+            <div id="qr-scan-wrap" style="display:none;margin-top:10px">
+              <video id="qr-video" style="width:100%;border-radius:10px;max-height:220px;object-fit:cover;background:#000"></video>
+              <div id="qr-scan-info" style="font-size:12px;color:var(--abu);text-align:center;margin-top:5px">Arahkan kamera ke QR Code yang ditempel di kelas</div>
+              <button onclick="tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
+            </div>
+
+            <!-- Status override -->
+            <div id="verif-override" style="display:none;margin-top:8px">
+              <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--teks-muted)">
+                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="updateVerifStatus()">
+                <span>Simpan tanpa verifikasi lengkap <strong>(akan dicatat sebagai tidak terverifikasi)</strong></span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()" disabled
+            style="opacity:0.5;cursor:not-allowed">
+            🔐 Lengkapi Verifikasi Dulu
           </button>
           <button class="btn-batal" onclick="tutupForm()">Batal</button>
         </div>
@@ -1070,7 +1167,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
     getFirestore, collection, query, where, getDocs,
-    addDoc, orderBy, limit
+    addDoc, orderBy, limit, doc, getDoc, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1092,6 +1189,7 @@
   const sekarang  = new Date();
   const hariIni   = namaHari[sekarang.getDay()];
 
+  muatProfilSekolah();
   document.getElementById('teks-tanggal').textContent =
     `${namaHari[sekarang.getDay()]}, ${sekarang.getDate()} ${namaBulan[sekarang.getMonth()]} ${sekarang.getFullYear()}`;
 
@@ -1515,6 +1613,30 @@
 
     document.getElementById('form-agenda').style.display = 'block';
     document.getElementById('form-agenda').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    // Reset verifikasi setiap kali buka form baru
+    verifGPS = false; verifQR = false;
+    ['verif-gps-item','verif-qr-item'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.className = 'verif-item';
+    });
+    document.getElementById('verif-gps-ikon').textContent = '📍';
+    document.getElementById('verif-qr-ikon').textContent  = '📷';
+    document.getElementById('verif-gps-sub').textContent  = 'Belum dicek';
+    document.getElementById('verif-qr-sub').textContent   = 'Belum discan';
+    document.getElementById('verif-gps-btn').textContent  = 'Cek Lokasi';
+    document.getElementById('verif-gps-btn').className    = 'verif-btn';
+    document.getElementById('verif-qr-btn').textContent   = 'Scan QR';
+    document.getElementById('verif-qr-btn').className     = 'verif-btn';
+    document.getElementById('verif-override').style.display = 'none';
+    const oc = document.getElementById('verif-override-check');
+    if (oc) oc.checked = false;
+    updateVerifStatus();
+
+    // Muat bank materi untuk mapel & kelas ini
+    const idMapel  = jadwalDipilih.id_mapel  || jadwalDipilih.kode_mapel || '';
+    const namaKelas = jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '';
+    muatBankMateri(idMapel, namaKelas);
   };
 
   async function simpanAgenda() {
@@ -1529,6 +1651,21 @@
     document.getElementById('btn-simpan').disabled = true;
     try {
       // Simpan agenda untuk semua slot dalam sesi (1 isian untuk multi-JP)
+      // Ambil nilai materi - dari dropdown atau input manual
+      const selMateri = document.getElementById('inp-materi');
+      const manualMateri = document.getElementById('inp-materi-manual');
+      const selSub = document.getElementById('inp-submateri');
+      const manualSub = document.getElementById('inp-submateri-manual');
+      const materiVal = manualMateri?.style.display !== 'none' && manualMateri?.value.trim()
+        ? manualMateri.value.trim()
+        : (selMateri.options[selMateri.selectedIndex]?.dataset?.nama || selMateri.value || materi);
+      const subVal = manualSub?.style.display !== 'none' && manualSub?.value.trim()
+        ? manualSub.value.trim()
+        : (selSub.options[selSub.selectedIndex]?.dataset?.nama || '');
+      // Status verifikasi
+      const overrideCheck = document.getElementById('verif-override-check');
+      const isOverride = overrideCheck?.checked || false;
+
       const dataAgenda = {
         id_guru:        guruAktif.id,
         id_jadwal:      jadwalDipilih.id,
@@ -1540,8 +1677,12 @@
         kelas:          jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '',
         mapel:          jadwalDipilih.nama_mapel || jadwalDipilih.mata_pelajaran || jadwalDipilih.mapel || '',
         kode_mapel:     jadwalDipilih.kode_mapel || '',
-        materi_pokok:   materi,
-        sub_materi:     document.getElementById('inp-submateri').value.trim(),
+        materi_pokok:   materiVal,
+        sub_materi:     subVal,
+        verif_gps:      verifGPS,
+        verif_qr:       verifQR,
+        verif_kelas_qr: kelasQRVerif,
+        verif_override: isOverride,
         metode,
         media_ajar:     media,
         jumlah_hadir:   parseInt(document.getElementById('inp-hadir').value)||0,
@@ -1781,6 +1922,352 @@
   window.simpanAgenda = simpanAgenda;
   window.tutupForm   = tutupForm;
   window.pilihJadwal = pilihJadwal;
+  // ══════════════════════════════════════════
+  // BANK MATERI — dropdown di form agenda
+  // ══════════════════════════════════════════
+  let bankMateri = [];      // semua materi dari Firestore
+  let materiPokok = [];     // materi pokok untuk mapel+kelas aktif
+  let materiSudahDiajarkan = new Set(); // set docId materi yang sudah pernah diajarkan
+  let verifGPS = false;
+  let verifQR  = false;
+  let kelasQRVerif = '';
+  let qrStream = null;
+  let qrAnimFrame = null;
+
+  // Koordinat sekolah (dari Profil_Sekolah atau default SMAN 5 Sarolangun)
+  let sekolahLat  = -2.5489;
+  let sekolahLng  = 102.3297;
+  let sekolahRadius = 200; // meter
+
+  async function muatProfilSekolah() {
+    try {
+      const snap = await getDoc(doc(db, 'Profil_Sekolah', 'profil_utama'));
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.latitude)  sekolahLat    = parseFloat(d.latitude);
+        if (d.longitude) sekolahLng    = parseFloat(d.longitude);
+        if (d.radius_m)  sekolahRadius = parseFloat(d.radius_m);
+      }
+    } catch(e) { console.warn('Profil_Sekolah tidak dimuat:', e); }
+  }
+
+  async function muatBankMateri(idMapel, namaKelas) {
+    try {
+      const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
+      bankMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Filter sesuai mapel dan kelas
+      materiPokok = bankMateri.filter(m =>
+        (m.id_mapel === idMapel || (m.nama_mapel||'').toLowerCase() === (namaKelas||'').toLowerCase() ||
+         m.id_mapel === idMapel) &&
+        (!namaKelas || m.kelas === namaKelas.charAt(0) || m.kelas === namaKelas.split(' ')[0])
+        && m.is_pokok
+      );
+
+      // Cek materi sudah diajarkan (dari Agenda_Harian)
+      if (guruAktif && jadwalDipilih) {
+        const aSnap = await getDocs(query(
+          collection(db, 'Agenda_Harian'),
+          where('id_guru', '==', guruAktif.id),
+          where('kelas', '==', jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '')
+        ));
+        const diajarkan = aSnap.docs.map(d => d.data().materi_pokok || '');
+        materiSudahDiajarkan = new Set(diajarkan);
+      }
+
+      isiDropdownMateriPokok();
+      tampilStatusMateri();
+    } catch(e) {
+      console.error('muatBankMateri error:', e);
+    }
+  }
+
+  function isiDropdownMateriPokok() {
+    const sel = document.getElementById('inp-materi');
+    if (!sel) return;
+
+    if (!materiPokok.length) {
+      sel.innerHTML = '<option value="">-- Belum ada materi di bank, tulis manual --</option>';
+      document.querySelector('[onclick="toggleMateriManual()"]').style.display = 'none';
+      document.getElementById('inp-materi-manual').style.display = 'block';
+      return;
+    }
+
+    sel.innerHTML = '<option value="">-- Pilih materi pokok --</option>' +
+      materiPokok.map(m => {
+        const sudah = materiSudahDiajarkan.has(m.nama);
+        const ikon  = sudah ? '✅' : '○';
+        return `<option value="${m.id}" data-nama="${m.nama}" data-sudah="${sudah}">${ikon} ${m.no}. ${m.nama}</option>`;
+      }).join('');
+  }
+
+  window.onPilihMateriPokok = function() {
+    const sel = document.getElementById('inp-materi');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) {
+      isiDropdownSubMateri('');
+      return;
+    }
+    const idPokok = opt.value;
+    const sudah   = opt.dataset.sudah === 'true';
+
+    // Status badge
+    const badge = document.getElementById('materi-status');
+    if (badge) {
+      if (sudah) {
+        badge.textContent = '✅ Sudah pernah diajarkan';
+        badge.style.cssText = 'font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px;background:#E8F5E9;color:#2E7D32';
+      } else {
+        badge.textContent = '🆕 Belum diajarkan';
+        badge.style.cssText = 'font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px;background:var(--oranye-terang);color:var(--oranye-gelap)';
+      }
+    }
+
+    isiDropdownSubMateri(idPokok);
+  };
+
+  function isiDropdownSubMateri(idPokok) {
+    const sel = document.getElementById('inp-submateri');
+    if (!sel) return;
+    if (!idPokok) {
+      sel.innerHTML = '<option value="">-- Pilih materi pokok dulu --</option>';
+      return;
+    }
+    // Ambil nomor pokok
+    const pokok = materiPokok.find(m => m.id === idPokok);
+    if (!pokok) return;
+
+    const subs = bankMateri.filter(m =>
+      !m.is_pokok && String(m.no).startsWith(String(pokok.no) + '.')
+    ).sort((a,b) => String(a.no).localeCompare(String(b.no), undefined, {numeric:true}));
+
+    if (!subs.length) {
+      sel.innerHTML = '<option value="">-- Tidak ada sub materi --</option>';
+      document.getElementById('inp-submateri-manual').style.display = 'block';
+      return;
+    }
+    document.getElementById('inp-submateri-manual').style.display = 'none';
+    sel.innerHTML = '<option value="">-- Pilih sub materi (opsional) --</option>' +
+      subs.map(s => {
+        const sudah = materiSudahDiajarkan.has(s.nama);
+        return `<option value="${s.id}" data-nama="${s.nama}">${sudah?'✅':'○'} ${s.no} ${s.nama}</option>`;
+      }).join('');
+  }
+
+  window.onPilihSubMateri = function() {};
+
+  window.toggleMateriManual = function() {
+    const manualInp = document.getElementById('inp-materi-manual');
+    const sel = document.getElementById('inp-materi');
+    if (manualInp.style.display === 'none') {
+      manualInp.style.display = 'block';
+      sel.disabled = true;
+      manualInp.focus();
+    } else {
+      manualInp.style.display = 'none';
+      sel.disabled = false;
+    }
+  };
+
+  function tampilStatusMateri() {
+    const wrap = document.getElementById('materi-history-wrap');
+    const list = document.getElementById('materi-history-list');
+    if (!wrap || !list || !materiPokok.length) return;
+    wrap.style.display = 'block';
+    list.innerHTML = materiPokok.map(m => {
+      const sudah = materiSudahDiajarkan.has(m.nama);
+      return `<span class="materi-chip ${sudah?'materi-chip-done':'materi-chip-todo'}">
+        ${sudah?'✅':'○'} ${m.no}. ${m.nama.split(' ').slice(0,4).join(' ')}${m.nama.split(' ').length>4?'…':''}
+      </span>`;
+    }).join('');
+  }
+
+  // ══════════════════════════════════════════
+  // VERIFIKASI GPS
+  // ══════════════════════════════════════════
+  function hitungJarak(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2-lat1)*Math.PI/180;
+    const dLon = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  window.cekGPS = function() {
+    const sub = document.getElementById('verif-gps-sub');
+    const btn = document.getElementById('verif-gps-btn');
+    const item = document.getElementById('verif-gps-item');
+    if (!navigator.geolocation) {
+      sub.textContent = 'Browser tidak mendukung GPS';
+      return;
+    }
+    sub.textContent = '⏳ Mengambil lokasi...';
+    btn.textContent = 'Memproses...';
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const jarak = hitungJarak(pos.coords.latitude, pos.coords.longitude, sekolahLat, sekolahLng);
+        const jarakBulat = Math.round(jarak);
+        if (jarak <= sekolahRadius) {
+          verifGPS = true;
+          document.getElementById('verif-gps-ikon').textContent = '✅';
+          item.className = 'verif-item ok';
+          sub.textContent = `Dalam lingkungan sekolah (${jarakBulat}m dari pusat sekolah)`;
+          btn.textContent = '✅ Terverifikasi';
+          btn.className = 'verif-btn done';
+        } else {
+          verifGPS = false;
+          document.getElementById('verif-gps-ikon').textContent = '❌';
+          item.className = 'verif-item fail';
+          sub.textContent = `Di luar lingkungan sekolah (${jarakBulat}m — batas ${sekolahRadius}m)`;
+          btn.textContent = 'Coba Lagi';
+          btn.className = 'verif-btn fail';
+          document.getElementById('verif-override').style.display = 'block';
+        }
+        btn.disabled = false;
+        updateVerifStatus();
+      },
+      err => {
+        sub.textContent = 'Gagal: ' + (err.code===1?'Izin GPS ditolak':err.code===2?'Lokasi tidak tersedia':'Timeout');
+        btn.textContent = 'Coba Lagi';
+        btn.disabled = false;
+        document.getElementById('verif-override').style.display = 'block';
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  // ══════════════════════════════════════════
+  // VERIFIKASI QR RUANG KELAS
+  // ══════════════════════════════════════════
+  window.bukaQRScan = function() {
+    const wrap = document.getElementById('qr-scan-wrap');
+    wrap.style.display = 'block';
+    const video = document.getElementById('qr-video');
+    const info  = document.getElementById('qr-scan-info');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        qrStream = stream;
+        video.srcObject = stream;
+        video.setAttribute('playsinline', true);
+        video.play();
+        scanQRLoop(video, info);
+      })
+      .catch(err => {
+        info.textContent = 'Kamera tidak tersedia: ' + err.message;
+      });
+  };
+
+  function scanQRLoop(video, info) {
+    if (!window.jsQR) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+      s.onload = () => scanQRLoop(video, info);
+      document.head.appendChild(s);
+      return;
+    }
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function tick() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        const img  = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+        if (code) {
+          prosesQRKelas(code.data, info);
+          return;
+        }
+      }
+      qrAnimFrame = requestAnimationFrame(tick);
+    }
+    qrAnimFrame = requestAnimationFrame(tick);
+  }
+
+  function prosesQRKelas(data, info) {
+    tutupQRScan();
+    // Format: KELAS:X1|SEKOLAH:SMAN5SRL|TA:2025/2026
+    const parts = {};
+    data.split('|').forEach(p => { const [k,v] = p.split(':'); if(k&&v) parts[k]=v; });
+
+    const kelasQR = parts['KELAS'] || '';
+    const sekolahQR = parts['SEKOLAH'] || '';
+    const kelasForm = jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '';
+
+    const item = document.getElementById('verif-qr-item');
+    const sub  = document.getElementById('verif-qr-sub');
+    const btn  = document.getElementById('verif-qr-btn');
+
+    if (sekolahQR !== 'SMAN5SRL') {
+      document.getElementById('verif-qr-ikon').textContent = '❌';
+      item.className = 'verif-item fail';
+      sub.textContent = 'QR bukan dari SMAN 5 Sarolangun';
+      btn.className = 'verif-btn fail';
+      btn.textContent = 'Scan Ulang';
+      document.getElementById('verif-override').style.display = 'block';
+      return;
+    }
+
+    // Normalkan nama kelas untuk perbandingan
+    const normKelasQR   = kelasQR.replace(/\s+/g,'').toUpperCase();
+    const normKelasForm = kelasForm.replace(/\s+/g,'').toUpperCase();
+
+    if (!normKelasQR || !normKelasForm || normKelasQR !== normKelasForm) {
+      verifQR = false;
+      document.getElementById('verif-qr-ikon').textContent = '⚠️';
+      item.className = 'verif-item fail';
+      sub.textContent = `QR kelas ${kelasQR} ≠ jadwal kelas ${kelasForm}`;
+      btn.className = 'verif-btn fail';
+      btn.textContent = 'Scan Ulang';
+      document.getElementById('verif-override').style.display = 'block';
+    } else {
+      verifQR = true;
+      kelasQRVerif = kelasQR;
+      document.getElementById('verif-qr-ikon').textContent = '✅';
+      item.className = 'verif-item ok';
+      sub.textContent = `Kelas ${kelasQR} terverifikasi ✓`;
+      btn.className = 'verif-btn done';
+      btn.textContent = '✅ Terverifikasi';
+    }
+    updateVerifStatus();
+  }
+
+  window.tutupQRScan = function() {
+    if (qrStream) { qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
+    if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame=null; }
+    const wrap = document.getElementById('qr-scan-wrap');
+    if (wrap) wrap.style.display = 'none';
+  };
+
+  // ══════════════════════════════════════════
+  // UPDATE STATUS TOMBOL SIMPAN
+  // ══════════════════════════════════════════
+  window.updateVerifStatus = function() {
+    const overrideCheck = document.getElementById('verif-override-check');
+    const override = overrideCheck?.checked || false;
+    const bolehSimpan = (verifGPS && verifQR) || override;
+    const btn = document.getElementById('btn-simpan');
+    if (!btn) return;
+    if (bolehSimpan) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.textContent = '💾 Simpan Agenda';
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      if (!verifGPS && !verifQR) btn.textContent = '🔐 Cek GPS & Scan QR Dulu';
+      else if (!verifGPS) btn.textContent = '🔐 Cek GPS Dulu';
+      else btn.textContent = '🔐 Scan QR Kelas Dulu';
+    }
+  };
+
+
 </script>
 </body>
 </html>
