@@ -573,65 +573,54 @@
     .profil-header-badge { font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:4px 12px; border-radius:20px; margin-top:6px; display:inline-block; }
 
     /* BANK MATERI */
-    .bm-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
-    .bm-tab { padding:6px 16px; border:1px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:"Plus Jakarta Sans",sans-serif; transition:all 0.15s; }
-    .bm-tab.aktif { background:var(--biru-tua); border-color:var(--biru-tua); color:white; }
-    .bm-mapel-sel { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
-    .bm-pohon { border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-    .bm-pokok-row { display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--biru-muda); border-bottom:1px solid var(--border); cursor:pointer; }
-    .bm-pokok-no { font-family:"DM Mono",monospace; font-size:12px; font-weight:700; color:var(--biru-tua); min-width:28px; }
-    .bm-pokok-nama { font-size:13px; font-weight:700; color:var(--biru-tua); flex:1; }
-    .bm-sub-row { display:flex; align-items:center; gap:8px; padding:8px 14px 8px 40px; border-bottom:0.5px solid var(--border); background:white; }
-    .bm-sub-no { font-family:"DM Mono",monospace; font-size:11px; color:var(--abu); min-width:28px; }
-    .bm-sub-nama { font-size:12px; color:var(--teks); flex:1; }
-    .bm-sub-row:last-child { border-bottom:none; }
-    .bm-add-row { display:flex; gap:8px; padding:10px 14px; background:var(--abu-bg); border-top:1px solid var(--border); }
+    .materi-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+    .materi-filter{display:flex;flex-direction:column;gap:3px}
+    .materi-filter label{font-size:11px;font-weight:700;color:var(--abu);text-transform:uppercase;letter-spacing:.3px}
+    .materi-filter select,.materi-filter input{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;background:white;color:var(--teks);transition:border-color .2s}
+    .materi-filter select:focus,.materi-filter input:focus{border-color:var(--oranye)}
 
-    .kal-card { background:var(--putih); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:14px; }
-    .kal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
-    .kal-field { display:flex; flex-direction:column; gap:4px; }
-    .kal-label { font-size:11px; font-weight:700; color:var(--teks-muted); text-transform:uppercase; letter-spacing:0.5px; }
-    .kal-input { padding:9px 12px; border:1.5px solid var(--border); border-radius:9px; font-size:13px; font-family:"Plus Jakarta Sans",sans-serif; color:var(--teks); background:var(--abu-bg); outline:none; transition:border-color 0.2s; }
-    .kal-input:focus { border-color:var(--oranye); background:white; }
-    .kal-semester-tabs { display:flex; gap:6px; margin-bottom:16px; }
-    .kal-tab { padding:7px 20px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); font-family:"Plus Jakarta Sans",sans-serif; transition:all 0.15s; }
-    .kal-tab.aktif { background:var(--biru-tua); border-color:var(--biru-tua); color:white; }
-    .kal-info-box { background:var(--biru-muda); border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; color:var(--biru-tua); margin-bottom:14px; line-height:1.7; }
-    .kal-stat { background:var(--abu-bg); border-radius:var(--radius-sm); padding:12px 16px; display:flex; flex-direction:column; gap:3px; }
-    .kal-stat-val { font-size:24px; font-weight:800; color:var(--teks); font-family:"DM Mono",monospace; }
-    .kal-stat-lbl { font-size:11px; color:var(--abu); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-    .kal-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
-    .jb-hari-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
-    .jb-tab { padding:7px 18px; border:0.5px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:var(--putih); color:var(--teks-muted); transition:all 0.15s; font-family:"Plus Jakarta Sans",sans-serif; }
-    .jb-tab.aktif { background:#E07020; border-color:#B85510; color:white; }
-    .jb-tabel { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:14px; }
-    .jb-tabel th { padding:9px 12px; text-align:left; font-size:11px; font-weight:700; color:var(--abu); background:var(--abu-bg); border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:0.5px; }
-    .jb-tabel td { padding:7px 8px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
-    .jb-tabel tr:last-child td { border-bottom:none; }
-    .jb-tabel tr.jenis-jeda td { background:#FFFBF0; }
-    .jb-tabel input[type=time] { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; font-family:"DM Mono",monospace; background:var(--abu-bg); color:var(--teks); width:94px; }
-    .jb-tabel input[type=text] { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; background:var(--abu-bg); color:var(--teks); width:180px; }
-    .jb-tabel select { border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:12px; background:var(--abu-bg); color:var(--teks); }
-    .jb-badge-kbm { background:#E8F5E9; color:#2E7D32; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
-    .jb-badge-jeda { background:#FFF8E1; color:#F57F17; font-size:11px; font-weight:700; padding:2px 10px; border-radius:10px; }
-    .jb-preview { display:flex; flex-wrap:wrap; gap:6px; padding:14px; background:var(--abu-bg); border-radius:var(--radius); }
-    .jb-slot-kbm { padding:8px 12px; background:var(--putih); border:1px solid var(--border); border-radius:9px; text-align:center; min-width:64px; }
-    .jb-slot-jeda { padding:6px 12px; background:#FFF8E1; border:1px solid #FFE082; border-radius:9px; text-align:center; font-size:11px; color:#F57F17; font-weight:600; }
-    .jb-slot-num { font-size:17px; font-weight:700; color:var(--teks); line-height:1; }
-    .jb-slot-time { font-size:10px; color:var(--abu); margin-top:3px; font-family:"DM Mono",monospace; }
-    .jb-info { background:#E3EEF8; border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:#1A3A5C; margin-bottom:14px; display:flex; gap:8px; line-height:1.6; }
-    .jb-salin-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main { margin-left: 0; }
-      .chart-grid { grid-template-columns: 1fr; }
-    }
+    /* POHON MATERI */
+    .mapel-group{margin-bottom:20px}
+    .mapel-group-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,var(--biru-tua),#2563A8);border-radius:var(--radius);margin-bottom:8px;cursor:pointer}
+    .mapel-group-nama{font-size:14px;font-weight:800;color:white;flex:1}
+    .mapel-group-badge{font-size:10px;font-weight:700;background:rgba(255,255,255,0.2);color:white;padding:2px 10px;border-radius:10px}
+    .pohon-wrap{display:flex;flex-direction:column;gap:6px;padding-left:16px}
+    .pokok-item{background:white;border-radius:10px;border:1.5px solid var(--border);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+    .pokok-header{display:grid;grid-template-columns:44px 1fr auto auto;align-items:center;gap:10px;padding:10px 14px;background:#F8F9FA;border-bottom:1px solid var(--border)}
+    .pokok-num{font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:var(--oranye-gelap);text-align:center;background:var(--oranye-terang);padding:3px 6px;border-radius:6px}
+    .pokok-nama{font-size:13px;font-weight:700;color:var(--teks)}
+    .pokok-badge{font-size:10px;font-weight:700;background:var(--oranye-terang);color:var(--oranye-gelap);padding:2px 8px;border-radius:8px;white-space:nowrap}
+    .sub-list{padding:6px 12px 8px}
+    .sub-item{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;margin-bottom:3px;transition:background .15s}
+    .sub-item:hover{background:#F8F9FA}
+    .sub-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--abu);text-align:center;background:var(--abu-bg);padding:2px 5px;border-radius:5px}
+    .sub-nama{font-size:12px;color:var(--teks-muted)}
+    .btn-hapus-materi{font-size:10px;padding:2px 7px;border:1px solid #FFCDD2;border-radius:5px;background:#FFEBEE;color:#C62828;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;transition:opacity .15s;white-space:nowrap}
+    .sub-item:hover .btn-hapus-materi,.pokok-header:hover .btn-hapus-materi{opacity:1}
+    .materi-empty{text-align:center;padding:48px;color:var(--abu)}
+    .materi-empty .ikon{font-size:40px;margin-bottom:10px}
 
-    /* PAGE SISWA */
-    .siswa-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
-    .siswa-filter{display:flex;flex-direction:column;gap:3px}
-    .siswa-filter label{font-size:11px;font-weight:700;color:var(--abu);text-transform:uppercase}
-    .siswa-filter select,.siswa-filter input{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+    /* FORM TAMBAH MATERI */
+    .form-materi-wrap{background:#F8F9FA;border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid var(--oranye-terang)}
+    .form-materi-grid{display:grid;grid-template-columns:100px 1fr 120px 140px 120px;gap:10px;margin-bottom:10px}
+    .fm-lbl{font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px;text-transform:uppercase}
+    .fm-inp{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s}
+    .fm-inp:focus{border-color:var(--oranye)}
+
+    /* REKAP PRESENSI */
+    .rekap-tab-row{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px}
+    .rekap-tab{padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--abu);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+    .rekap-tab.aktif{color:var(--oranye);border-bottom-color:var(--oranye)}
+    .rekap-kelas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:4px}
+    .rekap-kelas-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow-sm)}
+    .rkc-nama{font-size:15px;font-weight:800;color:var(--teks);margin-bottom:8px}
+    .rkc-stat{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+    .rkc-item{background:var(--abu-bg);border-radius:6px;padding:6px 8px;text-align:center}
+    .rkc-val{font-size:18px;font-weight:800;font-family:'DM Mono',monospace}
+    .rkc-lbl{font-size:9px;color:var(--abu);font-weight:600;text-transform:uppercase}
+    .rkc-pb{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+    .rkc-pbf{height:100%;border-radius:3px}
+    .rkc-pct{font-size:12px;font-weight:700;margin-top:4px}
 
     /* CETAK QR ROMBEL */
     @media print {
@@ -1553,35 +1542,36 @@
   </div>
 
   <!-- FORM TAMBAH MANUAL -->
-  <div id="form-materi" style="display:none;background:#F8F9FA;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
-    <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Tambah Materi Manual</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+  <div id="form-materi" style="display:none" class="form-materi-wrap">
+    <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--oranye-gelap)">➕ Tambah Materi Manual</div>
+    <div class="form-materi-grid">
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">No</label>
-        <input type="text" id="fm-no" placeholder="1 atau 1.1" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
-      </div>
-      <div style="grid-column:span 2">
-        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Nama Materi</label>
-        <input type="text" id="fm-nama" placeholder="Nama pokok/sub materi" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+        <label class="fm-lbl">No</label>
+        <input type="text" id="fm-no" class="fm-inp" placeholder="1 atau 1.1">
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Kelas</label>
-        <select id="fm-kelas" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
-          <option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option>
+        <label class="fm-lbl">Nama Materi</label>
+        <input type="text" id="fm-nama" class="fm-inp" placeholder="Nama pokok/sub materi...">
+      </div>
+      <div>
+        <label class="fm-lbl">Kelas</label>
+        <select id="fm-kelas" class="fm-inp">
+          <option value="X">X (Fase E)</option>
+          <option value="XI">XI (Fase F)</option>
+          <option value="XII">XII (Fase F)</option>
         </select>
       </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Mata Pelajaran</label>
-        <select id="fm-mapel" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
+        <label class="fm-lbl">Mata Pelajaran</label>
+        <select id="fm-mapel" class="fm-inp">
           <option value="">Pilih Mapel...</option>
         </select>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px">Semester</label>
-        <select id="fm-semester" style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif">
-          <option value="Ganjil">Ganjil</option><option value="Genap">Genap</option>
+        <label class="fm-lbl">Semester</label>
+        <select id="fm-semester" class="fm-inp">
+          <option value="Ganjil">Ganjil</option>
+          <option value="Genap">Genap</option>
         </select>
       </div>
     </div>
@@ -1655,54 +1645,107 @@
   <div class="page-header">
     <div>
       <div class="page-title">📊 Data Presensi Siswa</div>
-      <div class="page-sub">Rekap kehadiran siswa berdasarkan scan QR</div>
+      <div class="page-sub">Rekap kehadiran siswa berdasarkan scan QR pagi</div>
     </div>
   </div>
-  <div class="siswa-toolbar">
-    <div class="siswa-filter">
-      <label>Dari Tanggal</label>
-      <input type="date" id="ps-dari" class="form-input">
-    </div>
-    <div class="siswa-filter">
-      <label>Sampai Tanggal</label>
-      <input type="date" id="ps-sampai" class="form-input">
-    </div>
-    <div class="siswa-filter">
-      <label>Kelas</label>
-      <select id="ps-kelas" class="form-input">
-        <option value="">Semua Kelas</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:6px;align-items:flex-end">
-      <button class="btn-ekspor primary" onclick="adminMuatPresensi()">🔍 Tampilkan</button>
-      <button class="btn-ekspor" style="background:var(--hijau);color:white" onclick="adminEksporPresensi()">📊 Excel</button>
-      <button class="btn-ekspor" onclick="window.print()">🖨️ Cetak</button>
+
+  <!-- Filter Bar -->
+  <div class="kartu" style="margin-bottom:14px;padding:16px 20px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div class="siswa-filter">
+        <label>Dari Tanggal</label>
+        <input type="date" id="ps-dari" class="fm-inp" style="padding:7px 10px">
+      </div>
+      <div class="siswa-filter">
+        <label>Sampai Tanggal</label>
+        <input type="date" id="ps-sampai" class="fm-inp" style="padding:7px 10px">
+      </div>
+      <div class="siswa-filter">
+        <label>Kelas</label>
+        <select id="ps-kelas" class="fm-inp" style="padding:7px 10px">
+          <option value="">Semua Kelas</option>
+        </select>
+      </div>
+      <div class="siswa-filter">
+        <label>Cari Siswa</label>
+        <input type="text" id="ps-cari" class="fm-inp" placeholder="Nama / NIS..." style="padding:7px 10px" oninput="adminFilterPresensi()">
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+        <button class="btn-ekspor primary" onclick="adminMuatPresensi()">🔍 Tampilkan</button>
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;border-color:#1B5E20" onclick="adminEksporPresensi()">📊 Excel</button>
+        <button class="btn-ekspor" onclick="window.print()">🖨️ Cetak</button>
+      </div>
     </div>
   </div>
+
   <!-- KPI -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
-    <div class="kartu" style="padding:14px;text-align:center">
-      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--biru-tua)" id="ps-total">0</div>
-      <div style="font-size:11px;color:var(--abu)">Total Scan</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px">
+    <div class="kartu" style="padding:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--biru-tua)"></div>
+      <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--biru-tua)" id="ps-total-siswa">0</div>
+      <div style="font-size:11px;color:var(--abu);margin-top:3px">Total Siswa</div>
     </div>
-    <div class="kartu" style="padding:14px;text-align:center">
-      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-siswa">0</div>
-      <div style="font-size:11px;color:var(--abu)">Siswa Hadir</div>
+    <div class="kartu" style="padding:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--hijau)"></div>
+      <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-total">0</div>
+      <div style="font-size:11px;color:var(--abu);margin-top:3px">Total Scan Hadir</div>
     </div>
-    <div class="kartu" style="padding:14px;text-align:center">
-      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--oranye)" id="ps-hari">0</div>
-      <div style="font-size:11px;color:var(--abu)">Hari</div>
+    <div class="kartu" style="padding:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--oranye)"></div>
+      <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--oranye)" id="ps-hari">0</div>
+      <div style="font-size:11px;color:var(--abu);margin-top:3px">Hari Sekolah</div>
     </div>
-    <div class="kartu" style="padding:14px;text-align:center">
-      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-pct">0%</div>
-      <div style="font-size:11px;color:var(--abu)">Rata-rata Kehadiran</div>
+    <div class="kartu" style="padding:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--hijau)"></div>
+      <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-pct">0%</div>
+      <div style="font-size:11px;color:var(--abu);margin-top:3px">Rata-rata Kehadiran</div>
+    </div>
+    <div class="kartu" style="padding:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--merah)"></div>
+      <div style="font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--merah)" id="ps-tdk">0</div>
+      <div style="font-size:11px;color:var(--abu);margin-top:3px">Tidak Hadir (kumulatif)</div>
     </div>
   </div>
-  <div class="kartu" style="padding:0">
-    <div class="tabel-wrap"><table class="tbl">
-      <thead><tr><th>Tanggal</th><th>Hari</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Jam Masuk</th><th>Status</th></tr></thead>
-      <tbody id="ps-tbody"><tr><td colspan="7" class="loading-inline">Pilih periode → Tampilkan</td></tr></tbody>
-    </table></div>
+
+  <!-- TABS -->
+  <div class="kartu">
+    <div class="rekap-tab-row">
+      <button class="rekap-tab aktif" onclick="psGantiTab('harian',this)">📅 Per Hari</button>
+      <button class="rekap-tab" onclick="psGantiTab('siswa',this)">👤 Per Siswa</button>
+      <button class="rekap-tab" onclick="psGantiTab('kelas',this)">🏫 Per Kelas</button>
+      <button class="rekap-tab" onclick="psGantiTab('detail',this)">📋 Detail Lengkap</button>
+    </div>
+
+    <!-- Tab Harian -->
+    <div id="ps-tab-harian">
+      <div class="tabel-wrap"><table class="tbl">
+        <thead><tr><th>Tanggal</th><th>Hari</th><th>Total Siswa</th><th>Hadir</th><th>Tidak Hadir</th><th>% Kehadiran</th><th>Per Kelas</th></tr></thead>
+        <tbody id="ps-tbody-harian"><tr><td colspan="7" class="loading-inline">Pilih periode → Tampilkan</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- Tab Per Siswa -->
+    <div id="ps-tab-siswa" style="display:none">
+      <div class="tabel-wrap"><table class="tbl">
+        <thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Hadir</th><th>Tidak Hadir</th><th>% Kehadiran</th><th>Status</th></tr></thead>
+        <tbody id="ps-tbody-siswa"><tr><td colspan="8" class="loading-inline">Pilih periode → Tampilkan</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- Tab Per Kelas -->
+    <div id="ps-tab-kelas" style="display:none">
+      <div class="rekap-kelas-grid" id="ps-kelas-grid">
+        <div class="loading-inline" style="grid-column:1/-1">Pilih periode → Tampilkan</div>
+      </div>
+    </div>
+
+    <!-- Tab Detail -->
+    <div id="ps-tab-detail" style="display:none">
+      <div class="tabel-wrap"><table class="tbl">
+        <thead><tr><th>Tanggal</th><th>Jam Masuk</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Status</th></tr></thead>
+        <tbody id="ps-tbody"><tr><td colspan="6" class="loading-inline">Pilih periode → Tampilkan</td></tr></tbody>
+      </table></div>
+    </div>
   </div>
 </div>
 
@@ -4362,53 +4405,66 @@
   function renderPohonMateri(data) {
     const el = document.getElementById('materi-konten');
     if (!data.length) {
-      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--abu)"><div style="font-size:36px;margin-bottom:8px">📚</div><div>Belum ada materi ditemukan</div></div>';
+      el.innerHTML = `<div class="materi-empty"><div class="ikon">📚</div><div>Belum ada materi · Import Excel atau tambah manual</div></div>`;
       return;
     }
 
     // Kelompokkan per mapel+kelas
     const perMapelKelas = {};
     data.forEach(m => {
-      const key = `${m.id_mapel||m.mapel}__${m.kelas}`;
-      if (!perMapelKelas[key]) perMapelKelas[key] = { mapel: m.nama_mapel||m.mapel||m.id_mapel, kelas: m.kelas, fase: m.fase||'', items: [] };
+      const key = `${m.kelas}__${m.nama_mapel||m.mapel||m.id_mapel}`;
+      if (!perMapelKelas[key]) perMapelKelas[key] = {
+        mapel: m.nama_mapel||m.mapel||m.id_mapel||'—',
+        kelas: m.kelas||'—',
+        fase: m.fase||'',
+        items: []
+      };
       perMapelKelas[key].items.push(m);
     });
 
-    el.innerHTML = Object.entries(perMapelKelas).sort((a,b) => {
-      const kA = a[1].kelas, kB = b[1].kelas;
-      return kA.localeCompare(kB) || (a[1].mapel||'').localeCompare(b[1].mapel||'');
-    }).map(([key, grp]) => {
-      // Pisahkan pokok dan sub
-      const pokok = grp.items.filter(m => !String(m.no).includes('.')).sort((a,b) => Number(a.no)-Number(b.no));
-
-      const pohon = pokok.map(p => {
-        const subs = grp.items.filter(m => String(m.no).startsWith(String(p.no)+'.'))
+    el.innerHTML = Object.entries(perMapelKelas)
+      .sort((a,b) => a[1].kelas.localeCompare(b[1].kelas) || a[1].mapel.localeCompare(b[1].mapel))
+      .map(([key, grp]) => {
+        // Pisahkan pokok dan sub
+        const semua = grp.items;
+        const pokok = semua.filter(m => !String(m.no).includes('.'))
           .sort((a,b) => String(a.no).localeCompare(String(b.no), undefined, {numeric:true}));
-        return `<div class="pokok-item">
-          <div class="pokok-header">
-            <div class="pokok-num">${p.no}</div>
-            <div class="pokok-nama">${p.nama||'—'}</div>
-            <span class="pokok-badge">${subs.length} sub materi</span>
-            <button class="btn-hapus-materi" onclick="hapusMateri('${p.id}')">×</button>
+        const subItems = semua.filter(m => String(m.no).includes('.'));
+
+        const pohon = pokok.map(p => {
+          const subs = subItems
+            .filter(s => {
+              const prefix = String(p.no) + '.';
+              return String(s.no).startsWith(prefix);
+            })
+            .sort((a,b) => String(a.no).localeCompare(String(b.no), undefined, {numeric:true}));
+
+          return `<div class="pokok-item">
+            <div class="pokok-header">
+              <div class="pokok-num">${p.no}</div>
+              <div class="pokok-nama">${p.nama||'—'}</div>
+              <span class="pokok-badge">${subs.length} sub materi</span>
+              <button class="btn-hapus-materi" onclick="hapusMateri('${p.id}')">✕ Hapus</button>
+            </div>
+            ${subs.length ? `<div class="sub-list">${subs.map(s =>
+              `<div class="sub-item">
+                <div class="sub-num">${s.no}</div>
+                <div class="sub-nama">${s.nama||'—'}</div>
+                <button class="btn-hapus-materi" onclick="hapusMateri('${s.id}')">✕</button>
+              </div>`).join('')}
+            </div>` : ''}
+          </div>`;
+        }).join('');
+
+        return `<div class="mapel-group">
+          <div class="mapel-group-header">
+            <div class="mapel-group-nama">📖 ${grp.mapel}</div>
+            <span class="mapel-group-badge">Kelas ${grp.kelas} · Fase ${grp.fase}</span>
+            <span class="mapel-group-badge">${pokok.length} pokok · ${subItems.length} sub</span>
           </div>
-          ${subs.length ? `<div class="sub-list">${subs.map(s => `
-            <div class="sub-item">
-              <div class="sub-num">${s.no}</div>
-              <div class="sub-nama">${s.nama||'—'}</div>
-              <button class="btn-hapus-materi" onclick="hapusMateri('${s.id}')">×</button>
-            </div>`).join('')}</div>` : ''}
+          <div class="pohon-wrap">${pohon}</div>
         </div>`;
       }).join('');
-
-      return `<div class="mapel-group">
-        <div class="mapel-group-header">
-          <div class="mapel-group-nama">${grp.mapel}</div>
-          <span class="mapel-group-badge">Kelas ${grp.kelas} · Fase ${grp.fase}</span>
-          <span class="mapel-group-badge">${grp.items.length} materi</span>
-        </div>
-        <div class="pohon-wrap">${pohon}</div>
-      </div>`;
-    }).join('');
   }
 
   window.tampilFormMateri = function() {
@@ -4881,6 +4937,21 @@
   const HARI_ADMIN = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   let psData = [];
 
+  let psTabAktif = 'harian';
+
+  window.psGantiTab = function(tab, el) {
+    psTabAktif = tab;
+    document.querySelectorAll('.rekap-tab').forEach(t=>t.classList.remove('aktif'));
+    el.classList.add('aktif');
+    ['harian','siswa','kelas','detail'].forEach(t => {
+      const el2 = document.getElementById('ps-tab-'+t);
+      if (el2) el2.style.display = t===tab ? 'block' : 'none';
+    });
+    if (psData.length) psRenderAll();
+  };
+
+  window.adminFilterPresensi = function() { if(psData.length) psRenderAll(); };
+
   window.adminMuatPresensi = async function() {
     const dari   = document.getElementById('ps-dari').value;
     const sampai = document.getElementById('ps-sampai').value;
@@ -4892,41 +4963,133 @@
       where('tanggal','>=',dari),
       where('tanggal','<=',sampai)
     ));
-    let data = snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.nama||'').localeCompare(b.nama||''));
+    psData = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.jam_masuk||'').localeCompare(b.jam_masuk||''));
+
+    psRenderAll();
+    tampilToast(`✅ ${psData.length} data presensi dimuat`);
+  };
+
+  function psRenderAll() {
+    const kelas  = document.getElementById('ps-kelas').value;
+    const cari   = (document.getElementById('ps-cari')?.value||'').toLowerCase();
+    const dari   = document.getElementById('ps-dari').value;
+    const sampai = document.getElementById('ps-sampai').value;
+
+    let data = psData;
     if (kelas) data = data.filter(d=>d.kelas===kelas);
-    psData = data;
+    if (cari)  data = data.filter(d=>(d.nama||'').toLowerCase().includes(cari)||(d.nis||'').includes(cari));
 
-    // KPI
-    const unikSiswa = new Set(data.map(d=>d.nis)).size;
-    const unikHari  = new Set(data.map(d=>d.tanggal)).size;
-    const totalSiswa = adminAllSiswa.filter(s=>!kelas||s.kelas===kelas).length || 1;
-    const rata = unikHari>0 ? Math.round(data.length/(totalSiswa*unikHari)*100) : 0;
-    document.getElementById('ps-total').textContent  = data.length;
-    document.getElementById('ps-siswa').textContent  = unikSiswa;
-    document.getElementById('ps-hari').textContent   = unikHari;
-    document.getElementById('ps-pct').textContent    = rata+'%';
-
-    const tbody = document.getElementById('ps-tbody');
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="loading-inline">Tidak ada data presensi periode ini</td></tr>';
-      return;
+    // Hitung hari sekolah
+    let hariSekolah = 0;
+    if (dari&&sampai) {
+      const d=new Date(dari),s=new Date(sampai);
+      for(let t=new Date(d);t<=s;t.setDate(t.getDate()+1)) if(t.getDay()!==0) hariSekolah++;
     }
-    tbody.innerHTML = data.map(d => {
-      const ts = d.jam_masuk ? new Date(d.jam_masuk) : null;
-      const jam = ts ? `${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}` : '—';
-      const hari = d.tanggal ? HARI_ADMIN[new Date(d.tanggal).getDay()] : '—';
+    const totalSiswa = adminAllSiswa.filter(s=>!kelas||s.kelas===kelas).length;
+    const unikHadir  = new Set(data.map(d=>d.nis)).size;
+    const rata = totalSiswa&&hariSekolah ? Math.round(data.length/(totalSiswa*hariSekolah)*100) : 0;
+    const tdk  = Math.max(0,(totalSiswa*hariSekolah)-data.length);
+
+    document.getElementById('ps-total-siswa').textContent = totalSiswa;
+    document.getElementById('ps-total').textContent = data.length;
+    document.getElementById('ps-hari').textContent  = hariSekolah;
+    document.getElementById('ps-pct').textContent   = rata+'%';
+    document.getElementById('ps-tdk').textContent   = tdk;
+
+    // Tab Harian
+    const perHari = {};
+    data.forEach(d => {
+      if (!perHari[d.tanggal]) perHari[d.tanggal]={hadir:0,kelas:{}};
+      perHari[d.tanggal].hadir++;
+      perHari[d.tanggal].kelas[d.kelas]=(perHari[d.tanggal].kelas[d.kelas]||0)+1;
+    });
+    document.getElementById('ps-tbody-harian').innerHTML = Object.keys(perHari).sort().map(tgl => {
+      const h=perHari[tgl].hadir, tdk=Math.max(0,totalSiswa-h);
+      const pct=totalSiswa>0?Math.round(h/totalSiswa*100):0;
+      const w=pct>=90?'var(--hijau)':pct>=75?'var(--kuning)':'var(--merah)';
+      const hari=HARI_ADMIN[new Date(tgl).getDay()];
+      const kelasTxt=Object.entries(perHari[tgl].kelas).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`${k}:${v}`).join(' · ');
       return `<tr>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${d.tanggal||'—'}</td>
+        <td style="font-weight:700">${new Date(tgl).getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][new Date(tgl).getMonth()]} ${new Date(tgl).getFullYear()}</td>
         <td>${hari}</td>
+        <td style="text-align:center;font-family:'DM Mono',monospace">${totalSiswa}</td>
+        <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#E8F5E9;color:#2E7D32">${h}</span></td>
+        <td><span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#FFEBEE;color:#C62828">${tdk}</span></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;min-width:60px"><div style="height:100%;width:${pct}%;background:${w};border-radius:3px"></div></div>
+            <span style="font-size:11px;font-weight:700;color:${w};font-family:'DM Mono',monospace">${pct}%</span>
+          </div>
+        </td>
+        <td style="font-size:11px;color:var(--teks-muted)">${kelasTxt}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" class="loading-inline">Tidak ada data</td></tr>';
+
+    // Tab Per Siswa
+    const perSiswa = {};
+    data.forEach(d=>{ const k=d.nis||d.nama; if(!perSiswa[k]) perSiswa[k]={nis:d.nis,nama:d.nama,kelas:d.kelas,hadir:0}; perSiswa[k].hadir++; });
+    const siswaList = adminAllSiswa.filter(s=>!kelas||s.kelas===kelas).map(s => {
+      const h=(perSiswa[s.nis]||{}).hadir||0;
+      const tdk=Math.max(0,hariSekolah-h);
+      const pct=hariSekolah>0?Math.round(h/hariSekolah*100):0;
+      return {...s,hadir:h,tdk,pct};
+    }).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
+    document.getElementById('ps-tbody-siswa').innerHTML = siswaList.map((s,i)=>{
+      const w=s.pct>=90?'var(--hijau)':s.pct>=75?'var(--kuning)':'var(--merah)';
+      const st=s.pct>=90?'st-ok':s.pct>=75?'st-warn':'st-err';
+      const stTxt=s.pct>=90?'Baik':s.pct>=75?'Cukup':'Kurang';
+      return `<tr>
+        <td style="color:var(--abu);font-family:'DM Mono',monospace">${i+1}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nis||'—'}</td>
+        <td style="font-weight:600">${s.nama||'—'}</td>
+        <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--biru-muda);color:var(--biru-tua)">${s.kelas||'—'}</span></td>
+        <td style="text-align:center;color:var(--hijau);font-weight:700">${s.hadir}</td>
+        <td style="text-align:center;color:var(--merah);font-weight:700">${s.tdk}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:60px;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${s.pct}%;background:${w};border-radius:3px"></div></div>
+            <span style="font-size:11px;font-weight:700;color:${w}">${s.pct}%</span>
+          </div>
+        </td>
+        <td><span class="st-badge ${st}">${stTxt}</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" class="loading-inline">Tidak ada data</td></tr>';
+
+    // Tab Per Kelas
+    const kelasData = {};
+    adminAllSiswa.forEach(s=>{ if(!s.kelas) return; if(!kelasData[s.kelas]) kelasData[s.kelas]={siswa:0,hadir:0}; kelasData[s.kelas].siswa++; });
+    data.forEach(d=>{ if(d.kelas&&kelasData[d.kelas]) kelasData[d.kelas].hadir++; });
+    document.getElementById('ps-kelas-grid').innerHTML = Object.keys(kelasData).sort().map(k=>{
+      const d=kelasData[k]; const total=d.siswa*hariSekolah||1;
+      const pct=Math.round(d.hadir/total*100);
+      const w=pct>=90?'var(--hijau)':pct>=75?'var(--kuning)':'var(--merah)';
+      return `<div class="rekap-kelas-card">
+        <div class="rkc-nama">${k}</div>
+        <div class="rkc-stat">
+          <div class="rkc-item"><div class="rkc-val" style="color:var(--hijau)">${d.hadir}</div><div class="rkc-lbl">Hadir</div></div>
+          <div class="rkc-item"><div class="rkc-val" style="color:var(--teks)">${d.siswa}</div><div class="rkc-lbl">Siswa</div></div>
+        </div>
+        <div class="rkc-pb"><div class="rkc-pbf" style="width:${pct}%;background:${w}"></div></div>
+        <div class="rkc-pct" style="color:${w}">${pct}% kehadiran</div>
+      </div>`;
+    }).join('') || '<div class="loading-inline" style="grid-column:1/-1">Tidak ada data</div>';
+
+    // Tab Detail
+    document.getElementById('ps-tbody').innerHTML = data.map(d=>{
+      const ts=d.jam_masuk?new Date(d.jam_masuk):null;
+      const jam=ts?`${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}:${String(ts.getSeconds()).padStart(2,'0')}`:'—';
+      const tgl=d.tanggal?`${new Date(d.tanggal).getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][new Date(d.tanggal).getMonth()]} ${new Date(d.tanggal).getFullYear()}`:'—';
+      return `<tr>
+        <td>${tgl}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px">${jam}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${d.nis||'—'}</td>
         <td style="font-weight:600">${d.nama||'—'}</td>
         <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--biru-muda);color:var(--biru-tua)">${d.kelas||'—'}</span></td>
-        <td style="font-family:'DM Mono',monospace">${jam}</td>
         <td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#E8F5E9;color:#2E7D32">✓ Hadir</span></td>
       </tr>`;
-    }).join('');
-  };
+    }).join('') || '<tr><td colspan="6" class="loading-inline">Tidak ada data</td></tr>';
+  }
 
   window.adminEksporPresensi = function() {
     if (!psData.length) { tampilToast('⚠ Muat data dulu'); return; }
