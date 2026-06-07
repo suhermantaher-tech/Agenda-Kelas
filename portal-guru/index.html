@@ -866,6 +866,286 @@
     .numpad-btn { padding: 14px 10px; font-size: 18px; }
     /* Form materi full width */
     .form-materi-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="font-size:13px;font-weight:600;color:var(--biru-tua)">Memuat...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HALAMAN LOGIN -->
+<div id="hal-login">
+
+  <!-- Dekorasi background -->
+  <div class="login-bg-top"></div>
+  <div class="login-bg-circle1"></div>
+  <div class="login-bg-circle2"></div>
+
+  <div class="login-card">
+
+    <!-- Header kartu dengan logo -->
+    <div class="login-header-card">
+      <div class="logo-wrap">
+        <div class="logo-img-wrap">
+          <div class="logo-img-inner">
+            <img src="../shared/logo.jpg" alt="Logo SMAN 5" class="logo-img"
+              onerror="this.style.display='none'">
+          </div>
+        </div>
+        <div class="logo-nama">SMAN 5 Sarolangun</div>
+        <div class="logo-sub">Sistem Informasi Akademik</div>
+      </div>
+    </div>
+
+    <!-- Body login -->
+    <div class="login-body">
+      <div class="login-label">Portal Guru — Masukkan PIN 4 digit</div>
+
+      <!-- PIN kotak -->
+      <div class="pin-wrap">
+        <div class="pin-kotak" id="p1"></div>
+        <div class="pin-kotak" id="p2"></div>
+        <div class="pin-kotak" id="p3"></div>
+        <div class="pin-kotak" id="p4"></div>
+      </div>
+
+      <!-- Numpad -->
+      <div class="numpad">
+        <button class="numpad-btn" onclick="inputPin('1')">1</button>
+        <button class="numpad-btn" onclick="inputPin('2')">2</button>
+        <button class="numpad-btn" onclick="inputPin('3')">3</button>
+        <button class="numpad-btn" onclick="inputPin('4')">4</button>
+        <button class="numpad-btn" onclick="inputPin('5')">5</button>
+        <button class="numpad-btn" onclick="inputPin('6')">6</button>
+        <button class="numpad-btn" onclick="inputPin('7')">7</button>
+        <button class="numpad-btn" onclick="inputPin('8')">8</button>
+        <button class="numpad-btn" onclick="inputPin('9')">9</button>
+        <button class="numpad-btn hapus" onclick="hapusPin()">⌫</button>
+        <button class="numpad-btn" onclick="inputPin('0')">0</button>
+        <button class="numpad-btn kosong"></button>
+      </div>
+
+      <!-- Tombol masuk -->
+      <button class="btn-login" id="btn-login" onclick="prosesLogin()" disabled>
+        Masuk →
+      </button>
+
+      <div class="pesan-error" id="pesan-error"></div>
+    </div>
+
+  </div>
+
+  <div class="footer-login">CMA v3 · SMAN 5 Sarolangun</div>
+</div>
+
+<!-- HALAMAN UTAMA -->
+<div id="hal-utama" style="display:none">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-kiri">
+      <div style="width:34px;height:34px;border-radius:8px;background:var(--oranye-terang);overflow:hidden;display:flex;align-items:center;justify-content:center">
+        <img src="../shared/logo.jpg" alt="Logo" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div class="guru-nama" id="teks-guru">—</div>
+        <div class="guru-kode" id="teks-tanggal">—</div>
+      </div>
+    </div>
+    <div class="topbar-kanan">
+      <button class="btn-keluar" onclick="keluarGuru()">Keluar</button>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn aktif" id="tab-btn-hari" onclick="gantiTab('hari',this)">📋 Hari Ini</button>
+    <button class="tab-btn" id="tab-btn-roster" onclick="gantiTab('roster',this)">📅 Roster Saya</button>
+    <button class="tab-btn" id="tab-btn-riwayat" onclick="gantiTab('riwayat',this)">🕐 Riwayat</button>
+  </div>
+
+  <!-- KONTEN TABS -->
+  <div class="tab-konten">
+
+    <!-- TAB HARI INI -->
+    <div class="tab-page aktif" id="tab-hari">
+      <!-- Panel Kehadiran Siswa -->
+      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:12px">
+        <div class="kartu-kehadiran" id="kehadiran-wrap"></div>
+      </div>
+      <!-- Jadwal hari ini -->
+      <div id="jadwal-container">
+        <div class="loading-inline">Memuat jadwal hari ini...</div>
+      </div>
+      <!-- Form Agenda -->
+      <div id="form-agenda" style="display:none;">
+        <div class="form-card">
+          <div class="form-aksen"></div>
+          <div class="form-judul">
+            <div class="form-judul-ico">📝</div>
+            <span id="form-judul-teks">Isi Agenda</span>
+          </div>
+
+          <!-- MATERI POKOK -->
+          <div class="form-grup">
+            <label class="form-label">Materi Pokok *
+              <span id="materi-status" style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px"></span>
+            </label>
+            <select class="form-select" id="inp-materi" onchange="onPilihMateriPokok()">
+              <option value="">-- Pilih atau loading... --</option>
+            </select>
+            <input type="text" class="form-input" id="inp-materi-manual" placeholder="Tulis materi jika tidak ada di daftar..."
+              style="display:none;margin-top:6px">
+            <div style="margin-top:5px">
+              <button type="button" onclick="toggleMateriManual()"
+                style="font-size:11px;color:var(--oranye);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600">
+                ✏️ Tulis manual jika tidak ada di daftar
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB MATERI -->
+          <div class="form-grup">
+            <label class="form-label">Sub Materi</label>
+            <select class="form-select" id="inp-submateri" onchange="onPilihSubMateri()">
+              <option value="">-- Pilih sub materi (opsional) --</option>
+            </select>
+            <input type="text" class="form-input" id="inp-submateri-manual" placeholder="Tulis sub materi jika tidak ada..."
+              style="display:none;margin-top:6px">
+          </div>
+
+          <!-- BADGE MATERI SUDAH DIAJARKAN -->
+          <div id="materi-history-wrap" style="display:none;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--abu);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">
+              📚 Status Ketercapaian Materi
+            </div>
+            <div id="materi-history-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-grup">
+              <label class="form-label">Metode Pembelajaran *</label>
+              <select class="form-select" id="inp-metode">
+                <option value="">Pilih metode</option>
+                <option>Ceramah</option><option>Diskusi</option><option>Tanya Jawab</option>
+                <option>Demonstrasi</option><option>Praktikum</option><option>Project Based</option>
+                <option>Problem Based</option><option>Kooperatif</option><option>Inkuiri</option>
+              </select>
+            </div>
+            <div class="form-grup">
+              <label class="form-label">Media Ajar *</label>
+              <select class="form-select" id="inp-media">
+                <option value="">Pilih media</option>
+                <option>Papan tulis</option><option>PPT / Slide</option><option>Video</option>
+                <option>Modul / LKS</option><option>Buku Teks</option><option>Alat Peraga</option>
+                <option>Laptop / Proyektor</option><option>Internet</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-grup">
+              <label class="form-label">Jumlah Hadir</label>
+              <input type="number" class="form-input" id="inp-hadir" min="0" value="0">
+            </div>
+            <div class="form-grup">
+              <label class="form-label">Alfa / Tidak Hadir</label>
+              <input type="number" class="form-input" id="inp-alfa" min="0" value="0">
+            </div>
+          </div>
+
+          <!-- Info presensi pagi -->
+          <div id="info-presensi-pagi" style="display:none;background:var(--hijau-muda);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--hijau)"></div>
+
+          <div class="form-grup">
+            <label class="form-label">Hambatan (opsional)</label>
+            <select class="form-select" id="inp-hambatan">
+              <option value="">Tidak ada hambatan</option>
+              <option>Siswa kurang aktif</option><option>Materi terlalu sulit</option>
+              <option>Media tidak tersedia</option><option>Gangguan waktu</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+
+          <div class="form-grup">
+            <label class="form-label">Catatan (opsional)</label>
+            <textarea class="form-textarea" id="inp-catatan" placeholder="Contoh: Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
+          </div>
+
+          <!-- PANEL VERIFIKASI -->
+          <div class="verif-panel" id="verif-panel">
+            <div class="verif-title">🔐 Verifikasi Sebelum Simpan</div>
+            <div class="verif-info">Agenda hanya bisa disimpan jika diisi dari dalam lingkungan sekolah dan dari ruang kelas yang benar.</div>
+
+            <div class="verif-item" id="verif-gps-item">
+              <div class="verif-ikon" id="verif-gps-ikon">📍</div>
+              <div class="verif-detail">
+                <div class="verif-label">Verifikasi Lokasi (GPS)</div>
+                <div class="verif-sub" id="verif-gps-sub">Belum dicek</div>
+              </div>
+              <button class="verif-btn" id="verif-gps-btn" onclick="cekGPS()">Cek Lokasi</button>
+            </div>
+
+            <div class="verif-item" id="verif-qr-item">
+              <div class="verif-ikon" id="verif-qr-ikon">📷</div>
+              <div class="verif-detail">
+                <div class="verif-label">Scan QR Ruang Kelas</div>
+                <div class="verif-sub" id="verif-qr-sub">Belum discan</div>
+              </div>
+              <button class="verif-btn" id="verif-qr-btn" onclick="bukaQRScan()">Scan QR</button>
+            </div>
+
+            <div id="qr-scan-wrap" style="display:none;margin-top:10px">
+              <video id="qr-video" style="width:100%;border-radius:10px;max-height:220px;object-fit:cover;background:#000"></video>
+              <div id="qr-scan-info" style="font-size:12px;color:var(--abu);text-align:center;margin-top:5px">Arahkan kamera ke QR Code yang ditempel di kelas</div>
+              <button onclick="tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
+            </div>
+
+            <div id="verif-override" style="display:none;margin-top:8px">
+              <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--teks-muted)">
+                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="updateVerifStatus()">
+                <span>Simpan tanpa verifikasi lengkap <strong>(akan dicatat sebagai tidak terverifikasi)</strong></span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()" disabled
+            style="opacity:0.5;cursor:not-allowed">
+            🔐 Lengkapi Verifikasi Dulu
+          </button>
+          <button class="btn-batal" onclick="tutupForm()">Batal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB ROSTER SAYA -->
+    <div class="tab-page" id="tab-roster">
+      <div id="roster-container">
+        <div class="loading-inline">Memuat roster...</div>
+      </div>
+    </div>
+
+    <!-- TAB RIWAYAT -->
+    <div class="tab-page" id="tab-riwayat">
+      <div id="riwayat-container">
+        <div class="loading-inline">Memuat riwayat...</div>
+      </div>
+    </div>
+
+  </div><!-- .tab-konten -->
+</div><!-- .hal-utama -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+    getFirestore, collection, query, where, getDocs,
+    addDoc, orderBy, limit, doc, getDoc, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
