@@ -175,6 +175,10 @@
     .topbar-judul { font-size: 16px; font-weight: 800; color: var(--teks); }
     .topbar-sub { font-size: 12px; color: var(--abu); margin-top: 1px; }
 
+    /* Sembunyikan filter topbar — hanya tampil di halaman tertentu */
+    .topbar-kanan { display: none; }
+    .page-filter-aktif .topbar-kanan { display: flex; }
+
     .topbar-kanan { display: flex; align-items: center; gap: 10px; }
 
     .filter-wrap {
@@ -822,7 +826,7 @@
       <div class="topbar-sub" id="topbar-sub">Ringkasan data hari ini</div>
     </div>
     <div class="topbar-kanan">
-      <div class="filter-wrap">
+      <div class="filter-wrap" id="topbar-filter">
         <input type="date" class="filter-input" id="filter-dari" title="Dari tanggal">
         <input type="date" class="filter-input" id="filter-sampai" title="Sampai tanggal">
         <select class="filter-select" id="filter-guru">
@@ -1875,7 +1879,17 @@
     if (pageEl) pageEl.classList.add('aktif');
     btn.classList.add('aktif');
 
+    // Tampilkan filter topbar hanya di halaman yang relevan
+    const halamanDenganFilter = ['beranda','agenda','laporan'];
+    const mainEl = document.querySelector('.main');
+    if (mainEl) {
+      mainEl.classList.toggle('page-filter-aktif', halamanDenganFilter.includes(page));
+    }
+
     const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', siswa:'Data Siswa', 'presensi-siswa':'Data Presensi Siswa', materi:'Bank Materi Kurikulum', profil:'Profil Sekolah', kalender:'Kalender Akademik', mapel:'Mata Pelajaran', jambaku:'Jam Baku', rombel:'Rombel / Kelas', roster:'Penyusunan Roster' };
+    const pageFilter = ['beranda','agenda','laporan'];
+    const filterEl = document.getElementById('topbar-filter');
+    if (filterEl) filterEl.style.display = pageFilter.includes(page) ? 'flex' : 'none';
     const sub   = { beranda:'Ringkasan data hari ini', agenda:'Semua data agenda KBM', laporan:'Rekap mingguan, bulanan, semester, tahunan', guru:'Daftar dan status guru', jadwal:'Jadwal KBM per hari' };
     document.getElementById('topbar-judul').textContent = judul[page]||page;
     document.getElementById('topbar-sub').textContent   = sub[page]||'';
@@ -1917,6 +1931,9 @@
     renderBeranda();
     isiFilterGuru();
     isiFilterTanggal();
+    // Pastikan filter hanya tampil di halaman yang relevan (default: beranda = tampil)
+    const fEl = document.getElementById('topbar-filter');
+    if (fEl) fEl.style.display = 'flex';
   }
 
   async function muatGuru() {
