@@ -572,7 +572,73 @@
     .profil-header-sub { font-size:12px; color:var(--teks-muted); margin-top:3px; }
     .profil-header-badge { font-size:11px; font-weight:700; background:var(--oranye-terang); color:var(--oranye-gelap); padding:4px 12px; border-radius:20px; margin-top:6px; display:inline-block; }
 
-    /* BANK MATERI */
+    /* JAM BAKU */
+    .jb-info{background:var(--biru-muda);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--biru-tua);margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;line-height:1.6}
+    .jb-hari-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
+    .jb-hari{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+    .jb-hari-header{background:var(--biru-tua);color:white;padding:8px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+    .jb-slot{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:0.5px solid var(--border);font-size:12px}
+    .jb-slot:last-child{border-bottom:none}
+    .jb-slot-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:white;background:var(--biru-tua);padding:1px 7px;border-radius:5px;min-width:22px;text-align:center}
+    .jb-slot-jeda .jb-slot-num{background:var(--kuning)}
+    .jb-slot-jam{font-family:'DM Mono',monospace;font-size:11px;color:var(--teks-muted);min-width:110px}
+    .jb-slot-ket{flex:1;font-size:12px;color:var(--teks)}
+    .jb-slot-del{font-size:10px;padding:2px 6px;border:1px solid #FFCDD2;border-radius:4px;background:#FFEBEE;color:#C62828;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;opacity:0;transition:opacity .15s}
+    .jb-slot:hover .jb-slot-del{opacity:1}
+    .jb-form{background:#F8F9FA;border-radius:var(--radius-sm);padding:12px;margin:8px 12px;border:1px solid var(--border);display:none}
+    .jb-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+    .jb-form-lbl{font-size:10px;font-weight:700;color:var(--abu);display:block;margin-bottom:3px;text-transform:uppercase}
+    .jb-form-inp{width:100%;padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+    .jb-form-inp:focus{border-color:var(--oranye)}
+    .jb-hari-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:6px}
+
+    /* KALENDER AKADEMIK */
+    .kal-info-box{background:var(--oranye-terang);border:1px solid #FFCC80;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--oranye-gelap);margin-bottom:14px;line-height:1.7}
+    .kal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:16px}
+    .kal-semester{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+    .kal-semester-hdr{background:linear-gradient(135deg,var(--biru-tua),#2563A8);color:white;padding:10px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+    .kal-semester-body{padding:14px 16px}
+    .kal-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .kal-lbl{font-size:11px;font-weight:700;color:var(--abu);min-width:120px;text-transform:uppercase;letter-spacing:.3px}
+    .kal-inp{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s}
+    .kal-inp:focus{border-color:var(--oranye)}
+    .kal-summary{background:var(--biru-muda);border-radius:var(--radius-sm);padding:8px 12px;font-size:11px;color:var(--biru-tua);margin-top:6px;line-height:1.8}
+    .kal-minggu-badge{display:inline-block;font-size:16px;font-weight:800;font-family:'DM Mono',monospace;color:var(--oranye);margin-right:4px}
+
+        /* JAM BAKU - tambahan */
+    .jb-hari-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+    .jb-tab{padding:6px 16px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:var(--teks-muted);font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+    .jb-tab.aktif{background:var(--biru-tua);border-color:var(--biru-tua);color:white}
+    .jb-salin-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+    .jb-tabel{width:100%;border-collapse:collapse;font-size:12px}
+    .jb-tabel th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--abu);border-bottom:1.5px solid var(--border);text-transform:uppercase;letter-spacing:.3px}
+    .jb-tabel td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+    .jb-tabel tr:hover td{background:var(--abu-bg)}
+    .jb-tabel tr:last-child td{border-bottom:none}
+    .jb-preview{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:#F8F9FA;border-radius:var(--radius-sm);border:1px solid var(--border);min-height:40px}
+    .jb-chip{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px}
+    .jb-chip-kbm{background:var(--biru-muda);color:var(--biru-tua)}
+    .jb-chip-jeda{background:var(--kuning-muda);color:var(--kuning)}
+    .jb-inp{padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:100%}
+    .jb-inp:focus{border-color:var(--oranye)}
+    .jb-del{font-size:11px;padding:3px 8px;border:1px solid #FFCDD2;border-radius:5px;background:#FFEBEE;color:#C62828;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+    .tabel-card{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+
+        /* KALENDER AKADEMIK - tambahan */
+    .kal-semester-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+    .kal-tab{padding:6px 16px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:var(--teks-muted);font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+    .kal-tab.aktif{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
+    .kal-card{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:20px 22px;box-shadow:var(--shadow)}
+    .kal-field{margin-bottom:14px}
+    .kal-label{font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+    .kal-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s}
+    .kal-input:focus{border-color:var(--oranye)}
+    .kal-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+    .kal-stat{background:var(--abu-bg);border-radius:var(--radius-sm);padding:12px 14px;text-align:center}
+    .kal-stat-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:var(--oranye);line-height:1}
+    .kal-stat-lbl{font-size:11px;color:var(--abu);margin-top:4px;font-weight:500}
+
+        /* BANK MATERI */
     .materi-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
     .materi-filter{display:flex;flex-direction:column;gap:3px}
     .materi-filter label{font-size:11px;font-weight:700;color:var(--abu);text-transform:uppercase;letter-spacing:.3px}
