@@ -1343,6 +1343,37 @@
         </div>
       </div>
 
+      <!-- GPS SEKOLAH -->
+      <div style="background:var(--oranye-terang);border:1px solid #FFCC80;border-radius:10px;padding:14px 16px;margin-top:14px;margin-bottom:4px">
+        <div style="font-size:12px;font-weight:700;color:var(--oranye-gelap);margin-bottom:10px">
+          📍 Koordinat GPS Sekolah
+          <span style="font-size:11px;font-weight:400;color:var(--abu);margin-left:6px">— digunakan untuk verifikasi lokasi di Portal Guru</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px;text-transform:uppercase">Latitude</label>
+            <input type="number" step="any" id="profil-latitude" placeholder="-2.5489"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px;text-transform:uppercase">Longitude</label>
+            <input type="number" step="any" id="profil-longitude" placeholder="102.3297"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:4px;text-transform:uppercase">Radius Sekolah (meter)</label>
+            <input type="number" id="profil-radius" placeholder="200"
+              style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="ambilLokasiSekarang()" class="btn-ekspor" style="background:var(--biru-tua);color:white;border-color:var(--biru-tua)">
+            📍 Ambil Lokasi Sekarang
+          </button>
+          <span id="gps-status" style="font-size:11px;color:var(--abu)"></span>
+        </div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-top:16px;">
         <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanProfil()">💾 Simpan Profil</button>
         <button class="btn-ekspor" style="background:var(--abu-bg);border:1px solid var(--border);" onclick="muatProfil()">🔄 Muat Tersimpan</button>
@@ -3094,6 +3125,9 @@
       tanggal_selesai: document.getElementById('pf-selesai').value,
       minggu_efektif:  parseInt(document.getElementById('pf-minggu').value) || 18,
       kurikulum:       document.getElementById('pf-kurikulum').value,
+      latitude:        parseFloat(document.getElementById('profil-latitude').value) || -2.5489,
+      longitude:       parseFloat(document.getElementById('profil-longitude').value) || 102.3297,
+      radius_m:        parseFloat(document.getElementById('profil-radius').value) || 200,
       updated_at:      new Date().toISOString(),
     };
 
@@ -5308,6 +5342,25 @@
     } else {
       el.innerHTML = '<span style="color:#C62828">⚠ Tidak ada data terdeteksi. Pastikan format benar.</span>';
     }
+  };
+
+
+  window.ambilLokasiSekarang = function() {
+    const status = document.getElementById('gps-status');
+    if (!navigator.geolocation) { status.textContent = '❌ Browser tidak mendukung GPS'; return; }
+    status.textContent = '⏳ Mengambil lokasi...';
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        document.getElementById('profil-latitude').value  = pos.coords.latitude.toFixed(6);
+        document.getElementById('profil-longitude').value = pos.coords.longitude.toFixed(6);
+        if (!document.getElementById('profil-radius').value)
+          document.getElementById('profil-radius').value  = 200;
+        status.textContent = `✅ Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)} (akurasi ±${Math.round(pos.coords.accuracy)}m)`;
+        status.style.color = '#2E7D32';
+      },
+      err => { status.textContent = '❌ Gagal: ' + err.message; status.style.color = '#C62828'; },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
 
