@@ -115,6 +115,8 @@
 
     .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
     .nav-item.aktif { background: var(--oranye); color: white; }
+    a.nav-item { text-decoration: none; display: flex; }
+    a.nav-item::after { content: '↗'; font-size: 10px; margin-left: auto; opacity: 0.4; }
     .nav-item .nav-ikon { font-size: 16px; flex-shrink: 0; }
 
     .sidebar-footer {
@@ -670,9 +672,10 @@
   </div>
 
   <nav class="sidebar-nav">
+
     <div class="nav-label">Menu Utama</div>
     <button class="nav-item aktif" onclick="gantiPage('beranda', this)">
-      <span class="nav-ikon">📊</span> Beranda
+      <span class="nav-ikon">🏠</span> Beranda
     </button>
     <button class="nav-item" onclick="gantiPage('agenda', this)">
       <span class="nav-ikon">📋</span> Data Agenda
@@ -680,36 +683,41 @@
     <button class="nav-item" onclick="gantiPage('laporan', this)">
       <span class="nav-ikon">📈</span> Laporan
     </button>
-    <div class="nav-label" style="margin-top:8px;">Manajemen</div>
+
+    <div class="nav-label" style="margin-top:12px;">Manajemen</div>
     <button class="nav-item" onclick="gantiPage('guru', this)">
       <span class="nav-ikon">👨‍🏫</span> Data Guru
     </button>
-    <button class="nav-item" onclick="gantiPage('jadwal', this)">
-      <span class="nav-ikon">🗓</span> Jadwal Pelajaran
-    </button>
-    <div class="nav-label" style="margin-top:8px;">Roster</div>
-    <button class="nav-item" onclick="gantiPage('mapel', this)">
-      <span class="nav-ikon">📚</span> Mata Pelajaran
-    </button>
-    <button class="nav-item" onclick="gantiPage('rombel', this)">
-      <span class="nav-ikon">🏫</span> Rombel / Kelas
-    </button>
-    <button class="nav-item" onclick="gantiPage('roster', this)">
-      <span class="nav-ikon">📋</span> Penyusunan Roster
-    </button>
-    <div class="nav-label" style="margin-top:8px;">Pengaturan</div>
+    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/kelola-siswa.html" target="_blank">
+      <span class="nav-ikon">👥</span> Data Siswa
+    </a>
+    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/rekap.html" target="_blank">
+      <span class="nav-ikon">📊</span> Data Presensi Siswa
+    </a>
+    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/import-materi.html" target="_blank">
+      <span class="nav-ikon">📚</span> Bank Materi
+    </a>
+
+    <div class="nav-label" style="margin-top:12px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('profil', this)">
       <span class="nav-ikon">🏫</span> Profil Sekolah
-    </button>
-    <button class="nav-item" onclick="gantiPage('bank-materi', this)">
-      <span class="nav-ikon">📚</span> Bank Materi
-    </button>
-    <button class="nav-item" onclick="gantiPage('jambaku', this)">
-      <span class="nav-ikon">⏰</span> Jam Baku
     </button>
     <button class="nav-item" onclick="gantiPage('kalender', this)">
       <span class="nav-ikon">📅</span> Kalender Akademik
     </button>
+    <button class="nav-item" onclick="gantiPage('mapel', this)">
+      <span class="nav-ikon">📖</span> Mata Pelajaran
+    </button>
+    <button class="nav-item" onclick="gantiPage('jambaku', this)">
+      <span class="nav-ikon">⏰</span> Jam Baku
+    </button>
+    <button class="nav-item" onclick="gantiPage('rombel', this)">
+      <span class="nav-ikon">🏛️</span> Rombel / Kelas
+    </button>
+    <button class="nav-item" onclick="gantiPage('roster', this)">
+      <span class="nav-ikon">🗓</span> Penyusunan Roster
+    </button>
+
   </nav>
 
   <div class="sidebar-footer">
