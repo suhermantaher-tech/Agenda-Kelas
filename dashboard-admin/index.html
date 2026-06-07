@@ -3082,15 +3082,19 @@
       'pf-alamat':p.alamat||'','pf-telp':p.telp||'',
       'pf-kab':p.kabupaten||'','pf-tahun':p.tahun_ajaran||'',
       'pf-mulai':p.tanggal_mulai||'','pf-selesai':p.tanggal_selesai||'',
-      'pf-minggu':p.minggu_efektif||''
+      'pf-minggu':p.minggu_efektif||'',
+      // ── GPS koordinat sekolah ──
+      'profil-latitude':  p.latitude  || '',
+      'profil-longitude': p.longitude || '',
+      'profil-radius':    p.radius_m  || '200',
     };
     Object.entries(fields).forEach(([id,val]) => {
       const el = document.getElementById(id);
       if (el) el.value = val;
     });
-    if (p.semester) document.getElementById('pf-semester').value = p.semester;
+    if (p.semester)   document.getElementById('pf-semester').value   = p.semester;
     if (p.akreditasi) document.getElementById('pf-akreditasi').value = p.akreditasi;
-    if (p.kurikulum) document.getElementById('pf-kurikulum').value = p.kurikulum;
+    if (p.kurikulum)  document.getElementById('pf-kurikulum').value  = p.kurikulum;
   }
 
   function tampilHeaderProfil() {
