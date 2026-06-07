@@ -165,24 +165,69 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
   padding:16px;box-shadow:var(--shadow-sm);margin-bottom:12px}
 .kartu-judul{font-size:13px;font-weight:800;color:var(--biru-tua);margin-bottom:12px}
 
-/* Sesi jadwal */
-.sesi-card{background:white;border-radius:12px;border:1.5px solid var(--border);
-  padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
-.sesi-card:hover{border-color:var(--oranye);box-shadow:0 4px 12px rgba(224,112,32,.15)}
-.sesi-card.sudah-isi{border-color:#C8E6C9;background:#F9FFF9}
-.sesi-card.bisa-isi{border-color:var(--oranye);background:#FFFBF7}
-.sesi-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sesi-jam-badge{background:var(--biru-tua);color:white;padding:4px 10px;
-  border-radius:8px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
-.sesi-mapel{font-size:14px;font-weight:800;color:var(--teks);flex:1}
-.sesi-kelas{font-size:11px;font-weight:700;background:var(--biru-muda);color:var(--biru-tua);
-  padding:2px 8px;border-radius:6px;flex-shrink:0}
-.sesi-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.sesi-status{font-size:11px;font-weight:700;padding:2px 9px;border-radius:8px}
-.sesi-status.ok{background:var(--hijau-muda);color:var(--hijau)}
-.sesi-status.pending{background:var(--oranye-terang);color:var(--oranye-gelap)}
-.sesi-status.lewat{background:#F5F5F5;color:var(--abu)}
-.sesi-materi{font-size:11px;color:var(--teks-muted);font-style:italic;margin-top:4px}
+/* ── KARTU JADWAL HARI INI ── */
+.jadwal-item {
+  display:flex;align-items:center;gap:12px;
+  background:white;border-radius:14px;
+  border:1.5px solid var(--border);
+  padding:14px;margin-bottom:10px;
+  cursor:pointer;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.jadwal-item:active { transform:scale(.99); }
+.jadwal-item:hover  { border-color:var(--oranye);box-shadow:0 4px 16px rgba(224,112,32,.12); }
+.jadwal-item.sudah-isi {
+  border-color:#A5D6A7;background:linear-gradient(135deg,#F9FFF9,#F1F8E9);
+  cursor:default;
+}
+.jadwal-item.sudah-isi:hover { border-color:#A5D6A7;box-shadow:none; }
+
+/* Kolom jam */
+.jam-badge {
+  width:48px;flex-shrink:0;text-align:center;
+  background:var(--biru-tua);border-radius:10px;
+  padding:8px 4px;
+}
+.jam-label  { font-size:8px;font-weight:700;color:rgba(255,255,255,.55);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px; }
+.jam-angka  { font-size:18px;font-weight:800;color:white;
+  font-family:'DM Mono',monospace;line-height:1; }
+
+/* Info tengah */
+.jadwal-tengah { flex:1;min-width:0; }
+.jadwal-mapel  { font-size:14px;font-weight:800;color:var(--teks);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px; }
+.jadwal-kelas  { font-size:11px;color:var(--teks-muted);
+  display:flex;align-items:center;gap:5px;flex-wrap:wrap; }
+.jadwal-kelas-badge { background:var(--biru-muda);color:var(--biru-tua);
+  font-weight:700;padding:1px 7px;border-radius:6px;font-size:10px; }
+
+/* Badge status */
+.jadwal-badge {
+  flex-shrink:0;font-size:11px;font-weight:700;
+  padding:4px 10px;border-radius:20px;white-space:nowrap;
+}
+.jadwal-badge.sudah { background:var(--hijau-muda);color:var(--hijau); }
+.jadwal-badge.belum {
+  background:var(--oranye-terang);color:var(--oranye-gelap);
+  border:1px solid #FFCC80;
+  animation:pulse-orange 2s ease-in-out infinite;
+}
+@keyframes pulse-orange {
+  0%,100% { box-shadow:0 0 0 0 rgba(224,112,32,.2); }
+  50%      { box-shadow:0 0 0 5px rgba(224,112,32,0); }
+}
+
+/* ── KARTU KEHADIRAN SISWA ── */
+.kartu-kehadiran{background:var(--biru-muda);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.kls-hadir-item{display:flex;align-items:center;gap:10px;padding:6px 0}
+.kls-hadir-nama{font-size:11px;font-weight:700;color:var(--biru-tua);min-width:42px}
+.kls-hadir-pb{flex:1;height:5px;background:white;border-radius:3px;overflow:hidden}
+.kls-hadir-pbf{height:100%;border-radius:3px;background:var(--oranye);transition:width .5s}
+.kls-hadir-angka{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;
+  color:var(--biru-tua);min-width:44px;text-align:right}
 
 /* Panel kehadiran kelas */
 .kartu-kehadiran{background:var(--biru-muda);border-radius:10px;padding:12px 14px;margin-bottom:12px}
@@ -198,20 +243,107 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
   padding:0;overflow:hidden;margin-bottom:12px}
 .form-aksen{height:4px;background:linear-gradient(90deg,#B85510,var(--oranye),#F0A040)}
 .form-body{padding:16px}
-.form-judul{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.form-judul{display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--border)}
 .form-judul-ico{font-size:20px}
 .form-judul-teks{font-size:15px;font-weight:800;color:var(--biru-tua);flex:1}
-.form-grup{margin-bottom:14px}
-.form-label{display:block;font-size:11px;font-weight:700;color:var(--abu);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
-.form-input,.form-select,.form-textarea{width:100%;padding:10px 12px;
-  border:1.5px solid var(--border);border-radius:10px;font-size:14px;
+.form-grup{margin-bottom:12px}
+.form-label{display:block;font-size:10px;font-weight:800;color:var(--abu);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+/* Input teks / textarea biasa */
+.form-input,.form-textarea{width:100%;padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:12px;font-size:15px;
   font-family:inherit;outline:none;background:white;color:var(--teks);
   transition:border-color .2s;-webkit-appearance:none;appearance:none}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--oranye);
+.form-input:focus,.form-textarea:focus{border-color:var(--oranye);
   box-shadow:0 0 0 3px rgba(224,112,32,.1)}
-.form-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-textarea{resize:vertical;min-height:72px;line-height:1.5}
+/* SELECT asli — sembunyikan, pakai custom picker */
+.form-select{display:none}
+/* Custom picker button — tampilan seperti input tapi ada chevron */
+.picker-btn{
+  width:100%;padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-size:15px;font-family:inherit;font-weight:600;
+  background:white;color:var(--teks);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  cursor:pointer;text-align:left;touch-action:manipulation;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none
+}
+.picker-btn:active{border-color:var(--oranye);background:var(--oranye-terang)}
+.picker-btn.aktif{border-color:var(--oranye);box-shadow:0 0 0 3px rgba(224,112,32,.1)}
+.picker-btn .pb-teks{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.picker-btn .pb-teks.placeholder{color:var(--abu-bg,#ccc);font-weight:400}
+.picker-btn .pb-teks.placeholder{color:#AAAAAA}
+.picker-btn .pb-arr{font-size:12px;color:var(--abu);flex-shrink:0;transition:transform .2s}
+.picker-btn.open .pb-arr{transform:rotate(180deg)}
+/* Badge status materi */
+.badge-materi{display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:8px;margin-left:6px;vertical-align:middle}
+.badge-baru{background:#E3EEF8;color:var(--biru-tua)}
+.badge-sdh{background:var(--hijau-muda);color:var(--hijau)}
+/* Hadir counter row */
+.hadir-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hadir-inp-wrap{display:flex;flex-direction:column;gap:4px}
+.hadir-lbl{font-size:10px;font-weight:700;color:var(--abu);text-align:center;text-transform:uppercase;letter-spacing:.3px}
+.hadir-inp{width:100%;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:18px;font-weight:800;font-family:'DM Mono',monospace;text-align:center;
+  outline:none;background:white;color:var(--teks);-webkit-appearance:none;
+  transition:border-color .2s}
+.hadir-inp:focus{border-color:var(--oranye)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── BOTTOM SHEET PICKER ── */
+.picker-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0);
+  z-index:1000;transition:background .25s;
+  pointer-events:none;display:flex;align-items:flex-end
+}
+.picker-overlay.show{background:rgba(0,0,0,.45);pointer-events:auto}
+.picker-sheet{
+  width:100%;background:white;border-radius:20px 20px 0 0;
+  padding:0 0 env(safe-area-inset-bottom,0);
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  max-height:70vh;display:flex;flex-direction:column;overflow:hidden
+}
+.picker-overlay.show .picker-sheet{transform:translateY(0)}
+.picker-handle{width:36px;height:4px;background:#E0E0E0;border-radius:2px;
+  margin:10px auto 0}
+.picker-hdr{padding:12px 16px;border-bottom:1px solid #F0F0F0;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.picker-title{font-size:14px;font-weight:800;color:var(--biru-tua)}
+.picker-close{padding:4px 12px;border:1px solid var(--border);border-radius:8px;
+  font-size:12px;font-weight:600;color:var(--abu);background:white;
+  cursor:pointer;font-family:inherit;touch-action:manipulation}
+.picker-search{padding:10px 12px;border-bottom:1px solid #F0F0F0;flex-shrink:0}
+.picker-search input{width:100%;padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:#F8F9FA}
+.picker-search input:focus{border-color:var(--oranye)}
+.picker-list{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.picker-item{padding:14px 16px;border-bottom:.5px solid #F5F5F5;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  touch-action:manipulation;transition:background .1s}
+.picker-item:active,.picker-item:hover{background:#FFF8F0}
+.picker-item.selected{background:var(--oranye-terang)}
+.picker-item .pi-no{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;
+  color:var(--oranye-gelap);background:var(--oranye-terang);
+  padding:2px 7px;border-radius:6px;flex-shrink:0;min-width:36px;text-align:center}
+.picker-item .pi-nama{flex:1;font-size:14px;font-weight:600;color:var(--teks);line-height:1.3}
+.picker-item .pi-badge{font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:6px;flex-shrink:0}
+.picker-item.done .pi-nama{color:var(--hijau)}
+.picker-item.done .pi-badge{background:var(--hijau-muda);color:var(--hijau)}
+.picker-item:not(.done) .pi-badge{background:#F0F0F0;color:#999}
+.picker-empty{padding:32px;text-align:center;color:var(--abu);font-size:13px}
+/* Chip materi status */
+.materi-chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.mc{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;
+  touch-action:manipulation;border:1.5px solid transparent;transition:all .15s;
+  display:flex;align-items:center;gap:4px}
+.mc.done{background:var(--hijau-muda);color:var(--hijau);border-color:#C8E6C9}
+.mc.todo{background:#F5F5F5;color:#999;border-color:#E0E0E0}
+.mc.active{border-color:var(--oranye)!important;box-shadow:0 0 0 2px rgba(224,112,32,.2)}
 .btn-simpan{width:100%;height:50px;background:linear-gradient(135deg,#B85510,var(--oranye));
   color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;
   font-family:inherit;cursor:pointer;margin-top:4px;margin-bottom:8px;
@@ -457,116 +589,152 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
         </div>
       </div>
       <!-- Jadwal hari ini -->
+      <!-- Chip sisa jam -->
+      <div id="chip-sisa-jam" style="display:none;background:var(--oranye-terang);
+        border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:12px;
+        font-weight:600;color:var(--oranye-gelap)"></div>
+      <!-- Panel kehadiran kelas dari scan pagi -->
+      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:10px">
+        <div class="kartu-kehadiran" id="kehadiran-wrap">
+          <div id="kehadiran-summary" style="font-size:11px;font-weight:700;color:var(--biru-tua);margin-bottom:6px"></div>
+          <div id="kehadiran-per-kelas"></div>
+        </div>
+      </div>
       <div id="jadwal-container">
-        <div style="display:none" id="chip-sisa-jam"></div>
         <div class="loading-inline">Memuat jadwal hari ini...</div>
       </div>
       <!-- Form Agenda -->
       <div id="form-agenda" style="display:none;">
         <div class="form-card">
           <div class="form-aksen"></div>
+          <div class="form-body">
           <div class="form-judul">
             <div class="form-judul-ico">📝</div>
-            <span id="form-judul-teks">Isi Agenda</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:15px;font-weight:800;color:var(--biru-tua)" id="form-judul-teks">Isi Agenda</div>
+              <div id="form-kelas-info" style="font-size:11px;color:var(--teks-muted);margin-top:1px"></div>
+            </div>
           </div>
 
-          <!-- MATERI POKOK -->
+          <!-- MATERI POKOK — custom picker -->
           <div class="form-grup">
-            <label class="form-label">Materi Pokok *
-              <span id="materi-status" style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px"></span>
+            <label class="form-label">📖 Materi Pokok
+              <span id="materi-status" class="badge-materi" style="display:none"></span>
             </label>
-            <select class="form-select" id="inp-materi" onchange="onPilihMateriPokok()">
-              <option value="">-- Pilih atau loading... --</option>
-            </select>
-            <input type="text" class="form-input" id="inp-materi-manual" placeholder="Tulis materi jika tidak ada di daftar..."
-              style="display:none;margin-top:6px">
-            <div style="margin-top:5px">
+            <select class="form-select" id="inp-materi"></select>
+            <button type="button" class="picker-btn" id="pb-materi" onclick="bukaPickerMateri()">
+              <span class="pb-teks placeholder" id="pb-materi-teks">Pilih materi pokok...</span>
+              <span class="pb-arr">▾</span>
+            </button>
+            <input type="text" class="form-input" id="inp-materi-manual"
+              placeholder="Tulis materi pokok..." style="display:none;margin-top:8px">
+            <div style="margin-top:6px">
               <button type="button" onclick="toggleMateriManual()"
-                style="font-size:11px;color:var(--oranye);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600">
-                ✏️ Tulis manual jika tidak ada di daftar
+                style="font-size:12px;color:var(--oranye);background:none;border:none;
+                cursor:pointer;padding:0;font-family:inherit;font-weight:600">
+                ✏️ <span id="btn-manual-teks">Tulis manual</span>
               </button>
             </div>
           </div>
 
           <!-- SUB MATERI -->
+          <div class="form-grup" id="grup-submateri">
+            <label class="form-label">📌 Sub Materi <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
+            <select class="form-select" id="inp-submateri"></select>
+            <button type="button" class="picker-btn" id="pb-submateri" onclick="bukaPickerSubMateri()">
+              <span class="pb-teks placeholder" id="pb-submateri-teks">Pilih sub materi...</span>
+              <span class="pb-arr">▾</span>
+            </button>
+            <input type="text" class="form-input" id="inp-submateri-manual"
+              placeholder="Tulis sub materi..." style="display:none;margin-top:8px">
+          </div>
+
+          <!-- STATUS KETERCAPAIAN CHIPS -->
+          <div id="materi-history-wrap" style="display:none;margin-bottom:14px">
+            <label class="form-label">📚 Status Ketercapaian</label>
+            <div class="materi-chip-row" id="materi-history-list"></div>
+          </div>
+
+          <!-- METODE PEMBELAJARAN — chip -->
           <div class="form-grup">
-            <label class="form-label">Sub Materi</label>
-            <select class="form-select" id="inp-submateri" onchange="onPilihSubMateri()">
-              <option value="">-- Pilih sub materi (opsional) --</option>
-            </select>
-            <input type="text" class="form-input" id="inp-submateri-manual" placeholder="Tulis sub materi jika tidak ada..."
-              style="display:none;margin-top:6px">
+            <label class="form-label">🎯 Metode Pembelajaran</label>
+            <div id="chips-metode" class="materi-chip-row" style="gap:6px">
+              <span class="mc todo" onclick="pilihChip('metode',this,'Ceramah')">Ceramah</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Diskusi')">Diskusi</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Tanya Jawab')">Tanya Jawab</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Demonstrasi')">Demonstrasi</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Praktikum')">Praktikum</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Project Based')">Project Based</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Problem Based')">Problem Based</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Kooperatif')">Kooperatif</span>
+              <span class="mc todo" onclick="pilihChip('metode',this,'Inkuiri')">Inkuiri</span>
+            </div>
+            <select class="form-select" id="inp-metode"><option value="">Pilih metode</option></select>
           </div>
 
-          <!-- BADGE MATERI SUDAH DIAJARKAN -->
-          <div id="materi-history-wrap" style="display:none;margin-bottom:12px">
-            <div style="font-size:11px;font-weight:700;color:var(--abu);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">
-              📚 Status Ketercapaian Materi
-            </div>
-            <div id="materi-history-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-grup">
-              <label class="form-label">Metode Pembelajaran *</label>
-              <select class="form-select" id="inp-metode">
-                <option value="">Pilih metode</option>
-                <option>Ceramah</option><option>Diskusi</option><option>Tanya Jawab</option>
-                <option>Demonstrasi</option><option>Praktikum</option><option>Project Based</option>
-                <option>Problem Based</option><option>Kooperatif</option><option>Inkuiri</option>
-              </select>
-            </div>
-            <div class="form-grup">
-              <label class="form-label">Media Ajar *</label>
-              <select class="form-select" id="inp-media">
-                <option value="">Pilih media</option>
-                <option>Papan tulis</option><option>PPT / Slide</option><option>Video</option>
-                <option>Modul / LKS</option><option>Buku Teks</option><option>Alat Peraga</option>
-                <option>Laptop / Proyektor</option><option>Internet</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-grup">
-              <label class="form-label">Jumlah Hadir</label>
-              <input type="number" class="form-input" id="inp-hadir" min="0" value="0">
-            </div>
-            <div class="form-grup">
-              <label class="form-label">Alfa / Tidak Hadir</label>
-              <input type="number" class="form-input" id="inp-alfa" min="0" value="0">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-grup">
-              <label class="form-label">Izin</label>
-              <input type="number" class="form-input" id="inp-izin" min="0" value="0">
-            </div>
-            <div class="form-grup">
-              <label class="form-label">Sakit</label>
-              <input type="number" class="form-input" id="inp-sakit" min="0" value="0">
-            </div>
-          </div>
-
-          <!-- Info presensi pagi -->
-          <div id="info-presensi-pagi" style="display:none;background:var(--hijau-muda);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--hijau)"></div>
-
+          <!-- MEDIA AJAR — chip -->
           <div class="form-grup">
-            <label class="form-label">Hambatan (opsional)</label>
-            <select class="form-select" id="inp-hambatan">
-              <option value="">Tidak ada hambatan</option>
-              <option>Siswa kurang aktif</option><option>Materi terlalu sulit</option>
-              <option>Media tidak tersedia</option><option>Gangguan waktu</option>
-              <option>Lainnya</option>
-            </select>
+            <label class="form-label">🖥️ Media Ajar</label>
+            <div id="chips-media" class="materi-chip-row" style="gap:6px">
+              <span class="mc todo" onclick="pilihChip('media',this,'Papan tulis')">Papan tulis</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'PPT / Slide')">PPT / Slide</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Video')">Video</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Modul / LKS')">Modul / LKS</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Buku Teks')">Buku Teks</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Alat Peraga')">Alat Peraga</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Laptop/Proyektor')">Laptop/Proyektor</span>
+              <span class="mc todo" onclick="pilihChip('media',this,'Internet')">Internet</span>
+            </div>
+            <select class="form-select" id="inp-media"><option value="">Pilih media</option></select>
           </div>
 
+          <!-- KEHADIRAN SISWA -->
           <div class="form-grup">
-            <label class="form-label">Catatan (opsional)</label>
-            <textarea class="form-textarea" id="inp-catatan" placeholder="Contoh: Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
+            <label class="form-label">👥 Kehadiran Siswa</label>
+            <div id="info-presensi-pagi" style="display:none;background:var(--hijau-muda);
+              border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:var(--hijau)"></div>
+            <div class="hadir-row">
+              <div class="hadir-inp-wrap">
+                <div class="hadir-lbl" style="color:var(--hijau)">Hadir</div>
+                <input type="number" class="hadir-inp" id="inp-hadir" min="0" value="0" style="border-color:#C8E6C9">
+              </div>
+              <div class="hadir-inp-wrap">
+                <div class="hadir-lbl" style="color:var(--merah)">Alfa</div>
+                <input type="number" class="hadir-inp" id="inp-alfa" min="0" value="0" style="border-color:#FFCDD2">
+              </div>
+              <div class="hadir-inp-wrap">
+                <div class="hadir-lbl" style="color:var(--kuning)">Izin</div>
+                <input type="number" class="hadir-inp" id="inp-izin" min="0" value="0" style="border-color:#FFE082">
+              </div>
+              <div class="hadir-inp-wrap">
+                <div class="hadir-lbl">Sakit</div>
+                <input type="number" class="hadir-inp" id="inp-sakit" min="0" value="0">
+              </div>
+            </div>
           </div>
 
-          <!-- PANEL VERIFIKASI -->
+          <!-- HAMBATAN — chip -->
+          <div class="form-grup">
+            <label class="form-label">⚠️ Hambatan <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
+            <div id="chips-hambatan" class="materi-chip-row" style="gap:6px">
+              <span class="mc done active" onclick="pilihChip('hambatan',this,'')">✓ Tidak ada</span>
+              <span class="mc todo" onclick="pilihChip('hambatan',this,'Siswa kurang aktif')">Siswa kurang aktif</span>
+              <span class="mc todo" onclick="pilihChip('hambatan',this,'Materi terlalu sulit')">Materi sulit</span>
+              <span class="mc todo" onclick="pilihChip('hambatan',this,'Media tidak tersedia')">Media tidak ada</span>
+              <span class="mc todo" onclick="pilihChip('hambatan',this,'Gangguan waktu')">Gangguan waktu</span>
+              <span class="mc todo" onclick="pilihChip('hambatan',this,'Lainnya')">Lainnya</span>
+            </div>
+            <select class="form-select" id="inp-hambatan"><option value="">Tidak ada hambatan</option></select>
+          </div>
+
+          <!-- CATATAN -->
+          <div class="form-grup">
+            <label class="form-label">💬 Catatan <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
+            <textarea class="form-textarea" id="inp-catatan"
+              placeholder="Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
+          </div>
+
+                    <!-- PANEL VERIFIKASI -->
           <div class="verif-panel" id="verif-panel">
             <div class="verif-title">🔐 Verifikasi Sebelum Simpan</div>
             <div class="verif-info">Agenda hanya bisa disimpan jika diisi dari dalam lingkungan sekolah dan dari ruang kelas yang benar.</div>
@@ -654,7 +822,7 @@ import {
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const sekarang  = new Date();
-  const hariIni   = 'Senin';
+  const hariIni   = namaHari[sekarang.getDay()];
 
   muatProfilSekolah();
   document.getElementById('teks-tanggal').textContent =
@@ -1012,16 +1180,23 @@ import {
         el.onclick = () => {
           if (!sudah) pilihJadwal(sesi.docIds[0], sesi.data, sesi.jamMulai, sesi.jamSelesai, sesi.jamKe, sesi.docIds);
         };
+        const jamKeTxt = sesi.durasi > 1
+          ? `${sesi.jamKe}<span style="font-size:9px;font-weight:500;display:block">–${sesi.jamKe + sesi.durasi - 1}</span>`
+          : `${sesi.jamKe}`;
         el.innerHTML = `
           <div class="jam-badge">
             <div class="jam-label">Jam</div>
-            <div class="jam-angka">${sesi.jamKe}${sesi.durasi > 1 ? `<br><span style="font-size:9px;font-weight:500">–${sesi.jamKe + sesi.durasi - 1}</span>` : ''}</div>
+            <div class="jam-angka">${jamKeTxt}</div>
           </div>
           <div class="jadwal-tengah">
             <div class="jadwal-mapel">${namaMapel}</div>
-            <div class="jadwal-kelas">${namaKelas} · ${jamTxt}${durasiTxt}</div>
+            <div class="jadwal-kelas">
+              <span class="jadwal-kelas-badge">${namaKelas}</span>
+              ${jamTxt ? `<span>${jamTxt}</span>` : ''}
+              ${sesi.durasi > 1 ? `<span style="font-size:10px;font-weight:700;color:var(--oranye-gelap)">${sesi.durasi}JP</span>` : ''}
+            </div>
           </div>
-          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : 'Belum'}</span>
+          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : '+ Isi'}</span>
         `;
         listEl.appendChild(el);
       });
@@ -1108,11 +1283,14 @@ import {
 
   async function simpanAgenda() {
     const materi = document.getElementById('inp-materi').value.trim();
-    const metode = document.getElementById('inp-metode').value;
-    const media  = document.getElementById('inp-media').value;
-    if (!materi) { alert('Materi pokok wajib diisi!'); return; }
-    if (!metode) { alert('Pilih metode pembelajaran!'); return; }
-    if (!media)  { alert('Pilih media ajar!'); return; }
+    // Ambil metode dan media dari chip aktif ATAU dari hidden select
+    const metode = nilaiChipAktif('chips-metode') || document.getElementById('inp-metode').value;
+    const media  = nilaiChipAktif('chips-media')  || document.getElementById('inp-media').value;
+    if (!materi && !document.getElementById('inp-materi-manual').value.trim()) {
+      tampilToast('⚠ Pilih atau tulis materi pokok dulu!'); return;
+    }
+    if (!metode) { tampilToast('⚠ Pilih metode pembelajaran dulu!'); return; }
+    if (!media)  { tampilToast('⚠ Pilih media ajar dulu!'); return; }
 
     tampilLoading(true);
     document.getElementById('btn-simpan').disabled = true;
@@ -1760,9 +1938,269 @@ import {
   };
 
 
+  // ══════════════════════════════════════════
+  // CUSTOM PICKER (bottom sheet)
+  // ══════════════════════════════════════════
+  let pickerCallback = null;
+  let pickerAllItems = [];
+
+  function bukaPicker(judul, items, nilaiAktif, cb, tampilSearch = true) {
+    pickerAllItems = items;
+    pickerCallback = cb;
+
+    document.getElementById('picker-title').textContent = judul;
+    document.getElementById('picker-search-wrap').style.display = tampilSearch ? 'block' : 'none';
+    document.getElementById('picker-search').value = '';
+
+    renderPickerItems(nilaiAktif);
+
+    const ov = document.getElementById('picker-overlay');
+    ov.style.display = 'flex';
+    ov.style.pointerEvents = 'auto';
+    requestAnimationFrame(() => ov.classList.add('show'));
+
+    if(tampilSearch) setTimeout(() => document.getElementById('picker-search').focus(), 350);
+  }
+
+  window.tutupPicker = function() {
+    const ov = document.getElementById('picker-overlay');
+    ov.classList.remove('show');
+    setTimeout(() => { ov.style.display = 'none'; }, 280);
+  };
+
+  window.filterPickerItems = function() {
+    const q = document.getElementById('picker-search').value.toLowerCase();
+    const filtered = q
+      ? pickerAllItems.filter(it => (it.label||'').toLowerCase().includes(q))
+      : pickerAllItems;
+    renderPickerItems(null, filtered);
+  };
+
+  function renderPickerItems(nilaiAktif, items = pickerAllItems) {
+    const list = document.getElementById('picker-list');
+    if(!items.length) {
+      list.innerHTML = '<div class="picker-empty">Tidak ada pilihan</div>';
+      return;
+    }
+    list.innerHTML = items.map(it => {
+      const isSel = it.value === nilaiAktif;
+      const isDone = it.done;
+      return `<div class="picker-item${isDone?' done':''}${isSel?' selected':''}"
+          onclick="pilihPickerItem('${it.value.replace(/'/g,"\'")}','${(it.label||'').replace(/'/g,"\'")}')">
+        ${it.no ? `<span class="pi-no">${it.no}</span>` : ''}
+        <span class="pi-nama">${it.label}</span>
+        ${it.done !== undefined
+          ? `<span class="pi-badge">${it.done ? '✅ Diajarkan' : '○ Baru'}</span>`
+          : (isSel ? '<span style="color:var(--oranye);font-size:18px">✓</span>' : '')}
+      </div>`;
+    }).join('');
+  }
+
+  window.pilihPickerItem = function(nilai, label) {
+    tutupPicker();
+    if(pickerCallback) pickerCallback(nilai, label);
+  };
+
+  // ── Buka picker materi pokok ──
+  window.bukaPickerMateri = function() {
+    const sel = document.getElementById('inp-materi');
+    const items = [...sel.options].slice(1).map(o => ({
+      value: o.value,
+      label: o.text.replace(/^[✅○]\s*/,'').replace(/^[0-9.]+\.\s*/,''),
+      no:    o.dataset.no || '',
+      done:  o.dataset.done === 'true'
+    })).filter(it => it.value);
+
+    if(!items.length) {
+      tampilToast('⚠ Belum ada materi di bank kurikulum');
+      return;
+    }
+
+    const nilaiAktif = sel.value;
+    const btn = document.getElementById('pb-materi');
+    btn.classList.add('open');
+
+    bukaPicker('Pilih Materi Pokok', items, nilaiAktif, (nilai, label) => {
+      btn.classList.remove('open');
+      // Update hidden select
+      sel.value = nilai;
+      // Update tombol tampilan
+      const teks = document.getElementById('pb-materi-teks');
+      if(nilai) {
+        teks.textContent = label;
+        teks.classList.remove('placeholder');
+        btn.classList.add('aktif');
+      } else {
+        teks.textContent = 'Pilih materi pokok...';
+        teks.classList.add('placeholder');
+        btn.classList.remove('aktif');
+      }
+      // Trigger event
+      onPilihMateriPokok();
+    });
+  };
+
+  // ── Buka picker sub materi ──
+  window.bukaPickerSubMateri = function() {
+    const sel = document.getElementById('inp-submateri');
+    const items = [...sel.options].slice(1).map(o => ({
+      value: o.value,
+      label: o.text.replace(/^[✅○]\s*/,''),
+      no:    o.dataset.no || '',
+      done:  o.dataset.done === 'true'
+    })).filter(it => it.value);
+
+    if(!items.length) {
+      tampilToast('Tidak ada sub materi untuk materi ini');
+      return;
+    }
+
+    const nilaiAktif = sel.value;
+    const btn = document.getElementById('pb-submateri');
+    btn.classList.add('open');
+
+    bukaPicker('Pilih Sub Materi', items, nilaiAktif, (nilai, label) => {
+      btn.classList.remove('open');
+      sel.value = nilai;
+      const teks = document.getElementById('pb-submateri-teks');
+      if(nilai) {
+        teks.textContent = label;
+        teks.classList.remove('placeholder');
+        btn.classList.add('aktif');
+      } else {
+        teks.textContent = 'Pilih sub materi...';
+        teks.classList.add('placeholder');
+        btn.classList.remove('aktif');
+      }
+      onPilihSubMateri();
+    }, false);
+  };
+
+  // ── Chip selector (metode, media, hambatan) ──
+  window.pilihChip = function(jenis, el, nilai) {
+    const kontainer = el.parentElement;
+    kontainer.querySelectorAll('.mc').forEach(c => {
+      c.classList.remove('active','done');
+      c.classList.add('todo');
+      // Hapus centang prefix
+      c.textContent = c.textContent.replace(/^✓\s*/,'');
+    });
+    el.classList.remove('todo');
+    el.classList.add('done','active');
+    if(!el.textContent.startsWith('✓')) el.textContent = '✓ ' + el.textContent;
+
+    // Update hidden select
+    const idMap = { metode:'inp-metode', media:'inp-media', hambatan:'inp-hambatan' };
+    const sel = document.getElementById(idMap[jenis]);
+    if(sel) {
+      // Cari option yang cocok atau set value langsung
+      let found = false;
+      [...sel.options].forEach(o => { if(o.value===nilai||o.text===nilai){ sel.value=o.value; found=true; } });
+      if(!found) sel.value = nilai;
+    }
+  };
+
+  // Reset chips saat form dibuka ulang
+  function resetChips() {
+    ['chips-metode','chips-media'].forEach(id => {
+      document.querySelectorAll('#'+id+' .mc').forEach(c => {
+        c.classList.remove('active','done');
+        c.classList.add('todo');
+        c.textContent = c.textContent.replace(/^✓\s*/,'');
+      });
+    });
+    // Reset hambatan ke "Tidak ada"
+    const hambChips = document.querySelectorAll('#chips-hambatan .mc');
+    hambChips.forEach(c => {
+      c.classList.remove('active','done');
+      c.classList.add('todo');
+      c.textContent = c.textContent.replace(/^✓\s*/,'');
+    });
+    if(hambChips[0]) {
+      hambChips[0].classList.remove('todo');
+      hambChips[0].classList.add('done','active');
+      hambChips[0].textContent = '✓ Tidak ada';
+    }
+  }
+
+  // Override isiDropdownMateriPokok untuk update picker button juga
+  const _origIsiPokok = isiDropdownMateriPokok;
+  function isiDropdownMateriPokok() {
+    _origIsiPokok();
+    // Reset picker button
+    const btn = document.getElementById('pb-materi');
+    const teks = document.getElementById('pb-materi-teks');
+    if(btn && teks) {
+      btn.classList.remove('aktif','open');
+      teks.textContent = materiPokok.length
+        ? 'Pilih materi pokok...'
+        : 'Belum ada materi di bank';
+      teks.classList.add('placeholder');
+    }
+    // Reset sub materi picker juga
+    const sbtn = document.getElementById('pb-submateri');
+    const steks = document.getElementById('pb-submateri-teks');
+    if(sbtn && steks) {
+      sbtn.classList.remove('aktif','open');
+      steks.textContent = 'Pilih sub materi...';
+      steks.classList.add('placeholder');
+    }
+  }
+
+  // Extra reset chips saat tutupForm dipanggil
+  function resetFormPicker() {
+    resetChips();
+    const teksM = document.getElementById('pb-materi-teks');
+    if(teksM){ teksM.textContent='Pilih materi pokok...'; teksM.classList.add('placeholder'); }
+    const teksS = document.getElementById('pb-submateri-teks');
+    if(teksS){ teksS.textContent='Pilih sub materi...'; teksS.classList.add('placeholder'); }
+    document.getElementById('pb-materi')?.classList.remove('aktif','open');
+    document.getElementById('pb-submateri')?.classList.remove('aktif','open');
+  }
+
+  // Ambil nilai metode/media/hambatan dari chip aktif saat simpan
+  function nilaiChipAktif(containerId) {
+    const aktif = document.querySelector('#'+containerId+' .mc.active');
+    if(!aktif) return '';
+    return aktif.textContent.replace(/^✓\s*/,'').trim();
+  }
+
+
 </script>
+
+<!-- BOTTOM SHEET PICKER -->
+<div class="picker-overlay" id="picker-overlay" onclick="tutupPicker()">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-handle"></div>
+    <div class="picker-hdr">
+      <div class="picker-title" id="picker-title">Pilih</div>
+      <button class="picker-close" onclick="tutupPicker()">✕ Tutup</button>
+    </div>
+    <div class="picker-search" id="picker-search-wrap">
+      <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="picker-list" id="picker-list"></div>
+  </div>
+</div>
 </body>
 </html>
 
+
+<!-- BOTTOM SHEET PICKER -->
+<div class="picker-overlay" id="picker-overlay" onclick="tutupPicker()">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-handle"></div>
+    <div class="picker-hdr">
+      <div class="picker-title" id="picker-title">Pilih</div>
+      <button class="picker-close" onclick="tutupPicker()">✕ Tutup</button>
+    </div>
+    <div class="picker-search" id="picker-search-wrap">
+      <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="picker-list" id="picker-list"></div>
+  </div>
+</div>
 </body>
 </html>
