@@ -792,6 +792,13 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 </div><!-- .hal-utama -->
 
 
+<script>
+// Debug: tangkap error global
+window.addEventListener('error', function(e) {
+  console.error('GLOBAL ERROR:', e.message, 'at line', e.lineno);
+  document.title = 'ERROR: ' + e.message;
+});
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -984,9 +991,10 @@ import {
 
     } catch(e) {
       console.log('Kehadiran error:', e.message);
-      const panel = document.getElementById('panel-kehadiran-siswa');
-      panel.style.display = 'block';
-      document.getElementById('kehadiran-per-kelas').innerHTML =
+      const panelErr = document.getElementById('panel-kehadiran-siswa');
+      if (panelErr) panelErr.style.display = 'block';
+      const wrapErr = document.getElementById('kehadiran-per-kelas');
+      if (wrapErr) wrapErr.innerHTML =
         `<div style="font-size:11px;color:var(--merah);padding:8px">Error: ${e.message}</div>`;
     }
   }
