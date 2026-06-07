@@ -2,514 +2,982 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Guru — CMA SMAN 5</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Portal Guru — Egenda Kelas SMAN 5 Sarolangun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* ── ROOT ── */
-:root {
-  --oranye:#E07020; --oranye-gelap:#B85510; --oranye-terang:#FFF0E0;
-  --hijau:#2E7D32; --hijau-muda:#E8F5E9;
-  --biru-tua:#1A3A5C; --biru-muda:#E3EEF8;
-  --abu-bg:#F7F4F0; --abu:#9E8E7E; --border:#E8DDD5;
-  --teks:#1A1A1A; --teks-muted:#6B5E52;
-  --merah:#C0392B; --kuning:#F57F17;
-  --radius:16px; --radius-sm:10px;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
-  --shadow-md:0 8px 24px rgba(0,0,0,.12);
-  --shadow-lg:0 20px 50px rgba(0,0,0,.18);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--teks);background:var(--abu-bg)}
+  <style>
+    :root {
+      --oranye:       #E07020;
+      --oranye-gelap: #B85510;
+      --oranye-terang:#FFF0E0;
+      --oranye-mid:   #F5A050;
+      --hijau:        #2E7D32;
+      --hijau-muda:   #E8F5E9;
+      --hijau-terang: #A5D6A7;
+      --biru-tua:     #1A3A5C;
+      --biru-muda:    #E3EEF8;
+      --putih:        #FFFFFF;
+      --abu-bg:       #F7F4F0;
+      --abu:          #9E8E7E;
+      --teks:         #1A1A1A;
+      --teks-muted:   #6B5E52;
+      --border:       #E8DDD5;
+      --merah:        #C0392B;
+      --radius:       16px;
+      --radius-sm:    10px;
+      --shadow-sm:    0 2px 8px rgba(180,100,30,0.10);
+      --shadow-md:    0 8px 24px rgba(180,100,30,0.15);
+      --shadow-lg:    0 20px 50px rgba(180,100,30,0.20);
+    }
 
-/* ── LOADING ── */
-.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;
-  align-items:center;justify-content:center;z-index:9998;flex-direction:column;gap:12px}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--oranye);
-  border-radius:50%;animation:putar .75s linear infinite}
-@keyframes putar{to{transform:rotate(360deg)}}
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);
-  background:var(--biru-tua);color:white;padding:12px 20px;border-radius:14px;
-  font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;
-  box-shadow:0 8px 28px rgba(0,0,0,.2);transition:transform .4s cubic-bezier(.34,1.4,.64,1);
-  z-index:9999;white-space:nowrap;pointer-events:none}
-.toast.tampil{transform:translateX(-50%) translateY(0)}
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--abu-bg);
+      color: var(--teks);
+      min-height: 100vh;
+    }
 
-/* ══════════════════════════════════════════
-   LOGIN PAGE
-══════════════════════════════════════════ */
-#hal-login{min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:20px 16px;position:relative;overflow:hidden;
-  background:var(--biru-tua)}
+    /* ══════════════════════════════
+       HALAMAN LOGIN
+    ══════════════════════════════ */
+    #hal-login {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      background: var(--biru-tua);
+    }
 
-/* Dekorasi */
-.login-bg-top{position:absolute;top:0;left:0;right:0;height:52%;
-  background:linear-gradient(160deg,#B85510 0%,#E07020 60%,#F0A040 100%);
-  border-radius:0 0 50% 50% / 0 0 40% 40%;z-index:0}
-.login-bg-circle1{position:absolute;top:-60px;right:-60px;width:200px;height:200px;
-  border-radius:50%;background:rgba(255,255,255,.07);z-index:0}
-.login-bg-circle2{position:absolute;top:60px;left:-80px;width:240px;height:240px;
-  border-radius:50%;background:rgba(255,255,255,.05);z-index:0}
+    /* background dekoratif */
+    .login-bg-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 52%;
+      background: linear-gradient(160deg, #B85510 0%, #E07020 60%, #F0A040 100%);
+      border-radius: 0 0 50% 50% / 0 0 40% 40%;
+      z-index: 0;
+    }
 
-/* Kartu login */
-.login-card{background:white;border-radius:28px;padding:0 0 28px;width:100%;
-  max-width:360px;box-shadow:var(--shadow-lg);position:relative;z-index:1;
-  animation:slideUp .5s cubic-bezier(.34,1.2,.64,1);overflow:hidden}
-@keyframes slideUp{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .login-bg-circle1 {
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      z-index: 0;
+    }
 
-/* Header kartu */
-.login-header-card{background:linear-gradient(135deg,#B85510,#E07020,#F0A040);
-  padding:28px 24px 20px;text-align:center;position:relative}
-.login-header-card::after{content:'';position:absolute;bottom:-16px;left:50%;
-  transform:translateX(-50%);width:0;height:0;
-  border-left:20px solid transparent;border-right:20px solid transparent;
-  border-top:16px solid #E07020}
+    .login-bg-circle2 {
+      position: absolute;
+      top: 60px; left: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      z-index: 0;
+    }
 
-/* Logo */
-.logo-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
-.logo-img-wrap{width:80px;height:80px;border-radius:20px;
-  background:linear-gradient(135deg,#fff5e0,#ffb347,#E07020,#1A3A5C);
-  padding:3px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:inline-block}
-.logo-img-inner{width:100%;height:100%;border-radius:17px;overflow:hidden;
-  background:white;display:flex;align-items:center;justify-content:center;padding:5px}
-.logo-img{width:100%;height:100%;object-fit:contain;display:block}
-.logo-nama{font-size:17px;font-weight:800;color:white;line-height:1.2;letter-spacing:-.3px}
-.logo-sub{font-size:11px;color:rgba(255,255,255,.8);font-weight:500;letter-spacing:.5px}
+    .login-card {
+      background: white;
+      border-radius: 28px;
+      padding: 0 0 28px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.5s cubic-bezier(0.34,1.20,0.64,1);
+      overflow: hidden;
+    }
 
-/* Body login */
-.login-body{padding:36px 24px 0}
-.login-label{font-size:12px;font-weight:700;color:var(--abu);text-transform:uppercase;
-  letter-spacing:.5px;text-align:center;margin-bottom:16px}
+    .roster-hari-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.15s; }
+    .roster-hari-btn.aktif { background:var(--oranye); border-color:var(--oranye-gelap); color:white; }
+    .roster-hari-card { background:white; border-radius:var(--radius); border:1.5px solid var(--border); padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+    .roster-hari-label { font-size:12px; font-weight:800; color:var(--oranye-gelap); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--oranye-terang); display:flex; align-items:center; justify-content:space-between; }
+    .roster-hari-count { font-size:10px; font-weight:600; background:var(--oranye-terang); color:var(--oranye-gelap); padding:2px 8px; border-radius:10px; }
+    .roster-sesi-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:0.5px solid var(--border); }
+    .roster-sesi-item:last-child { border-bottom:none; }
+    .roster-jam-col { text-align:center; flex-shrink:0; min-width:44px; }
+    .roster-jam-num { font-size:16px; font-weight:800; color:var(--biru-tua); font-family:'DM Mono',monospace; line-height:1; }
+    .roster-jam-time { font-size:9px; color:var(--abu); margin-top:2px; font-family:'DM Mono',monospace; }
+    .roster-mapel-col { flex:1; }
+    .roster-mapel-nama { font-size:13px; font-weight:700; color:var(--teks); }
+    .roster-kelas-nama { font-size:11px; color:var(--teks-muted); margin-top:2px; }
+    .roster-durasi-badge { font-size:10px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; flex-shrink:0; }
+    .roster-jeda-row { display:flex; align-items:center; gap:8px; padding:6px 0; }
+    .roster-jeda-line { flex:1; height:1px; background:var(--border); }
+    .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
+    .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+    .kls-hadir-item { display:flex; align-items:center; gap:10px; padding:8px 12px; background:white; border-radius:var(--radius-sm); border:1px solid var(--border); }
+    .kls-hadir-nama { font-size:12px; font-weight:700; color:var(--teks); min-width:48px; }
+    .kls-hadir-pb { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .kls-hadir-pbf { height:100%; border-radius:3px; transition:width 0.5s; }
+    .kls-hadir-angka { font-size:11px; font-weight:700; font-family:"DM Mono",monospace; min-width:50px; text-align:right; }
+    .kls-bolos-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; flex-shrink:0; }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(32px) scale(0.97); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
 
-/* PIN */
-.pin-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
-.pin-kotak{width:56px;height:64px;border:2px solid var(--border);border-radius:14px;
-  font-size:28px;font-weight:700;font-family:'DM Mono',monospace;text-align:center;
-  line-height:64px;color:var(--oranye-gelap);background:var(--abu-bg);
-  transition:border-color .2s,background .2s,box-shadow .2s;user-select:none}
-.pin-kotak.isi{border-color:var(--oranye);background:var(--oranye-terang);
-  box-shadow:0 0 0 3px rgba(224,112,32,.15)}
+    /* header kartu login */
+    .login-header-card {
+      background: linear-gradient(135deg, #B85510, #E07020, #F0A040);
+      padding: 28px 24px 20px;
+      text-align: center;
+      position: relative;
+    }
 
-/* Numpad */
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.numpad-btn{height:54px;border:1.5px solid var(--border);border-radius:12px;background:white;
-  font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--biru-tua);
-  cursor:pointer;transition:background .15s,transform .1s,border-color .15s;
-  display:flex;align-items:center;justify-content:center;touch-action:manipulation}
-.numpad-btn:hover{border-color:var(--oranye);background:var(--oranye-terang)}
-.numpad-btn:active{background:var(--oranye-terang);transform:scale(.94)}
-.numpad-btn.hapus{font-size:16px;color:var(--merah);border-color:#fddcdc}
-.numpad-btn.hapus:hover{background:#fff0f0;border-color:var(--merah)}
-.numpad-btn.kosong{visibility:hidden}
+    .login-header-card::after {
+      content: '';
+      position: absolute;
+      bottom: -16px; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 16px solid #E07020;
+    }
 
-/* Tombol masuk */
-.btn-login{width:100%;height:50px;background:linear-gradient(135deg,#B85510,#E07020);
-  color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;
-  font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;
-  transition:opacity .2s,transform .1s,box-shadow .2s;letter-spacing:.3px;
-  box-shadow:0 4px 14px rgba(224,112,32,.4)}
-.btn-login:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
-.btn-login:not(:disabled):hover{box-shadow:0 6px 20px rgba(224,112,32,.5)}
-.btn-login:not(:disabled):active{transform:scale(.98)}
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-.pesan-error{text-align:center;color:var(--merah);font-size:13px;margin-top:10px;
-  min-height:18px;font-weight:600}
-.footer-login{text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,.4);position:relative;z-index:1}
+    .logo-img-wrap {
+      width: 80px; height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #fff5e0, #ffe0b0, #ffb347, #e07020, #b85510, #2E7D32, #1A3A5C);
+      padding: 3px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      display: inline-block;
+    }
 
-/* ══════════════════════════════════════════
-   HALAMAN UTAMA
-══════════════════════════════════════════ */
-#hal-utama{display:none}
+    .logo-img-inner {
+      width: 100%; height: 100%;
+      border-radius: 17px;
+      overflow: hidden;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+    }
 
-/* Topbar */
-.topbar{background:linear-gradient(135deg,var(--biru-tua),#2563A8);color:white;
-  padding:10px 16px;display:flex;align-items:center;gap:10px;
-  position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-shrink:0}
-.topbar-kiri{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-.topbar-logo{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.15);
-  overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.topbar-logo img{width:100%;height:100%;object-fit:contain}
-.guru-nama{font-size:13px;font-weight:700;color:white;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:160px}
-.guru-kode{font-size:10px;color:rgba(255,255,255,.7);margin-top:1px}
-.topbar-kanan{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.status-info{display:flex;align-items:center;gap:4px}
-#status-dot{font-size:13px}
-#status-nilai{font-size:10px;color:rgba(255,255,255,.8);font-weight:600;
-  max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btn-keluar{padding:5px 12px;border:1.5px solid rgba(255,255,255,.4);border-radius:7px;
-  font-size:11px;font-weight:700;background:transparent;color:white;cursor:pointer;
-  font-family:inherit;transition:all .15s;flex-shrink:0}
-.btn-keluar:hover{background:rgba(255,255,255,.15)}
+    .logo-img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      border-radius: 0;
+      display: block;
+    }
 
-/* Tab bar */
-.tab-bar{display:flex;background:white;border-bottom:2px solid var(--border);
-  position:sticky;top:55px;z-index:40;box-shadow:0 2px 4px rgba(0,0,0,.04);flex-shrink:0}
-.tab-btn{flex:1;padding:12px 8px;font-size:12px;font-weight:600;border:none;
-  background:none;color:var(--abu);cursor:pointer;font-family:inherit;
-  border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tab-btn.aktif{color:var(--oranye);border-bottom-color:var(--oranye)}
+    .logo-nama {
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
 
-/* Tab konten */
-.tab-konten-wrap{flex:1;overflow-y:auto}
-.tab-konten{display:none;padding:14px;max-width:800px;margin:0 auto}
-.tab-konten.aktif{display:block}
+    .logo-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
 
-/* Kartu jadwal */
-.kartu{background:white;border-radius:var(--radius);border:1px solid var(--border);
-  padding:16px;box-shadow:var(--shadow-sm);margin-bottom:12px}
-.kartu-judul{font-size:13px;font-weight:800;color:var(--biru-tua);margin-bottom:12px}
+    .login-body { padding: 32px 24px 0; }
 
-/* ── KARTU JADWAL HARI INI ── */
-.jadwal-item {
-  display:flex;align-items:center;gap:12px;
-  background:white;border-radius:14px;
-  border:1.5px solid var(--border);
-  padding:14px;margin-bottom:10px;
-  cursor:pointer;
-  transition:border-color .2s,box-shadow .2s,background .2s;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-}
-.jadwal-item:active { transform:scale(.99); }
-.jadwal-item:hover  { border-color:var(--oranye);box-shadow:0 4px 16px rgba(224,112,32,.12); }
-.jadwal-item.sudah-isi {
-  border-color:#A5D6A7;background:linear-gradient(135deg,#F9FFF9,#F1F8E9);
-  cursor:default;
-}
-.jadwal-item.sudah-isi:hover { border-color:#A5D6A7;box-shadow:none; }
+    .login-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--teks-muted);
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
 
-/* Kolom jam */
-.jam-badge {
-  width:48px;flex-shrink:0;text-align:center;
-  background:var(--biru-tua);border-radius:10px;
-  padding:8px 4px;
-}
-.jam-label  { font-size:8px;font-weight:700;color:rgba(255,255,255,.55);
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px; }
-.jam-angka  { font-size:18px;font-weight:800;color:white;
-  font-family:'DM Mono',monospace;line-height:1; }
+    /* PIN */
+    .pin-wrap {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
 
-/* Info tengah */
-.jadwal-tengah { flex:1;min-width:0; }
-.jadwal-mapel  { font-size:14px;font-weight:800;color:var(--teks);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px; }
-.jadwal-kelas  { font-size:11px;color:var(--teks-muted);
-  display:flex;align-items:center;gap:5px;flex-wrap:wrap; }
-.jadwal-kelas-badge { background:var(--biru-muda);color:var(--biru-tua);
-  font-weight:700;padding:1px 7px;border-radius:6px;font-size:10px; }
+    .pin-kotak {
+      width: 58px; height: 66px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      font-size: 26px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      text-align: center;
+      color: var(--oranye-gelap);
+      background: var(--abu-bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      pointer-events: none;
+    }
 
-/* Badge status */
-.jadwal-badge {
-  flex-shrink:0;font-size:11px;font-weight:700;
-  padding:4px 10px;border-radius:20px;white-space:nowrap;
-}
-.jadwal-badge.sudah { background:var(--hijau-muda);color:var(--hijau); }
-.jadwal-badge.belum {
-  background:var(--oranye-terang);color:var(--oranye-gelap);
-  border:1px solid #FFCC80;
-  animation:pulse-orange 2s ease-in-out infinite;
-}
-@keyframes pulse-orange {
-  0%,100% { box-shadow:0 0 0 0 rgba(224,112,32,.2); }
-  50%      { box-shadow:0 0 0 5px rgba(224,112,32,0); }
-}
+    .pin-kotak:focus { pointer-events: none; }
+    .pin-kotak.isi {
+      border-color: var(--oranye);
+      background: var(--oranye-terang);
+      box-shadow: 0 0 0 3px rgba(224,112,32,0.15);
+    }
 
-/* ── KARTU KEHADIRAN SISWA ── */
-.kartu-kehadiran{background:var(--biru-muda);border-radius:10px;padding:12px 14px;margin-bottom:12px}
-.kls-hadir-item{display:flex;align-items:center;gap:10px;padding:6px 0}
-.kls-hadir-nama{font-size:11px;font-weight:700;color:var(--biru-tua);min-width:42px}
-.kls-hadir-pb{flex:1;height:5px;background:white;border-radius:3px;overflow:hidden}
-.kls-hadir-pbf{height:100%;border-radius:3px;background:var(--oranye);transition:width .5s}
-.kls-hadir-angka{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;
-  color:var(--biru-tua);min-width:44px;text-align:right}
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
 
-/* Panel kehadiran kelas */
-.kartu-kehadiran{background:var(--biru-muda);border-radius:10px;padding:12px 14px;margin-bottom:12px}
-.kls-hadir-item{display:flex;align-items:center;gap:10px;padding:6px 0}
-.kls-hadir-nama{font-size:11px;font-weight:700;color:var(--biru-tua);min-width:42px}
-.kls-hadir-pb{flex:1;height:5px;background:white;border-radius:3px;overflow:hidden}
-.kls-hadir-pbf{height:100%;border-radius:3px;background:var(--oranye);transition:width .5s}
-.kls-hadir-angka{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;
-  color:var(--biru-tua);min-width:44px;text-align:right}
+    .numpad-btn {
+      height: 50px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: var(--biru-tua);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
 
-/* Form agenda */
-.form-card{background:white;border-radius:var(--radius);border:2px solid var(--oranye-terang);
-  padding:0;overflow:hidden;margin-bottom:12px}
-.form-aksen{height:4px;background:linear-gradient(90deg,#B85510,var(--oranye),#F0A040)}
-.form-body{padding:16px}
-.form-judul{display:flex;align-items:center;gap:8px;margin-bottom:14px;
-  padding-bottom:12px;border-bottom:1px solid var(--border)}
-.form-judul-ico{font-size:20px}
-.form-judul-teks{font-size:15px;font-weight:800;color:var(--biru-tua);flex:1}
-.form-grup{margin-bottom:12px}
-.form-label{display:block;font-size:10px;font-weight:800;color:var(--abu);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
-/* Input teks / textarea biasa */
-.form-input,.form-textarea{width:100%;padding:12px 14px;
-  border:1.5px solid var(--border);border-radius:12px;font-size:15px;
-  font-family:inherit;outline:none;background:white;color:var(--teks);
-  transition:border-color .2s;-webkit-appearance:none;appearance:none}
-.form-input:focus,.form-textarea:focus{border-color:var(--oranye);
-  box-shadow:0 0 0 3px rgba(224,112,32,.1)}
-.form-textarea{resize:vertical;min-height:72px;line-height:1.5}
-/* SELECT asli — sembunyikan, pakai custom picker */
-.form-select{display:none}
-/* Custom picker button — tampilan seperti input tapi ada chevron */
-.picker-btn{
-  width:100%;padding:12px 14px;
-  border:1.5px solid var(--border);border-radius:12px;
-  font-size:15px;font-family:inherit;font-weight:600;
-  background:white;color:var(--teks);
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  cursor:pointer;text-align:left;touch-action:manipulation;
-  transition:border-color .2s,box-shadow .2s;
-  -webkit-appearance:none;appearance:none
-}
-.picker-btn:active{border-color:var(--oranye);background:var(--oranye-terang)}
-.picker-btn.aktif{border-color:var(--oranye);box-shadow:0 0 0 3px rgba(224,112,32,.1)}
-.picker-btn .pb-teks{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.picker-btn .pb-teks.placeholder{color:var(--abu-bg,#ccc);font-weight:400}
-.picker-btn .pb-teks.placeholder{color:#AAAAAA}
-.picker-btn .pb-arr{font-size:12px;color:var(--abu);flex-shrink:0;transition:transform .2s}
-.picker-btn.open .pb-arr{transform:rotate(180deg)}
-/* Badge status materi */
-.badge-materi{display:inline-block;font-size:10px;font-weight:700;
-  padding:2px 8px;border-radius:8px;margin-left:6px;vertical-align:middle}
-.badge-baru{background:#E3EEF8;color:var(--biru-tua)}
-.badge-sdh{background:var(--hijau-muda);color:var(--hijau)}
-/* Hadir counter row */
-.hadir-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.hadir-inp-wrap{display:flex;flex-direction:column;gap:4px}
-.hadir-lbl{font-size:10px;font-weight:700;color:var(--abu);text-align:center;text-transform:uppercase;letter-spacing:.3px}
-.hadir-inp{width:100%;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;
-  font-size:18px;font-weight:800;font-family:'DM Mono',monospace;text-align:center;
-  outline:none;background:white;color:var(--teks);-webkit-appearance:none;
-  transition:border-color .2s}
-.hadir-inp:focus{border-color:var(--oranye)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .numpad-btn:hover { border-color: var(--oranye); background: var(--oranye-terang); }
+    .numpad-btn:active { background: var(--oranye-terang); transform: scale(0.94); }
+    .numpad-btn.hapus { font-size: 15px; color: var(--merah); border-color: #fddcdc; }
+    .numpad-btn.hapus:hover { background: #fff0f0; border-color: var(--merah); }
+    .numpad-btn.kosong { visibility: hidden; }
 
-/* ── BOTTOM SHEET PICKER ── */
-.picker-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0);
-  z-index:1000;transition:background .25s;
-  pointer-events:none;display:flex;align-items:flex-end
-}
-.picker-overlay.show{background:rgba(0,0,0,.45);pointer-events:auto}
-.picker-sheet{
-  width:100%;background:white;border-radius:20px 20px 0 0;
-  padding:0 0 env(safe-area-inset-bottom,0);
-  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
-  max-height:70vh;display:flex;flex-direction:column;overflow:hidden
-}
-.picker-overlay.show .picker-sheet{transform:translateY(0)}
-.picker-handle{width:36px;height:4px;background:#E0E0E0;border-radius:2px;
-  margin:10px auto 0}
-.picker-hdr{padding:12px 16px;border-bottom:1px solid #F0F0F0;
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.picker-title{font-size:14px;font-weight:800;color:var(--biru-tua)}
-.picker-close{padding:4px 12px;border:1px solid var(--border);border-radius:8px;
-  font-size:12px;font-weight:600;color:var(--abu);background:white;
-  cursor:pointer;font-family:inherit;touch-action:manipulation}
-.picker-search{padding:10px 12px;border-bottom:1px solid #F0F0F0;flex-shrink:0}
-.picker-search input{width:100%;padding:9px 12px;border:1.5px solid var(--border);
-  border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:#F8F9FA}
-.picker-search input:focus{border-color:var(--oranye)}
-.picker-list{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-.picker-item{padding:14px 16px;border-bottom:.5px solid #F5F5F5;
-  display:flex;align-items:center;gap:12px;cursor:pointer;
-  touch-action:manipulation;transition:background .1s}
-.picker-item:active,.picker-item:hover{background:#FFF8F0}
-.picker-item.selected{background:var(--oranye-terang)}
-.picker-item .pi-no{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;
-  color:var(--oranye-gelap);background:var(--oranye-terang);
-  padding:2px 7px;border-radius:6px;flex-shrink:0;min-width:36px;text-align:center}
-.picker-item .pi-nama{flex:1;font-size:14px;font-weight:600;color:var(--teks);line-height:1.3}
-.picker-item .pi-badge{font-size:10px;font-weight:700;padding:2px 7px;
-  border-radius:6px;flex-shrink:0}
-.picker-item.done .pi-nama{color:var(--hijau)}
-.picker-item.done .pi-badge{background:var(--hijau-muda);color:var(--hijau)}
-.picker-item:not(.done) .pi-badge{background:#F0F0F0;color:#999}
-.picker-empty{padding:32px;text-align:center;color:var(--abu);font-size:13px}
-/* Chip materi status */
-.materi-chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.mc{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;
-  touch-action:manipulation;border:1.5px solid transparent;transition:all .15s;
-  display:flex;align-items:center;gap:4px}
-.mc.done{background:var(--hijau-muda);color:var(--hijau);border-color:#C8E6C9}
-.mc.todo{background:#F5F5F5;color:#999;border-color:#E0E0E0}
-.mc.active{border-color:var(--oranye)!important;box-shadow:0 0 0 2px rgba(224,112,32,.2)}
-.btn-simpan{width:100%;height:50px;background:linear-gradient(135deg,#B85510,var(--oranye));
-  color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;
-  font-family:inherit;cursor:pointer;margin-top:4px;margin-bottom:8px;
-  box-shadow:0 4px 14px rgba(224,112,32,.35);transition:all .2s;touch-action:manipulation}
-.btn-simpan:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
-.btn-simpan:not(:disabled):active{transform:scale(.98)}
-.btn-batal{width:100%;height:40px;background:var(--abu-bg);color:var(--abu);
-  border:1.5px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;
-  font-family:inherit;cursor:pointer;touch-action:manipulation}
+    .btn-login {
+      width: 100%;
+      height: 50px;
+      background: linear-gradient(135deg, #B85510, #E07020);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 14px rgba(224,112,32,0.4);
+    }
 
-/* Panel verifikasi */
-.verif-panel{background:#F8F9FA;border-radius:12px;border:1.5px solid var(--border);
-  padding:14px;margin-bottom:14px}
-.verif-title{font-size:13px;font-weight:800;color:var(--biru-tua);margin-bottom:4px}
-.verif-info{font-size:11px;color:var(--abu);margin-bottom:12px;line-height:1.5}
-.verif-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:9px;border:1.5px solid var(--border);margin-bottom:8px;
-  background:white;transition:border-color .2s,background .2s}
-.verif-item.ok{border-color:#4CAF50;background:#F1F8E9}
-.verif-item.fail{border-color:#EF5350;background:#FFEBEE}
-.verif-ikon{font-size:22px;flex-shrink:0}
-.verif-detail{flex:1;min-width:0}
-.verif-label{font-size:12px;font-weight:700;color:var(--teks)}
-.verif-sub{font-size:11px;color:var(--abu);margin-top:2px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.verif-btn{font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;
-  border:1.5px solid var(--oranye);color:var(--oranye);background:white;
-  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;
-  touch-action:manipulation;transition:all .15s}
-.verif-btn:hover,.verif-btn:active{background:var(--oranye);color:white}
-.verif-btn.done{border-color:#4CAF50;color:#4CAF50}
-.verif-btn.fail{border-color:#EF5350;color:#EF5350}
+    .btn-login:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .btn-login:not(:disabled):hover { box-shadow: 0 6px 20px rgba(224,112,32,0.5); }
+    .btn-login:not(:disabled):active { transform: scale(0.98); }
 
-/* Materi chips */
-.materi-chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;
-  font-weight:600;padding:3px 9px;border-radius:8px;margin:2px}
-.materi-chip-done{background:var(--hijau-muda);color:var(--hijau)}
-.materi-chip-todo{background:#F5F5F5;color:var(--abu);border:1px solid var(--border)}
+    .pesan-error {
+      text-align: center;
+      color: var(--merah);
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 18px;
+      font-weight: 600;
+    }
 
-/* Info presensi */
-.info-presensi{background:var(--hijau-muda);border-radius:8px;padding:8px 12px;
-  font-size:12px;color:var(--hijau);margin-bottom:12px;display:none}
+    .footer-login {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      position: relative; z-index: 1;
+    }
 
-/* Roster */
-.roster-hari-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;
-  font-size:12px;font-weight:600;cursor:pointer;background:white;color:var(--teks-muted);
-  font-family:inherit;transition:all .15s;touch-action:manipulation}
-.roster-hari-btn.aktif{background:var(--oranye);border-color:var(--oranye-gelap);color:white}
-.roster-hari-card{background:white;border-radius:var(--radius);border:1.5px solid var(--border);
-  padding:14px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
-.roster-hari-label{font-size:12px;font-weight:800;color:var(--oranye-gelap);letter-spacing:.5px;
-  text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;
-  border-bottom:2px solid var(--oranye-terang);display:flex;align-items:center;justify-content:space-between}
-.roster-hari-count{font-size:10px;font-weight:600;background:var(--oranye-terang);
-  color:var(--oranye-gelap);padding:2px 8px;border-radius:10px}
-.roster-sesi-item{display:flex;align-items:center;gap:10px;padding:8px 0;
-  border-bottom:.5px solid var(--border)}
-.roster-sesi-item:last-child{border-bottom:none}
-.roster-jam-col{text-align:center;flex-shrink:0;min-width:40px}
-.roster-jam-num{font-size:15px;font-weight:800;color:var(--biru-tua);font-family:'DM Mono',monospace}
-.roster-jam-time{font-size:9px;color:var(--abu);margin-top:2px;font-family:'DM Mono',monospace}
-.roster-mapel-col{flex:1;min-width:0}
-.roster-mapel-nama{font-size:13px;font-weight:700;color:var(--teks);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.roster-kelas-nama{font-size:11px;color:var(--teks-muted);margin-top:2px}
-.roster-durasi-badge{font-size:10px;font-weight:700;background:var(--biru-muda);
-  color:var(--biru-tua);padding:2px 8px;border-radius:10px;flex-shrink:0}
-.roster-jeda-row{display:flex;align-items:center;gap:8px;padding:5px 0}
-.roster-jeda-line{flex:1;height:1px;background:var(--border)}
-.roster-jeda-txt{font-size:10px;color:var(--abu);font-weight:500;white-space:nowrap}
+    /* ══════════════════════════════
+       HALAMAN UTAMA
+    ══════════════════════════════ */
+    #hal-utama { display: none; min-height: 100vh; }
 
-/* Riwayat */
-.riwayat-item{border-left:3px solid var(--oranye-terang);padding:10px 12px;
-  margin-bottom:8px;background:white;border-radius:0 8px 8px 0}
-.riwayat-tgl{font-size:11px;font-weight:700;color:var(--abu);margin-bottom:4px}
-.riwayat-mapel{font-size:13px;font-weight:700;color:var(--teks)}
-.riwayat-materi{font-size:12px;color:var(--teks-muted)}
-.riwayat-kelas{display:inline-block;font-size:10px;font-weight:700;
-  background:var(--oranye-terang);color:var(--oranye-gelap);
-  border:1px solid #F0C090;padding:2px 8px;border-radius:20px;margin-bottom:4px}
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #B85510 0%, #E07020 55%, #F0A040 100%);
+      padding: 0 0 56px;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* Empty state */
-.empty-state{text-align:center;padding:40px 20px;color:var(--abu)}
-.empty-state .ikon{font-size:44px;margin-bottom:12px}
-.empty-state p{font-size:13px;line-height:1.6}
+    .header-wave {
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 40px;
+      background: var(--abu-bg);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
 
-/* Loading inline */
-.loading-inline{text-align:center;padding:32px;color:var(--abu);font-size:13px}
+    /* dekorasi header */
+    .header-deko {
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
 
-/* Chip sisa jam */
-#chip-sisa-jam{display:none;background:var(--oranye-terang);border-radius:8px;
-  padding:8px 12px;margin-bottom:10px;font-size:12px;font-weight:600;color:var(--oranye-gelap)}
+    .header-deko2 {
+      position: absolute;
+      bottom: 20px; left: -40px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
 
-/* ══════════════════════════════════════════
-   RESPONSIVE MOBILE
-══════════════════════════════════════════ */
-@media (max-width:600px) {
-  /* LOGIN */
-  #hal-login{padding:16px 12px}
-  .login-card{max-width:100%;border-radius:20px}
-  .login-header-card{padding:20px 16px 16px}
-  .logo-img-wrap{width:64px;height:64px}
-  .logo-nama{font-size:15px}
-  .login-body{padding:28px 16px 0}
-  .pin-kotak{width:52px;height:60px;font-size:24px;line-height:60px}
-  .numpad{gap:7px}
-  .numpad-btn{height:52px;font-size:22px;border-radius:10px}
-  .btn-login{height:48px;font-size:14px}
+    .header-inner {
+      position: relative; z-index: 1;
+      padding: 16px 20px 20px;
+    }
 
-  /* TOPBAR */
-  .guru-nama{max-width:120px;font-size:12px}
-  #status-nilai{display:none}
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
 
-  /* FORM */
-  .form-row{grid-template-columns:1fr}
-  .form-input,.form-select,.form-textarea{font-size:16px} /* prevent iOS zoom */
-  .form-body{padding:12px}
+    .header-kiri { display: flex; align-items: center; gap: 12px; }
 
-  /* TAB */
-  .tab-btn{font-size:11px;padding:10px 4px}
-  
-}
+    .header-logo-wrap {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fff5e0, #ffb347, #e07020, #2E7D32, #1A3A5C);
+      padding: 2.5px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
 
-@media (max-width:380px) {
-  .pin-kotak{width:46px;height:56px;font-size:22px;line-height:56px}
-  .numpad-btn{height:48px;font-size:20px}
-  .guru-nama{max-width:90px}
-}
-</style>
+    .header-logo {
+      width: 100%; height: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .header-teks {}
+    .header-judul { font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 500; }
+    .header-nama { font-size: 17px; color: white; font-weight: 800; letter-spacing: -0.3px; }
+
+    .btn-keluar {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .btn-keluar:hover { background: rgba(255,255,255,0.28); }
+
+    .tanggal-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* KONTEN */
+    .konten {
+      padding: 20px 16px 40px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* STATUS HARI INI */
+    .status-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-dot {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 22px;
+    }
+
+    .status-dot.belum { background: var(--oranye-terang); }
+    .status-dot.sudah { background: var(--hijau-muda); }
+
+    .status-info { flex: 1; }
+    .status-label { font-size: 11px; color: var(--abu); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+    .status-nilai { font-size: 14px; font-weight: 700; color: var(--teks); margin-top: 3px; line-height: 1.3; }
+
+    /* SECTION LABEL */
+    .sec-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--teks-muted);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      margin-top: 2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .sec-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* JADWAL CARD */
+    .jadwal-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .jadwal-item {
+      background: white;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .jadwal-item:hover {
+      border-color: var(--oranye);
+      box-shadow: 0 4px 16px rgba(224,112,32,0.15);
+      transform: translateY(-1px);
+    }
+
+    .jadwal-item.sudah-isi {
+      border-color: var(--hijau-terang);
+      background: var(--hijau-muda);
+      cursor: default;
+    }
+
+    .jadwal-item.sudah-isi:hover { transform: none; box-shadow: var(--shadow-sm); }
+
+    .jam-badge {
+      background: var(--oranye-terang);
+      border: 1px solid #F0C090;
+      border-radius: 10px;
+      padding: 6px 10px;
+      text-align: center;
+      min-width: 44px;
+      flex-shrink: 0;
+    }
+
+    .jam-badge .jam-label { font-size: 9px; color: var(--oranye-gelap); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .jam-badge .jam-angka { font-size: 18px; font-weight: 800; color: var(--oranye-gelap); font-family: 'DM Mono', monospace; line-height: 1; }
+
+    .sudah-isi .jam-badge { background: var(--hijau-muda); border-color: var(--hijau-terang); }
+    .sudah-isi .jam-badge .jam-label { color: var(--hijau); }
+    .sudah-isi .jam-badge .jam-angka { color: var(--hijau); }
+
+    .jadwal-tengah { flex: 1; min-width: 0; }
+    .jadwal-mapel { font-size: 14px; font-weight: 700; color: var(--teks); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .jadwal-kelas { font-size: 12px; color: var(--teks-muted); margin-top: 2px; }
+
+    .jadwal-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .jadwal-badge.sudah { background: var(--hijau-muda); color: var(--hijau); border: 1px solid var(--hijau-terang); }
+    .jadwal-badge.belum { background: var(--oranye-terang); color: var(--oranye-gelap); border: 1px solid #F0C090; }
+
+    /* FORM AGENDA */
+    .form-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.3s ease;
+    }
+
+    .form-judul {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--biru-tua);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-judul-ico {
+      width: 32px; height: 32px;
+      background: var(--oranye-terang);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .form-grup { margin-bottom: 13px; }
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--teks-muted);
+      margin-bottom: 6px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--teks);
+      background: var(--abu-bg);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      appearance: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--oranye);
+      box-shadow: 0 0 0 3px rgba(224,112,32,0.12);
+      background: white;
+    }
+
+    .form-textarea { resize: none; height: 80px; line-height: 1.5; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* KEHADIRAN */
+    .kehadiran-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+
+    .kehadiran-item {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      background: var(--abu-bg);
+    }
+
+    .kehadiran-item label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--abu);
+      display: block;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kehadiran-item input {
+      width: 100%;
+      text-align: center;
+      padding: 6px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 800;
+      font-family: 'DM Mono', monospace;
+      color: var(--teks);
+      background: white;
+      outline: none;
+    }
+
+    .kehadiran-item input:focus { border-color: var(--oranye); }
+
+    .kehadiran-item.hadir { border-color: #A5D6A7; background: #f0faf0; }
+    .kehadiran-item.hadir label { color: var(--hijau); }
+    .kehadiran-item.alfa { border-color: #FFCDD2; background: #fff5f5; }
+    .kehadiran-item.alfa label { color: var(--merah); }
+    .kehadiran-item.izin { border-color: #FFE0B2; background: #fffaf0; }
+    .kehadiran-item.izin label { color: #E65100; }
+    .kehadiran-item.sakit { border-color: #BBDEFB; background: #f0f7ff; }
+    .kehadiran-item.sakit label { color: #1565C0; }
+
+    /* TOMBOL */
+    .btn-simpan {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #B85510, #E07020);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(224,112,32,0.35);
+      letter-spacing: 0.2px;
+    }
+
+    .btn-simpan:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .btn-simpan:not(:disabled):hover { box-shadow: 0 6px 22px rgba(224,112,32,0.45); }
+    .btn-simpan:not(:disabled):active { transform: scale(0.98); }
+
+    .btn-batal {
+      width: 100%;
+      height: 44px;
+      background: transparent;
+      color: var(--teks-muted);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-batal:hover { background: var(--abu-bg); }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: white;
+      border-radius: 12px;
+      padding: 4px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 16px;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      background: transparent;
+      color: var(--abu);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tab-btn.aktif {
+      background: linear-gradient(135deg, #B85510, #E07020);
+      color: white;
+      box-shadow: 0 2px 8px rgba(224,112,32,0.3);
+    }
+
+    .tab-konten { display: none; }
+    .tab-konten.aktif { display: block; }
+
+    /* RIWAYAT */
+    .riwayat-item {
+      background: white;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .riwayat-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .riwayat-mapel { font-size: 13px; font-weight: 700; color: var(--biru-tua); }
+    .riwayat-tgl { font-size: 11px; color: var(--abu); font-family: 'DM Mono', monospace; }
+    .riwayat-materi { font-size: 12px; color: var(--teks-muted); margin-top: 2px; }
+    .riwayat-kelas {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      background: var(--oranye-terang);
+      color: var(--oranye-gelap);
+      border: 1px solid #F0C090;
+      padding: 2px 8px; border-radius: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 36px 16px; color: var(--abu);
+    }
+    .empty-state .ikon { font-size: 42px; margin-bottom: 12px; }
+    .empty-state p { font-size: 13px; line-height: 1.6; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--biru-tua);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+      transition: transform 0.4s cubic-bezier(0.34,1.4,0.64,1);
+      z-index: 9999;
+      white-space: nowrap;
+    }
+
+    .toast.tampil { transform: translateX(-50%) translateY(0); }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.80);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9998;
+      flex-direction: column; gap: 12px;
+    }
+
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--oranye);
+      border-radius: 50%;
+      animation: putar 0.75s linear infinite;
+    }
+
+    .loading-teks { font-size: 13px; font-weight: 600; color: var(--teks-muted); }
+
+    @keyframes putar { to { transform: rotate(360deg); } }
+
+    /* garis aksen bawah header form */
+    .form-aksen {
+      height: 3px;
+      background: linear-gradient(90deg, var(--oranye), var(--oranye-mid), var(--hijau));
+      border-radius: 2px;
+      margin-bottom: 16px;
+    }
+
+    .roster-hari-btn { padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; background:white; color:var(--teks-muted); font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.15s; }
+    .roster-hari-btn.aktif { background:var(--oranye); border-color:var(--oranye-gelap); color:white; }
+    .roster-hari-card { background:white; border-radius:var(--radius); border:1.5px solid var(--border); padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+    .roster-hari-label { font-size:12px; font-weight:800; color:var(--oranye-gelap); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--oranye-terang); display:flex; align-items:center; justify-content:space-between; }
+    .roster-hari-count { font-size:10px; font-weight:600; background:var(--oranye-terang); color:var(--oranye-gelap); padding:2px 8px; border-radius:10px; }
+    .roster-sesi-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:0.5px solid var(--border); }
+    .roster-sesi-item:last-child { border-bottom:none; }
+    .roster-jam-col { text-align:center; flex-shrink:0; min-width:44px; }
+    .roster-jam-num { font-size:16px; font-weight:800; color:var(--biru-tua); font-family:'DM Mono',monospace; line-height:1; }
+    .roster-jam-time { font-size:9px; color:var(--abu); margin-top:2px; font-family:'DM Mono',monospace; }
+    .roster-mapel-col { flex:1; }
+    .roster-mapel-nama { font-size:13px; font-weight:700; color:var(--teks); }
+    .roster-kelas-nama { font-size:11px; color:var(--teks-muted); margin-top:2px; }
+    .roster-durasi-badge { font-size:10px; font-weight:700; background:var(--biru-muda); color:var(--biru-tua); padding:2px 8px; border-radius:10px; flex-shrink:0; }
+    .roster-jeda-row { display:flex; align-items:center; gap:8px; padding:6px 0; }
+    .roster-jeda-line { flex:1; height:1px; background:var(--border); }
+    .roster-jeda-txt { font-size:10px; color:var(--abu); font-weight:500; white-space:nowrap; }
+    .roster-total-jp { font-size:11px; font-weight:600; color:var(--hijau); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+    .kls-hadir-item { display:flex; align-items:center; gap:10px; padding:8px 12px; background:white; border-radius:var(--radius-sm); border:1px solid var(--border); }
+    .kls-hadir-nama { font-size:12px; font-weight:700; color:var(--teks); min-width:48px; }
+    .kls-hadir-pb { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .kls-hadir-pbf { height:100%; border-radius:3px; transition:width 0.5s; }
+    .kls-hadir-angka { font-size:11px; font-weight:700; font-family:"DM Mono",monospace; min-width:50px; text-align:right; }
+    .kls-bolos-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; flex-shrink:0; }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateX(-50%) translateY(20px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    @media (max-width: 360px) {
+      .pin-kotak { width: 52px; height: 60px; font-size: 22px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    /* DROPDOWN MATERI */
+    .materi-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+      padding:3px 10px; border-radius:10px; }
+    .materi-chip-done { background:#E8F5E9; color:#2E7D32; }
+    .materi-chip-todo { background:#F5F5F5; color:#78909C; border:1px solid #E0E0E0; }
+    .materi-chip-current { background:var(--oranye-terang); color:var(--oranye-gelap); border:1px solid #FFCC80; }
+
+    /* PANEL VERIFIKASI */
+    .verif-panel { background:#F8F9FA; border-radius:12px; border:1.5px solid var(--border);
+      padding:14px 16px; margin-bottom:14px; }
+    .verif-title { font-size:13px; font-weight:800; color:var(--biru-tua); margin-bottom:4px; }
+    .verif-info { font-size:11px; color:var(--abu); margin-bottom:12px; line-height:1.5; }
+    .verif-item { display:flex; align-items:center; gap:10px; padding:10px 12px;
+      border-radius:9px; border:1.5px solid var(--border); margin-bottom:8px;
+      background:white; transition:border-color .2s, background .2s; }
+    .verif-item.ok { border-color:#4CAF50; background:#F1F8E9; }
+    .verif-item.fail { border-color:#EF5350; background:#FFEBEE; }
+    .verif-ikon { font-size:22px; flex-shrink:0; }
+    .verif-detail { flex:1 }
+    .verif-label { font-size:12px; font-weight:700; color:var(--teks); }
+    .verif-sub { font-size:11px; color:var(--abu); margin-top:1px; }
+    .verif-btn { font-size:11px; font-weight:700; padding:5px 12px; border-radius:8px;
+      border:1.5px solid var(--oranye); color:var(--oranye); background:white;
+      cursor:pointer; font-family:inherit; white-space:nowrap; transition:all .15s; }
+    .verif-btn:hover { background:var(--oranye); color:white; }
+    .verif-btn.done { border-color:#4CAF50; color:#4CAF50; }
+    .verif-btn.done:hover { background:#4CAF50; color:white; }
+    .verif-btn.fail { border-color:#EF5350; color:#EF5350; }
+
+    /* ── CUSTOM PICKER BUTTON ── */
+    .form-select { display: none; }
+    .picker-btn {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 15px; font-family: inherit; font-weight: 600;
+      background: white; color: var(--teks);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      cursor: pointer; text-align: left; touch-action: manipulation;
+      transition: border-color .2s; -webkit-appearance: none;
+    }
+    .picker-btn:active { border-color: var(--oranye); background: var(--oranye-terang); }
+    .picker-btn.aktif  { border-color: var(--oranye); box-shadow: 0 0 0 3px rgba(224,112,32,.1); }
+    .picker-btn .pb-teks { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-btn .pb-teks.placeholder { color: #AAAAAA; font-weight: 400; }
+    .picker-btn .pb-arr { font-size: 12px; color: var(--abu); flex-shrink: 0; }
+
+    /* ── CHIP SELECTOR ── */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .mc {
+      font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
+      cursor: pointer; touch-action: manipulation; border: 1.5px solid #E0E0E0;
+      background: white; color: #78909C; transition: all .15s; user-select: none;
+    }
+    .mc:active { transform: scale(.96); }
+    .mc.aktif { background: var(--oranye); border-color: var(--oranye-gelap); color: white; }
+
+    /* ── KEHADIRAN COUNTER ── */
+    .hadir-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+    .hadir-inp-wrap { display: flex; flex-direction: column; gap: 4px; text-align: center; }
+    .hadir-lbl { font-size: 10px; font-weight: 700; color: var(--abu); text-transform: uppercase; }
+    .hadir-inp {
+      width: 100%; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 20px; font-weight: 800; font-family: 'DM Mono', monospace; text-align: center;
+      outline: none; -webkit-appearance: none;
+    }
+    .hadir-inp:focus { border-color: var(--oranye); }
+
+    /* ── BOTTOM SHEET PICKER ── */
+    .picker-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0);
+      z-index: 2000; transition: background .25s;
+      pointer-events: none; display: flex; align-items: flex-end;
+    }
+    .picker-overlay.show { background: rgba(0,0,0,.5); pointer-events: auto; }
+    .picker-sheet {
+      width: 100%; background: white; border-radius: 20px 20px 0 0;
+      transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+      max-height: 72vh; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .picker-overlay.show .picker-sheet { transform: translateY(0); }
+    .picker-handle {
+      width: 36px; height: 4px; background: #E0E0E0; border-radius: 2px;
+      margin: 10px auto 0; flex-shrink: 0;
+    }
+    .picker-hdr {
+      padding: 10px 16px 12px; border-bottom: 1px solid #F0F0F0;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .picker-title { font-size: 14px; font-weight: 800; color: var(--biru-tua); }
+    .picker-close {
+      padding: 4px 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-size: 12px; font-weight: 600; color: #78909C; background: white;
+      cursor: pointer; font-family: inherit;
+    }
+    .picker-search { padding: 10px 12px; border-bottom: 1px solid #F0F0F0; flex-shrink: 0; }
+    .picker-search input {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 16px; font-family: inherit; outline: none;
+    }
+    .picker-search input:focus { border-color: var(--oranye); }
+    .picker-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .picker-item {
+      padding: 14px 16px; border-bottom: .5px solid #F5F5F5;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; touch-action: manipulation;
+    }
+    .picker-item:active { background: #FFF8F0; }
+    .picker-item.selected { background: var(--oranye-terang); }
+    .pi-no {
+      font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700;
+      color: var(--oranye-gelap); background: var(--oranye-terang);
+      padding: 2px 7px; border-radius: 6px; flex-shrink: 0; min-width: 32px; text-align: center;
+    }
+    .pi-nama { flex: 1; font-size: 14px; font-weight: 600; color: var(--teks); line-height: 1.3; }
+    .pi-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
+    }
+    .picker-item.done .pi-nama { color: #2E7D32; }
+    .picker-item.done .pi-badge { background: #E8F5E9; color: #2E7D32; }
+    .picker-item:not(.done) .pi-badge { background: #F0F0F0; color: #9E9E9E; }
+    .picker-empty { padding: 32px; text-align: center; color: #78909C; font-size: 13px; }
+
+    /* Mobile responsive tambahan */
+    @media (max-width: 600px) {
+      .form-input, .form-textarea, .picker-btn { font-size: 16px !important; }
+      .hadir-inp { font-size: 18px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loading-overlay">
-  <div id="loading"></div>
-  <div class="spinner"></div>
-  <div style="font-size:13px;font-weight:600;color:var(--biru-tua)">Memuat...</div>
-</div>
-<div class="toast" id="toast"></div>
-
+<!-- ══ LOGIN ══ -->
 <div id="hal-login">
-
-  <!-- Dekorasi background -->
   <div class="login-bg-top"></div>
   <div class="login-bg-circle1"></div>
   <div class="login-bg-circle2"></div>
 
   <div class="login-card">
-
-    <!-- Header kartu dengan logo -->
     <div class="login-header-card">
       <div class="logo-wrap">
         <div class="logo-img-wrap">
           <div class="logo-img-inner">
-            <img src="../shared/logo.jpg" alt="Logo SMAN 5" class="logo-img"
-              onerror="this.style.display='none'">
+            <img class="logo-img" src="../shared/logo.jpg" alt="Logo SMAN 5 Sarolangun" onerror="this.style.display='none'">
           </div>
         </div>
-        <div class="logo-nama">SMAN 5 Sarolangun</div>
-        <div class="logo-sub">Sistem Informasi Akademik</div>
+        <div>
+          <div class="logo-nama">SMAN 5 Sarolangun</div>
+          <div class="logo-sub">Kreatif &amp; Berkarakter</div>
+        </div>
       </div>
     </div>
 
-    <!-- Body login -->
     <div class="login-body">
-      <div class="login-label">Portal Guru — Masukkan PIN 4 digit</div>
+      <div class="login-label">🔐 Masukkan PIN Guru</div>
 
-      <!-- PIN kotak -->
       <div class="pin-wrap">
         <div class="pin-kotak" id="p1"></div>
         <div class="pin-kotak" id="p2"></div>
@@ -517,123 +985,122 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
         <div class="pin-kotak" id="p4"></div>
       </div>
 
-      <!-- Numpad -->
       <div class="numpad">
-        <button class="numpad-btn" onclick="window.inputPin('1')">1</button>
-        <button class="numpad-btn" onclick="window.inputPin('2')">2</button>
-        <button class="numpad-btn" onclick="window.inputPin('3')">3</button>
-        <button class="numpad-btn" onclick="window.inputPin('4')">4</button>
-        <button class="numpad-btn" onclick="window.inputPin('5')">5</button>
-        <button class="numpad-btn" onclick="window.inputPin('6')">6</button>
-        <button class="numpad-btn" onclick="window.inputPin('7')">7</button>
-        <button class="numpad-btn" onclick="window.inputPin('8')">8</button>
-        <button class="numpad-btn" onclick="window.inputPin('9')">9</button>
-        <button class="numpad-btn hapus" onclick="window.hapusPin()">⌫</button>
-        <button class="numpad-btn" onclick="window.inputPin('0')">0</button>
+        <button class="numpad-btn" onclick="inputPin('1')">1</button>
+        <button class="numpad-btn" onclick="inputPin('2')">2</button>
+        <button class="numpad-btn" onclick="inputPin('3')">3</button>
+        <button class="numpad-btn" onclick="inputPin('4')">4</button>
+        <button class="numpad-btn" onclick="inputPin('5')">5</button>
+        <button class="numpad-btn" onclick="inputPin('6')">6</button>
+        <button class="numpad-btn" onclick="inputPin('7')">7</button>
+        <button class="numpad-btn" onclick="inputPin('8')">8</button>
+        <button class="numpad-btn" onclick="inputPin('9')">9</button>
         <button class="numpad-btn kosong"></button>
+        <button class="numpad-btn" onclick="inputPin('0')">0</button>
+        <button class="numpad-btn hapus" onclick="hapusPin()">⌫</button>
       </div>
 
-      <!-- Tombol masuk -->
-      <button class="btn-login" id="btn-login" onclick="window.prosesLogin()" disabled>
-        Masuk →
-      </button>
-
+      <button class="btn-login" id="btn-login" disabled onclick="prosesLogin()">Masuk →</button>
       <div class="pesan-error" id="pesan-error"></div>
     </div>
-
   </div>
 
-  <div class="footer-login">CMA v3 · SMAN 5 Sarolangun</div>
+  <div class="footer-login">Egenda Kelas · SMAN 5 Sarolangun © 2025</div>
 </div>
 
-<!-- HALAMAN UTAMA -->
-<div id="hal-utama" style="display:none">
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-kiri">
-      <div style="width:34px;height:34px;border-radius:8px;background:var(--oranye-terang);overflow:hidden;display:flex;align-items:center;justify-content:center">
-        <img src="../shared/logo.jpg" alt="Logo" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display='none'">
+<!-- ══ HALAMAN UTAMA ══ -->
+<div id="hal-utama">
+  <div class="header">
+    <div class="header-deko"></div>
+    <div class="header-deko2"></div>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="header-kiri">
+          <div class="header-logo-wrap">
+            <img class="header-logo" src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+          </div>
+          <div class="header-teks">
+            <div class="header-judul">Selamat datang,</div>
+            <div class="header-nama" id="nama-guru">—</div>
+          </div>
+        </div>
+        <button class="btn-keluar" onclick="keluar()">Keluar</button>
       </div>
-      <div>
-        <div class="guru-nama" id="teks-guru">—</div>
-        <div class="guru-kode" id="teks-tanggal">—</div>
-      </div>
+      <div class="tanggal-chip">📅 <span id="teks-tanggal">—</span></div>
+      <div id="chip-sisa-jam" style="display:none;margin-top:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:12px;color:white;font-weight:500;"></div>
     </div>
-    <div class="topbar-kanan" style="display:flex;align-items:center;gap:10px">
-      <div style="display:flex;align-items:center;gap:6px">
-        <span id="status-dot" style="font-size:14px">📋</span>
-        <span id="status-nilai" style="font-size:11px;color:var(--teks-muted);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-      </div>
-      <button class="btn-keluar" onclick="window.keluar()">Keluar</button>
-    </div>
+    <div class="header-wave"></div>
   </div>
 
-  <!-- TAB BAR -->
-  <div class="tab-bar">
-    <button class="tab-btn aktif" id="tab-btn-hari" onclick="window.gantiTab('hari',this)">📋 Hari Ini</button>
-    <button class="tab-btn" id="tab-btn-roster" onclick="window.gantiTab('roster',this)">📅 Roster Saya</button>
-    <button class="tab-btn" id="tab-btn-riwayat" onclick="window.gantiTab('riwayat',this)">🕐 Riwayat</button>
-  </div>
+  <div class="konten">
 
-  <!-- KONTEN TABS -->
-  <div class="tab-konten-wrap">
+    <div class="status-card">
+      <div class="status-dot belum" id="status-dot">📋</div>
+      <div class="status-info">
+        <div class="status-label">Agenda hari ini</div>
+        <div class="status-nilai" id="status-nilai">Memuat...</div>
+      </div>
+    </div>
 
-    <!-- TAB HARI INI -->
-    <div class="tab-konten aktif" id="tab-hari">
-      <!-- Panel Kehadiran Siswa -->
-      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:12px">
-        <div class="kartu-kehadiran" id="kehadiran-wrap">
-          <div id="kehadiran-summary" style="font-size:11px;font-weight:700;color:var(--oranye-gelap);margin-bottom:6px"></div>
-          <div id="kehadiran-per-kelas"></div>
+    <div class="tabs">
+      <button class="tab-btn aktif" onclick="gantiTab('jadwal', this)">📚 Hari Ini</button>
+      <button class="tab-btn" onclick="gantiTab('roster', this)">🗓 Roster Saya</button>
+      <button class="tab-btn" onclick="gantiTab('riwayat', this)">🗂 Riwayat</button>
+    </div>
+
+    <!-- TAB JADWAL -->
+    <div class="tab-konten aktif" id="tab-jadwal">
+      <!-- KEHADIRAN SISWA PER KELAS -->
+      <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:14px;background:linear-gradient(135deg,rgba(26,58,92,0.08),rgba(224,112,32,0.06));border:1px solid rgba(26,58,92,0.12);border-radius:var(--radius);padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--biru-tua);display:flex;align-items:center;gap:6px;">
+            👥 Kehadiran Siswa Hari Ini
+          </div>
+          <div id="kehadiran-summary" style="font-size:11px;color:var(--teks-muted)">—</div>
+        </div>
+        <div id="kehadiran-per-kelas" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--teks-muted);padding-top:8px;border-top:1px solid rgba(26,58,92,0.1);">
+          ⚠ Siswa merah = tidak hadir saat presensi pagi — perlu dicek di kelas
         </div>
       </div>
-      <!-- Jadwal hari ini -->
-      <!-- Chip sisa jam -->
-      <div id="chip-sisa-jam" style="display:none;background:var(--oranye-terang);
-        border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:12px;
-        font-weight:600;color:var(--oranye-gelap)"></div>
-      <!-- Panel kehadiran kelas dari scan pagi -->
-      <div id="jadwal-container">
-        <div class="loading-inline">Memuat jadwal hari ini...</div>
+
+      <div class="sec-label">Pilih kelas untuk isi agenda</div>
+      <div class="jadwal-list" id="jadwal-list">
+        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat jadwal...</p></div>
       </div>
-      <!-- Form Agenda -->
+
       <div id="form-agenda" style="display:none;">
         <div class="form-card">
           <div class="form-aksen"></div>
-          <div class="form-body">
           <div class="form-judul">
             <div class="form-judul-ico">📝</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:15px;font-weight:800;color:var(--biru-tua)" id="form-judul-teks">Isi Agenda</div>
-              <div id="form-kelas-info" style="font-size:11px;color:var(--teks-muted);margin-top:1px"></div>
-            </div>
+            <span id="form-judul-teks">Isi Agenda</span>
           </div>
 
-          <!-- MATERI POKOK — custom picker -->
+          <!-- MATERI POKOK -->
           <div class="form-grup">
-            <label class="form-label">📖 Materi Pokok
-              <span id="materi-status" class="badge-materi" style="display:none"></span>
+            <label class="form-label">📖 Materi Pokok *
+              <span id="materi-status" style="font-size:10px;font-weight:600;padding:1px 8px;border-radius:8px;margin-left:6px"></span>
             </label>
-            <select class="form-select" id="inp-materi"></select>
+            <select class="form-select" id="inp-materi" onchange="onPilihMateriPokok()"></select>
             <button type="button" class="picker-btn" id="pb-materi" onclick="window.bukaPickerMateri()">
               <span class="pb-teks placeholder" id="pb-materi-teks">Pilih materi pokok...</span>
               <span class="pb-arr">▾</span>
             </button>
             <input type="text" class="form-input" id="inp-materi-manual"
               placeholder="Tulis materi pokok..." style="display:none;margin-top:8px">
-            <div style="margin-top:6px">
+            <div style="margin-top:5px">
               <button type="button" onclick="window.toggleMateriManual()"
-                style="font-size:12px;color:var(--oranye);background:none;border:none;
-                cursor:pointer;padding:0;font-family:inherit;font-weight:600">
-                ✏️ <span id="btn-manual-teks">Tulis manual</span>
+                style="font-size:12px;color:var(--oranye);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600">
+                ✏️ Tulis manual
               </button>
             </div>
           </div>
 
           <!-- SUB MATERI -->
-          <div class="form-grup" id="grup-submateri">
-            <label class="form-label">📌 Sub Materi <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
-            <select class="form-select" id="inp-submateri"></select>
+          <div class="form-grup">
+            <label class="form-label">📌 Sub Materi <span style="font-weight:400;font-size:11px">(opsional)</span></label>
+            <select class="form-select" id="inp-submateri" onchange="onPilihSubMateri()"></select>
             <button type="button" class="picker-btn" id="pb-submateri" onclick="window.bukaPickerSubMateri()">
               <span class="pb-teks placeholder" id="pb-submateri-teks">Pilih sub materi...</span>
               <span class="pb-arr">▾</span>
@@ -642,50 +1109,49 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
               placeholder="Tulis sub materi..." style="display:none;margin-top:8px">
           </div>
 
-          <!-- STATUS KETERCAPAIAN CHIPS -->
-          <div id="materi-history-wrap" style="display:none;margin-bottom:14px">
-            <label class="form-label">📚 Status Ketercapaian</label>
-            <div class="materi-chip-row" id="materi-history-list"></div>
+          <!-- STATUS MATERI -->
+          <div id="materi-history-wrap" style="display:none;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--abu);margin-bottom:6px">📚 Status Ketercapaian</div>
+            <div id="materi-history-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
           </div>
 
-          <!-- METODE PEMBELAJARAN — chip -->
+          <!-- METODE — chips -->
           <div class="form-grup">
             <label class="form-label">🎯 Metode Pembelajaran</label>
-            <div id="chips-metode" class="materi-chip-row" style="gap:6px">
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Ceramah')">Ceramah</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Diskusi')">Diskusi</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Tanya Jawab')">Tanya Jawab</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Demonstrasi')">Demonstrasi</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Praktikum')">Praktikum</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Project Based')">Project Based</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Problem Based')">Problem Based</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Kooperatif')">Kooperatif</span>
-              <span class="mc todo" onclick="window.pilihChip('metode',this,'Inkuiri')">Inkuiri</span>
+            <div class="chip-row" id="chips-metode">
+              <span class="mc" onclick="pilihChip('metode',this,'Ceramah')">Ceramah</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Diskusi')">Diskusi</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Tanya Jawab')">Tanya Jawab</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Demonstrasi')">Demonstrasi</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Praktikum')">Praktikum</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Project Based')">Project Based</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Problem Based')">Problem Based</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Kooperatif')">Kooperatif</span>
+              <span class="mc" onclick="pilihChip('metode',this,'Inkuiri')">Inkuiri</span>
             </div>
             <select class="form-select" id="inp-metode"><option value="">Pilih metode</option></select>
           </div>
 
-          <!-- MEDIA AJAR — chip -->
+          <!-- MEDIA — chips -->
           <div class="form-grup">
-            <label class="form-label">🖥️ Media Ajar</label>
-            <div id="chips-media" class="materi-chip-row" style="gap:6px">
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Papan tulis')">Papan tulis</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'PPT / Slide')">PPT / Slide</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Video')">Video</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Modul / LKS')">Modul / LKS</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Buku Teks')">Buku Teks</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Alat Peraga')">Alat Peraga</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Laptop/Proyektor')">Laptop/Proyektor</span>
-              <span class="mc todo" onclick="window.pilihChip('media',this,'Internet')">Internet</span>
+            <label class="form-label">🖥 Media Ajar</label>
+            <div class="chip-row" id="chips-media">
+              <span class="mc" onclick="pilihChip('media',this,'Papan tulis')">Papan tulis</span>
+              <span class="mc" onclick="pilihChip('media',this,'PPT / Slide')">PPT / Slide</span>
+              <span class="mc" onclick="pilihChip('media',this,'Video')">Video</span>
+              <span class="mc" onclick="pilihChip('media',this,'Modul / LKS')">Modul / LKS</span>
+              <span class="mc" onclick="pilihChip('media',this,'Buku Teks')">Buku Teks</span>
+              <span class="mc" onclick="pilihChip('media',this,'Alat Peraga')">Alat Peraga</span>
+              <span class="mc" onclick="pilihChip('media',this,'Laptop / Proyektor')">Laptop/Proyektor</span>
+              <span class="mc" onclick="pilihChip('media',this,'Internet')">Internet</span>
             </div>
             <select class="form-select" id="inp-media"><option value="">Pilih media</option></select>
           </div>
 
-          <!-- KEHADIRAN SISWA -->
+          <!-- KEHADIRAN -->
           <div class="form-grup">
             <label class="form-label">👥 Kehadiran Siswa</label>
-            <div id="info-presensi-pagi" style="display:none;background:var(--hijau-muda);
-              border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:var(--hijau)"></div>
+            <div id="info-presensi-pagi" style="display:none;background:var(--hijau-muda);border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:var(--hijau)"></div>
             <div class="hadir-row">
               <div class="hadir-inp-wrap">
                 <div class="hadir-lbl" style="color:var(--hijau)">Hadir</div>
@@ -706,105 +1172,114 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
             </div>
           </div>
 
-          <!-- HAMBATAN — chip -->
+          <!-- HAMBATAN -->
           <div class="form-grup">
-            <label class="form-label">⚠️ Hambatan <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
-            <div id="chips-hambatan" class="materi-chip-row" style="gap:6px">
-              <span class="mc done active" onclick="window.pilihChip('hambatan',this,'')">✓ Tidak ada</span>
-              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Siswa kurang aktif')">Siswa kurang aktif</span>
-              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Materi terlalu sulit')">Materi sulit</span>
-              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Media tidak tersedia')">Media tidak ada</span>
-              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Gangguan waktu')">Gangguan waktu</span>
-              <span class="mc todo" onclick="window.pilihChip('hambatan',this,'Lainnya')">Lainnya</span>
-            </div>
-            <select class="form-select" id="inp-hambatan"><option value="">Tidak ada hambatan</option></select>
+            <label class="form-label">⚠️ Hambatan <span style="font-weight:400;font-size:11px">(opsional)</span></label>
+            <select class="form-select" id="inp-hambatan">
+              <option value="">Tidak ada hambatan</option>
+              <option>Siswa kurang aktif</option>
+              <option>Materi terlalu sulit</option>
+              <option>Media tidak tersedia</option>
+              <option>Gangguan waktu</option>
+              <option>Lainnya</option>
+            </select>
           </div>
 
-          <!-- CATATAN -->
           <div class="form-grup">
-            <label class="form-label">💬 Catatan <span style="font-weight:400;text-transform:none;letter-spacing:0">(opsional)</span></label>
-            <textarea class="form-textarea" id="inp-catatan"
-              placeholder="Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
+            <label class="form-label">💬 Catatan <span style="font-weight:400;font-size:11px">(opsional)</span></label>
+            <textarea class="form-textarea" id="inp-catatan" placeholder="Siswa antusias, perlu pengulangan materi minggu depan..."></textarea>
           </div>
 
-                    <!-- PANEL VERIFIKASI -->
+          <!-- PANEL VERIFIKASI -->
           <div class="verif-panel" id="verif-panel">
             <div class="verif-title">🔐 Verifikasi Sebelum Simpan</div>
             <div class="verif-info">Agenda hanya bisa disimpan jika diisi dari dalam lingkungan sekolah dan dari ruang kelas yang benar.</div>
 
+            <!-- GPS -->
             <div class="verif-item" id="verif-gps-item">
               <div class="verif-ikon" id="verif-gps-ikon">📍</div>
               <div class="verif-detail">
                 <div class="verif-label">Verifikasi Lokasi (GPS)</div>
                 <div class="verif-sub" id="verif-gps-sub">Belum dicek</div>
               </div>
-              <button class="verif-btn" id="verif-gps-btn" onclick="window.cekGPS()">Cek Lokasi</button>
+              <button class="verif-btn" id="verif-gps-btn" onclick="cekGPS()">Cek Lokasi</button>
             </div>
 
+            <!-- QR KELAS -->
             <div class="verif-item" id="verif-qr-item">
               <div class="verif-ikon" id="verif-qr-ikon">📷</div>
               <div class="verif-detail">
                 <div class="verif-label">Scan QR Ruang Kelas</div>
                 <div class="verif-sub" id="verif-qr-sub">Belum discan</div>
               </div>
-              <button class="verif-btn" id="verif-qr-btn" onclick="window.bukaQRScan()">Scan QR</button>
+              <button class="verif-btn" id="verif-qr-btn" onclick="bukaQRScan()">Scan QR</button>
             </div>
 
+            <!-- Scanner QR tersembunyi -->
             <div id="qr-scan-wrap" style="display:none;margin-top:10px">
               <video id="qr-video" style="width:100%;border-radius:10px;max-height:220px;object-fit:cover;background:#000"></video>
               <div id="qr-scan-info" style="font-size:12px;color:var(--abu);text-align:center;margin-top:5px">Arahkan kamera ke QR Code yang ditempel di kelas</div>
-              <button onclick="window.tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
+              <button onclick="tutupQRScan()" style="margin-top:6px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:#F5F5F5;font-size:12px;font-family:inherit;cursor:pointer">✕ Tutup Kamera</button>
             </div>
 
+            <!-- Status override -->
             <div id="verif-override" style="display:none;margin-top:8px">
               <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--teks-muted)">
-                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="window.updateVerifStatus()">
+                <input type="checkbox" id="verif-override-check" style="margin-top:2px" onchange="updateVerifStatus()">
                 <span>Simpan tanpa verifikasi lengkap <strong>(akan dicatat sebagai tidak terverifikasi)</strong></span>
               </label>
             </div>
           </div>
 
-          <button class="btn-simpan" id="btn-simpan" onclick="window.simpanAgenda()" disabled
+          <button class="btn-simpan" id="btn-simpan" onclick="simpanAgenda()" disabled
             style="opacity:0.5;cursor:not-allowed">
             🔐 Lengkapi Verifikasi Dulu
           </button>
-          <button class="btn-batal" onclick="window.tutupForm()">Batal</button>
+          <button class="btn-batal" onclick="tutupForm()">Batal</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB ROSTER SAYA -->
+    <!-- TAB ROSTER -->
     <div class="tab-konten" id="tab-roster">
-      <div id="roster-konten" style="min-height:200px">
-        <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
-          ⏳ Klik tab ini untuk memuat roster...
-        </div>
+      <div class="sec-label">Roster Jadwal Mengajar Saya</div>
+
+      <!-- Filter hari -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="roster-hari-filter">
+        <button class="roster-hari-btn aktif" onclick="gantiHariRoster('Semua',this)">Semua</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Senin',this)">Senin</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Selasa',this)">Selasa</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Rabu',this)">Rabu</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Kamis',this)">Kamis</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Jumat',this)">Jumat</button>
+        <button class="roster-hari-btn" onclick="gantiHariRoster('Sabtu',this)">Sabtu</button>
+      </div>
+
+      <div id="roster-konten">
+        <div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>
       </div>
     </div>
 
     <!-- TAB RIWAYAT -->
     <div class="tab-konten" id="tab-riwayat">
-      <div id="riwayat-list" style="min-height:200px">
-        <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
-          ⏳ Klik tab ini untuk memuat riwayat...
-        </div>
+      <div class="sec-label">Riwayat 30 hari terakhir</div>
+      <div id="riwayat-list">
+        <div class="empty-state"><div class="ikon">📂</div><p>Memuat riwayat...</p></div>
       </div>
     </div>
 
-  </div><!-- .tab-konten-wrap -->
-</div><!-- .hal-utama -->
+  </div>
+</div>
 
+<div class="toast" id="toast">✅ Agenda berhasil disimpan!</div>
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-teks">Memuat data...</div>
+</div>
 
-<script>
-// Debug: tangkap error global
-window.addEventListener('error', function(e) {
-  console.error('GLOBAL ERROR:', e.message, 'at line', e.lineno);
-  document.title = 'ERROR: ' + e.message;
-});
-</script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
     getFirestore, collection, query, where, getDocs,
     addDoc, orderBy, limit, doc, getDoc, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -892,10 +1367,9 @@ import {
   async function masukDashboard() {
     document.getElementById('hal-login').style.display = 'none';
     document.getElementById('hal-utama').style.display = 'block';
-    document.getElementById('teks-guru').textContent = guruAktif.nama_lengkap;
+    document.getElementById('nama-guru').textContent = guruAktif.nama_lengkap;
     await muatJadwal();
     await muatRiwayat();
-    muatRosterGuru(); // preload roster di background
   }
 
   // ── JADWAL ──
@@ -992,10 +1466,9 @@ import {
 
     } catch(e) {
       console.log('Kehadiran error:', e.message);
-      const panelErr = document.getElementById('panel-kehadiran-siswa');
-      if (panelErr) panelErr.style.display = 'block';
-      const wrapErr = document.getElementById('kehadiran-per-kelas');
-      if (wrapErr) wrapErr.innerHTML =
+      const panel = document.getElementById('panel-kehadiran-siswa');
+      panel.style.display = 'block';
+      document.getElementById('kehadiran-per-kelas').innerHTML =
         `<div style="font-size:11px;color:var(--merah);padding:8px">Error: ${e.message}</div>`;
     }
   }
@@ -1083,7 +1556,7 @@ import {
 
   async function muatJadwal() {
     tampilLoading(true);
-    const listEl = document.getElementById('jadwal-container');
+    const listEl = document.getElementById('jadwal-list');
     listEl.innerHTML = '';
     try {
       // Muat jam baku hari ini
@@ -1186,23 +1659,16 @@ import {
         el.onclick = () => {
           if (!sudah) pilihJadwal(sesi.docIds[0], sesi.data, sesi.jamMulai, sesi.jamSelesai, sesi.jamKe, sesi.docIds);
         };
-        const jamKeTxt = sesi.durasi > 1
-          ? `${sesi.jamKe}<span style="font-size:9px;font-weight:500;display:block">–${sesi.jamKe + sesi.durasi - 1}</span>`
-          : `${sesi.jamKe}`;
         el.innerHTML = `
           <div class="jam-badge">
             <div class="jam-label">Jam</div>
-            <div class="jam-angka">${jamKeTxt}</div>
+            <div class="jam-angka">${sesi.jamKe}${sesi.durasi > 1 ? `<br><span style="font-size:9px;font-weight:500">–${sesi.jamKe + sesi.durasi - 1}</span>` : ''}</div>
           </div>
           <div class="jadwal-tengah">
             <div class="jadwal-mapel">${namaMapel}</div>
-            <div class="jadwal-kelas">
-              <span class="jadwal-kelas-badge">${namaKelas}</span>
-              ${jamTxt ? `<span>${jamTxt}</span>` : ''}
-              ${sesi.durasi > 1 ? `<span style="font-size:10px;font-weight:700;color:var(--oranye-gelap)">${sesi.durasi}JP</span>` : ''}
-            </div>
+            <div class="jadwal-kelas">${namaKelas} · ${jamTxt}${durasiTxt}</div>
           </div>
-          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : '+ Isi'}</span>
+          <span class="jadwal-badge ${sudah ? 'sudah' : 'belum'}">${sudah ? '✓ Terisi' : 'Belum'}</span>
         `;
         listEl.appendChild(el);
       });
@@ -1288,13 +1754,16 @@ import {
   };
 
   async function simpanAgenda() {
-    const materi = document.getElementById('inp-materi').value.trim();
-    // Ambil metode dan media dari chip aktif ATAU dari hidden select
-    const metode = nilaiChipAktif('chips-metode') || document.getElementById('inp-metode').value;
-    const media  = nilaiChipAktif('chips-media')  || document.getElementById('inp-media').value;
-    if (!materi && !document.getElementById('inp-materi-manual').value.trim()) {
-      tampilToast('⚠ Pilih atau tulis materi pokok dulu!'); return;
-    }
+    // Ambil nilai materi
+    const manualM = document.getElementById('inp-materi-manual');
+    const selM    = document.getElementById('inp-materi');
+    const materi  = (manualM?.style.display!=='none' && manualM?.value.trim())
+      ? manualM.value.trim()
+      : (selM.options[selM.selectedIndex]?.dataset?.nama || selM.value || '').trim();
+    // Ambil metode dan media dari chips
+    const metode = _nilaiChipAktif('chips-metode') || document.getElementById('inp-metode').value;
+    const media  = _nilaiChipAktif('chips-media')  || document.getElementById('inp-media').value;
+    if (!materi) { tampilToast('⚠ Pilih atau tulis materi pokok dulu!'); return; }
     if (!metode) { tampilToast('⚠ Pilih metode pembelajaran dulu!'); return; }
     if (!media)  { tampilToast('⚠ Pilih media ajar dulu!'); return; }
 
@@ -1380,72 +1849,72 @@ import {
   async function muatRiwayat() {
     const el = document.getElementById('riwayat-list');
     if (!el) return;
-    el.innerHTML = '<div class="loading-inline">⏳ Memuat riwayat...</div>';
+    el.innerHTML = '<div class="empty-state"><div class="ikon">⏳</div><p>Memuat riwayat...</p></div>';
     try {
-      el.innerHTML = `<div class="loading-inline">🔍 Query Agenda_Harian id_guru=${guruAktif?.id}...</div>`;
+      // Tanpa orderBy agar tidak butuh composite index Firestore
       const snap = await getDocs(query(
         collection(db,'Agenda_Harian'),
         where('id_guru','==',guruAktif.id),
         limit(100)
       ));
-      el.innerHTML = `<div class="loading-inline">📦 Dapat ${snap.size} dokumen agenda</div>`;
       if (snap.empty) {
-        el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>id_guru: ' + guruAktif.id + '</small></p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>Mulai isi agenda hari ini.</small></p></div>';
         return;
       }
-      const HARI = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+      // Sort client-side: terbaru di atas
       const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-      // Sort client-side tanpa composite index
+      const HARI  = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
       const docs = [...snap.docs].sort((a,b) => {
         const tA = a.data().timestamp_input || a.data().tanggal || '';
         const tB = b.data().timestamp_input || b.data().tanggal || '';
         return tB.localeCompare(tA);
       });
-      el.innerHTML = docs.map(d => {
-        const r = d.data();
-        const tgl = r.tanggal ? new Date(r.tanggal) : null;
-        const tglStr = tgl ? `${HARI[tgl.getDay()]}, ${tgl.getDate()} ${BULAN[tgl.getMonth()]} ${tgl.getFullYear()}` : r.tanggal || '—';
-        const verif = (r.verif_gps ? '📍' : '') + (r.verif_qr ? '📷' : '');
-        return `<div class="riwayat-item">
+
+      el.innerHTML = '';
+      docs.forEach(d => {
+        const r   = d.data();
+        const tgl = r.tanggal ? new Date(r.tanggal + 'T00:00:00') : null;
+        const tglLabel = tgl
+          ? `${HARI[tgl.getDay()]}, ${tgl.getDate()} ${BULAN[tgl.getMonth()]} ${tgl.getFullYear()}`
+          : r.tanggal || '—';
+        const verif = [r.verif_gps?'📍':'', r.verif_qr?'📷':''].filter(Boolean).join(' ');
+
+        const div = document.createElement('div');
+        div.className = 'riwayat-item';
+        div.innerHTML = `
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <span class="riwayat-kelas">${r.kelas||'—'}</span>
-            <div style="display:flex;align-items:center;gap:6px">
-              ${verif ? `<span style="font-size:10px">${verif}</span>` : ''}
-              <span class="riwayat-tgl">${tglStr}</span>
-            </div>
+            <span class="riwayat-tgl">${tglLabel}${verif?' · '+verif:''}</span>
           </div>
           <div class="riwayat-mapel">${r.mapel||'—'}</div>
-          <div class="riwayat-materi">${r.materi_pokok||'—'}${r.sub_materi ? ' · '+r.sub_materi : ''}</div>
-          ${r.catatan ? `<div style="font-size:11px;color:var(--abu);margin-top:3px;font-style:italic">"${r.catatan}"</div>` : ''}
-        </div>`;
-      }).join('');
+          <div class="riwayat-materi">${r.materi_pokok||'—'}${r.sub_materi?' · '+r.sub_materi:''}</div>
+          ${r.catatan?`<div style="font-size:11px;color:var(--teks-muted);margin-top:3px;font-style:italic">"${r.catatan}"</div>`:''}
+        `;
+        el.appendChild(div);
+      });
     } catch(e) {
       el.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat riwayat.<br><small>${e.message}</small></p></div>`;
-      console.error('muatRiwayat error:', e);
+      console.error('muatRiwayat:', e);
     }
   }
 
-  window.gantiTab = function(tab, btn) {
+  function gantiTab(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
     document.querySelectorAll('.tab-konten').forEach(t => t.classList.remove('aktif'));
-    btn?.classList.add('aktif');
-    document.getElementById('tab-'+tab)?.classList.add('aktif');
-    if (tab === 'roster')  muatRosterGuru();
-    if (tab === 'riwayat') muatRiwayat();
-  };
-  function gantiTab(tab, btn) { window.gantiTab(tab, btn); }
+    btn.classList.add('aktif');
+    document.getElementById('tab-'+tab).classList.add('aktif');
+  }
 
   function keluar() {
     guruAktif = null; jadwalDipilih = null;
     resetPin();
-    const appElOut = document.getElementById('hal-utama'); appElOut.classList.remove('on'); appElOut.style.display = '';
+    document.getElementById('hal-utama').style.display = 'none';
     document.getElementById('hal-login').style.display = 'flex';
     document.getElementById('pesan-error').textContent = '';
   }
 
   function tampilLoading(v) {
-    const el = document.getElementById('loading-overlay') || document.getElementById('loading');
-    if (el) el.style.display = v ? 'flex' : 'none';
+    document.getElementById('loading').style.display = v ? 'flex' : 'none';
   }
 
   let toastTimer;
@@ -1472,18 +1941,16 @@ import {
   async function muatRosterGuru() {
     const el = document.getElementById('roster-konten');
     if (!el) return;
-    el.innerHTML = '<div class="loading-inline">⏳ Memuat roster...</div>';
+    el.innerHTML = '<div class="empty-state"><div class="ikon">⏳</div><p>Memuat roster...</p></div>';
 
     try {
-      el.innerHTML = `<div class="loading-inline">🔍 Query Jadwal_Pelajaran id_guru=${guruAktif?.id}...</div>`;
       const snap = await getDocs(query(
         collection(db, 'Jadwal_Pelajaran'),
         where('id_guru', '==', guruAktif.id)
       ));
-      el.innerHTML = `<div class="loading-inline">📦 Dapat ${snap.size} dokumen jadwal</div>`;
 
       if (snap.empty) {
-        el.innerHTML = '<div class="empty-state"><div class="ikon">📭</div><p>Belum ada jadwal tersusun untuk ID guru ini.<br><small>id_guru: ' + guruAktif.id + '</small></p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📭</div><p>Belum ada jadwal tersusun.<br><small>Hubungi admin untuk menyusun roster.</small></p></div>';
         return;
       }
 
@@ -1517,24 +1984,16 @@ import {
     if (!el || !rosterCache) return;
     const { perHari, jamBakuAll } = rosterCache;
 
-    // Tombol filter hari
-    const hariAda = hariUrut.filter(h => perHari[h]);
-    const filterBtns = ['Semua', ...hariAda].map(h =>
-      `<button class="roster-hari-btn ${rosterHariAktif===h?'aktif':''}"
-        onclick="window.gantiHariRoster('${h}',this)">${h}</button>`
-    ).join('');
-
     const hariTampil = rosterHariAktif === 'Semua'
-      ? hariAda
+      ? hariUrut.filter(h => perHari[h])
       : [rosterHariAktif].filter(h => perHari[h]);
 
     if (!hariTampil.length) {
-      el.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${filterBtns}</div>
-        <div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal hari ini.</p></div>`;
+      el.innerHTML = '<div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal di hari ini.</p></div>';
       return;
     }
 
-    const kartuHari = hariTampil.map(hari => {
+    el.innerHTML = hariTampil.map(hari => {
       const slots   = perHari[hari] || [];
       const jamBaku = jamBakuAll[hari] || [];
       const totalJP = slots.reduce((s,j) => s + (j.durasi_jp||1), 0);
@@ -1587,8 +2046,6 @@ import {
         <div class="roster-total-jp">✅ Total ${totalJP} JP hari ${hari}</div>
       </div>`;
     }).join('');
-
-    el.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${filterBtns}</div>${kartuHari}`;
   }
 
   window.gantiHariRoster = function(hari, el) {
@@ -1599,6 +2056,7 @@ import {
     else renderRoster();
   };
 
+  window.gantiTab    = gantiTab;
   window.simpanAgenda = simpanAgenda;
   window.tutupForm   = tutupForm;
 
@@ -1668,7 +2126,7 @@ import {
 
     if (!materiPokok.length) {
       sel.innerHTML = '<option value="">-- Belum ada materi di bank, tulis manual --</option>';
-      document.querySelector('[onclick="window.toggleMateriManual()"]').style.display = 'none';
+      document.querySelector('[onclick="toggleMateriManual()"]').style.display = 'none';
       document.getElementById('inp-materi-manual').style.display = 'block';
       return;
     }
@@ -1679,7 +2137,8 @@ import {
         const ikon  = sudah ? '✅' : '○';
         return `<option value="${m.id}" data-nama="${m.nama}" data-sudah="${sudah}">${ikon} ${m.no}. ${m.nama}</option>`;
       }).join('');
-  }
+  
+    _resetPickerBtns();}
 
   window.onPilihMateriPokok = function() {
     const sel = document.getElementById('inp-materi');
@@ -1951,25 +2410,17 @@ import {
   // ══════════════════════════════════════════
   // CUSTOM PICKER (bottom sheet)
   // ══════════════════════════════════════════
-  let pickerCallback = null;
-  let pickerAllItems = [];
+  let _pickerCb = null, _pickerItems = [];
 
-  function bukaPicker(judul, items, nilaiAktif, cb, tampilSearch = true) {
-    pickerAllItems = items;
-    pickerCallback = cb;
-
+  function _bukaPicker(judul, items, valAktif, cb, showSearch) {
+    _pickerItems = items; _pickerCb = cb;
     document.getElementById('picker-title').textContent = judul;
-    document.getElementById('picker-search-wrap').style.display = tampilSearch ? 'block' : 'none';
+    document.getElementById('picker-search-wrap').style.display = showSearch ? 'block' : 'none';
     document.getElementById('picker-search').value = '';
-
-    renderPickerItems(nilaiAktif);
-
+    _renderPickerItems(valAktif, items);
     const ov = document.getElementById('picker-overlay');
-    ov.style.display = 'flex';
-    ov.style.pointerEvents = 'auto';
+    ov.style.display = 'flex'; ov.style.pointerEvents = 'auto';
     requestAnimationFrame(() => ov.classList.add('show'));
-
-    if(tampilSearch) setTimeout(() => document.getElementById('picker-search').focus(), 350);
   }
 
   window.tutupPicker = function() {
@@ -1980,193 +2431,102 @@ import {
 
   window.filterPickerItems = function() {
     const q = document.getElementById('picker-search').value.toLowerCase();
-    const filtered = q
-      ? pickerAllItems.filter(it => (it.label||'').toLowerCase().includes(q))
-      : pickerAllItems;
-    renderPickerItems(null, filtered);
+    _renderPickerItems(null, q ? _pickerItems.filter(it => it.label.toLowerCase().includes(q)) : _pickerItems);
   };
 
-  function renderPickerItems(nilaiAktif, items = pickerAllItems) {
+  function _renderPickerItems(valAktif, items) {
     const list = document.getElementById('picker-list');
-    if(!items.length) {
-      list.innerHTML = '<div class="picker-empty">Tidak ada pilihan</div>';
-      return;
-    }
-    list.innerHTML = items.map(it => {
-      const isSel = it.value === nilaiAktif;
-      const isDone = it.done;
-      return `<div class="picker-item${isDone?' done':''}${isSel?' selected':''}"
-          onclick="window.pilihPickerItem('${it.value.replace(/'/g,"\'")}','${(it.label||'').replace(/'/g,"\'")}')">
+    if (!items.length) { list.innerHTML = '<div class="picker-empty">Tidak ada pilihan</div>'; return; }
+    list.innerHTML = items.map(it => `
+      <div class="picker-item${it.done?' done':''}${it.value===valAktif?' selected':''}"
+        onclick="window.pilihPickerItem('${it.value.replace(/'/g,"\'")}','${it.label.replace(/'/g,"\'")}')">
         ${it.no ? `<span class="pi-no">${it.no}</span>` : ''}
         <span class="pi-nama">${it.label}</span>
-        ${it.done !== undefined
-          ? `<span class="pi-badge">${it.done ? '✅ Diajarkan' : '○ Baru'}</span>`
-          : (isSel ? '<span style="color:var(--oranye);font-size:18px">✓</span>' : '')}
-      </div>`;
-    }).join('');
+        ${it.done!==undefined ? `<span class="pi-badge">${it.done?'✅ Diajarkan':'○ Baru'}</span>` : ''}
+      </div>`).join('');
   }
 
-  window.pilihPickerItem = function(nilai, label) {
-    tutupPicker();
-    if(pickerCallback) pickerCallback(nilai, label);
+  window.pilihPickerItem = function(val, label) {
+    window.tutupPicker();
+    if (_pickerCb) _pickerCb(val, label);
   };
 
-  // ── Buka picker materi pokok ──
   window.bukaPickerMateri = function() {
     const sel = document.getElementById('inp-materi');
     const items = [...sel.options].slice(1).map(o => ({
-      value: o.value,
-      label: o.text.replace(/^[✅○]\s*/,'').replace(/^[0-9.]+\.\s*/,''),
-      no:    o.dataset.no || '',
-      done:  o.dataset.done === 'true'
+      value: o.value, label: o.text.replace(/^[✅○]\s*/,''),
+      no: o.dataset.no || '', done: o.dataset.done === 'true'
     })).filter(it => it.value);
-
-    if(!items.length) {
-      tampilToast('⚠ Belum ada materi di bank kurikulum');
-      return;
-    }
-
-    const nilaiAktif = sel.value;
+    if (!items.length) { tampilToast('⚠ Belum ada materi di bank'); return; }
     const btn = document.getElementById('pb-materi');
-    btn.classList.add('open');
-
-    bukaPicker('Pilih Materi Pokok', items, nilaiAktif, (nilai, label) => {
-      btn.classList.remove('open');
-      // Update hidden select
-      sel.value = nilai;
-      // Update tombol tampilan
+    btn.classList.add('aktif');
+    _bukaPicker('Pilih Materi Pokok', items, sel.value, (val, label) => {
+      btn.classList.remove('aktif');
+      sel.value = val;
       const teks = document.getElementById('pb-materi-teks');
-      if(nilai) {
-        teks.textContent = label;
-        teks.classList.remove('placeholder');
-        btn.classList.add('aktif');
-      } else {
-        teks.textContent = 'Pilih materi pokok...';
-        teks.classList.add('placeholder');
-        btn.classList.remove('aktif');
-      }
-      // Trigger event
+      teks.textContent = val ? label : 'Pilih materi pokok...';
+      teks.className = 'pb-teks' + (val ? '' : ' placeholder');
+      if (val) btn.style.borderColor = 'var(--oranye)';
       onPilihMateriPokok();
-    });
+    }, true);
   };
 
-  // ── Buka picker sub materi ──
   window.bukaPickerSubMateri = function() {
     const sel = document.getElementById('inp-submateri');
     const items = [...sel.options].slice(1).map(o => ({
-      value: o.value,
-      label: o.text.replace(/^[✅○]\s*/,''),
-      no:    o.dataset.no || '',
-      done:  o.dataset.done === 'true'
+      value: o.value, label: o.text.replace(/^[✅○]\s*/,''),
+      no: o.dataset.no || '', done: o.dataset.done === 'true'
     })).filter(it => it.value);
-
-    if(!items.length) {
-      tampilToast('Tidak ada sub materi untuk materi ini');
-      return;
-    }
-
-    const nilaiAktif = sel.value;
+    if (!items.length) { tampilToast('Tidak ada sub materi'); return; }
     const btn = document.getElementById('pb-submateri');
-    btn.classList.add('open');
-
-    bukaPicker('Pilih Sub Materi', items, nilaiAktif, (nilai, label) => {
-      btn.classList.remove('open');
-      sel.value = nilai;
+    btn.classList.add('aktif');
+    _bukaPicker('Pilih Sub Materi', items, sel.value, (val, label) => {
+      btn.classList.remove('aktif');
+      sel.value = val;
       const teks = document.getElementById('pb-submateri-teks');
-      if(nilai) {
-        teks.textContent = label;
-        teks.classList.remove('placeholder');
-        btn.classList.add('aktif');
-      } else {
-        teks.textContent = 'Pilih sub materi...';
-        teks.classList.add('placeholder');
-        btn.classList.remove('aktif');
-      }
+      teks.textContent = val ? label : 'Pilih sub materi...';
+      teks.className = 'pb-teks' + (val ? '' : ' placeholder');
       onPilihSubMateri();
     }, false);
   };
 
-  // ── Chip selector (metode, media, hambatan) ──
-  window.pilihChip = function(jenis, el, nilai) {
-    const kontainer = el.parentElement;
-    kontainer.querySelectorAll('.mc').forEach(c => {
-      c.classList.remove('active','done');
-      c.classList.add('todo');
-      // Hapus centang prefix
+  // ── CHIP SELECTOR ──
+  window.pilihChip = function(jenis, el, val) {
+    el.parentElement.querySelectorAll('.mc').forEach(c => {
+      c.classList.remove('aktif');
       c.textContent = c.textContent.replace(/^✓\s*/,'');
     });
-    el.classList.remove('todo');
-    el.classList.add('done','active');
-    if(!el.textContent.startsWith('✓')) el.textContent = '✓ ' + el.textContent;
-
-    // Update hidden select
+    el.classList.add('aktif');
+    el.textContent = '✓ ' + val;
     const idMap = { metode:'inp-metode', media:'inp-media', hambatan:'inp-hambatan' };
     const sel = document.getElementById(idMap[jenis]);
-    if(sel) {
-      // Cari option yang cocok atau set value langsung
-      let found = false;
-      [...sel.options].forEach(o => { if(o.value===nilai||o.text===nilai){ sel.value=o.value; found=true; } });
-      if(!found) sel.value = nilai;
-    }
+    if (sel) { [...sel.options].forEach(o => { if(o.value===val||o.text===val) sel.value=o.value; }); sel.value = val; }
   };
 
-  // Reset chips saat form dibuka ulang
-  function resetChips() {
+  function _nilaiChipAktif(containerId) {
+    const el = document.querySelector('#'+containerId+' .mc.aktif');
+    return el ? el.textContent.replace(/^✓\s*/,'').trim() : '';
+  }
+
+  function _resetChips() {
     ['chips-metode','chips-media'].forEach(id => {
       document.querySelectorAll('#'+id+' .mc').forEach(c => {
-        c.classList.remove('active','done');
-        c.classList.add('todo');
+        c.classList.remove('aktif');
         c.textContent = c.textContent.replace(/^✓\s*/,'');
       });
     });
-    // Reset hambatan ke "Tidak ada"
-    const hambChips = document.querySelectorAll('#chips-hambatan .mc');
-    hambChips.forEach(c => {
-      c.classList.remove('active','done');
-      c.classList.add('todo');
-      c.textContent = c.textContent.replace(/^✓\s*/,'');
+  }
+
+  function _resetPickerBtns() {
+    ['pb-materi','pb-submateri'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.style.borderColor = '';
+      const idTeks = id === 'pb-materi' ? 'pb-materi-teks' : 'pb-submateri-teks';
+      const ph = id === 'pb-materi' ? 'Pilih materi pokok...' : 'Pilih sub materi...';
+      const teks = document.getElementById(idTeks);
+      if (teks) { teks.textContent = ph; teks.className = 'pb-teks placeholder'; }
     });
-    if(hambChips[0]) {
-      hambChips[0].classList.remove('todo');
-      hambChips[0].classList.add('done','active');
-      hambChips[0].textContent = '✓ Tidak ada';
-    }
-  }
-
-  // Reset picker buttons setelah isiDropdownMateriPokok dipanggil
-  function resetPickerButtons() {
-    const btn = document.getElementById('pb-materi');
-    const teks = document.getElementById('pb-materi-teks');
-    if(btn && teks) {
-      btn.classList.remove('aktif','open');
-      teks.textContent = materiPokok.length ? 'Pilih materi pokok...' : 'Belum ada materi di bank';
-      teks.classList.add('placeholder');
-    }
-    const sbtn = document.getElementById('pb-submateri');
-    const steks = document.getElementById('pb-submateri-teks');
-    if(sbtn && steks) {
-      sbtn.classList.remove('aktif','open');
-      steks.textContent = 'Pilih sub materi...';
-      steks.classList.add('placeholder');
-    }
-  }
-
-  // Extra reset chips saat tutupForm dipanggil
-  function resetFormPicker() {
-    resetChips();
-    const teksM = document.getElementById('pb-materi-teks');
-    if(teksM){ teksM.textContent='Pilih materi pokok...'; teksM.classList.add('placeholder'); }
-    const teksS = document.getElementById('pb-submateri-teks');
-    if(teksS){ teksS.textContent='Pilih sub materi...'; teksS.classList.add('placeholder'); }
-    document.getElementById('pb-materi')?.classList.remove('aktif','open');
-    document.getElementById('pb-submateri')?.classList.remove('aktif','open');
-  }
-
-  // Ambil nilai metode/media/hambatan dari chip aktif saat simpan
-  function nilaiChipAktif(containerId) {
-    const aktif = document.querySelector('#'+containerId+' .mc.active');
-    if(!aktif) return '';
-    return aktif.textContent.replace(/^✓\s*/,'').trim();
   }
 
 
@@ -2181,27 +2541,8 @@ import {
       <button class="picker-close" onclick="window.tutupPicker()">✕ Tutup</button>
     </div>
     <div class="picker-search" id="picker-search-wrap">
-      <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
-        autocomplete="off" autocorrect="off" spellcheck="false">
-    </div>
-    <div class="picker-list" id="picker-list"></div>
-  </div>
-</div>
-</body>
-</html>
-
-
-<!-- BOTTOM SHEET PICKER -->
-<div class="picker-overlay" id="picker-overlay" onclick="window.tutupPicker()">
-  <div class="picker-sheet" onclick="event.stopPropagation()">
-    <div class="picker-handle"></div>
-    <div class="picker-hdr">
-      <div class="picker-title" id="picker-title">Pilih</div>
-      <button class="picker-close" onclick="window.tutupPicker()">✕ Tutup</button>
-    </div>
-    <div class="picker-search" id="picker-search-wrap">
-      <input type="text" id="picker-search" placeholder="Cari..." oninput="filterPickerItems()"
-        autocomplete="off" autocorrect="off" spellcheck="false">
+      <input type="text" id="picker-search" placeholder="Cari materi..." 
+        oninput="window.filterPickerItems()" autocomplete="off">
     </div>
     <div class="picker-list" id="picker-list"></div>
   </div>
