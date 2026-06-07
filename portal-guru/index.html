@@ -122,8 +122,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 /* ══════════════════════════════════════════
    HALAMAN UTAMA
 ══════════════════════════════════════════ */
-#hal-utama{display:none;height:100vh;height:100dvh;flex-direction:column}
-#hal-utama.on{display:flex}
+#hal-utama{display:none}
 
 /* Topbar */
 .topbar{background:linear-gradient(135deg,var(--biru-tua),#2563A8);color:white;
@@ -156,9 +155,9 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 .tab-btn.aktif{color:var(--oranye);border-bottom-color:var(--oranye)}
 
 /* Tab konten */
-.tab-konten{flex:1;overflow-y:auto;min-height:0}
-.tab-page{display:none;padding:14px;max-width:800px;margin:0 auto;min-height:100px}
-.tab-page.aktif{display:block}
+.tab-konten-wrap{flex:1;overflow-y:auto}
+.tab-konten{display:none;padding:14px;max-width:800px;margin:0 auto}
+.tab-konten.aktif{display:block}
 
 /* Kartu jadwal */
 .kartu{background:white;border-radius:var(--radius);border:1px solid var(--border);
@@ -464,7 +463,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
   /* TAB */
   .tab-btn{font-size:11px;padding:10px 4px}
-  .tab-page{padding:10px}
+  
 }
 
 @media (max-width:380px) {
@@ -577,10 +576,10 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
   </div>
 
   <!-- KONTEN TABS -->
-  <div class="tab-konten">
+  <div class="tab-konten-wrap">
 
     <!-- TAB HARI INI -->
-    <div class="tab-page aktif" id="tab-hari">
+    <div class="tab-konten aktif" id="tab-hari">
       <!-- Panel Kehadiran Siswa -->
       <div id="panel-kehadiran-siswa" style="display:none;margin-bottom:12px">
         <div class="kartu-kehadiran" id="kehadiran-wrap">
@@ -775,8 +774,8 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
     </div>
 
     <!-- TAB ROSTER SAYA -->
-    <div class="tab-page" id="tab-roster" style="min-height:300px">
-      <div id="roster-container" style="min-height:200px">
+    <div class="tab-konten" id="tab-roster">
+      <div id="roster-konten" style="min-height:200px">
         <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
           ⏳ Klik tab ini untuk memuat roster...
         </div>
@@ -784,15 +783,15 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
     </div>
 
     <!-- TAB RIWAYAT -->
-    <div class="tab-page" id="tab-riwayat" style="min-height:300px">
-      <div id="riwayat-container" style="min-height:200px">
+    <div class="tab-konten" id="tab-riwayat">
+      <div id="riwayat-list" style="min-height:200px">
         <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
           ⏳ Klik tab ini untuk memuat riwayat...
         </div>
       </div>
     </div>
 
-  </div><!-- .tab-konten -->
+  </div><!-- .tab-konten-wrap -->
 </div><!-- .hal-utama -->
 
 
@@ -892,9 +891,7 @@ import {
 
   async function masukDashboard() {
     document.getElementById('hal-login').style.display = 'none';
-    const appEl = document.getElementById('hal-utama');
-    appEl.style.display = '';
-    appEl.classList.add('on');
+    document.getElementById('hal-utama').style.display = 'block';
     document.getElementById('teks-guru').textContent = guruAktif.nama_lengkap;
     await muatJadwal();
     await muatRiwayat();
@@ -1381,7 +1378,7 @@ import {
 
   // ── RIWAYAT ──
   async function muatRiwayat() {
-    const el = document.getElementById('riwayat-container');
+    const el = document.getElementById('riwayat-list');
     if (!el) return;
     el.innerHTML = '<div class="loading-inline">⏳ Memuat riwayat...</div>';
     try {
@@ -1430,18 +1427,11 @@ import {
 
   window.gantiTab = function(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
-    document.querySelectorAll('.tab-page').forEach(p => {
-      p.classList.remove('aktif');
-      p.style.display = 'none';
-    });
+    document.querySelectorAll('.tab-konten').forEach(t => t.classList.remove('aktif'));
     btn?.classList.add('aktif');
-    const pageEl = document.getElementById('tab-'+tab);
-    if (pageEl) {
-      pageEl.classList.add('aktif');
-      pageEl.style.display = 'block';
-    }
-    if (tab === 'roster')  { muatRosterGuru(); }
-    if (tab === 'riwayat') { muatRiwayat(); }
+    document.getElementById('tab-'+tab)?.classList.add('aktif');
+    if (tab === 'roster')  muatRosterGuru();
+    if (tab === 'riwayat') muatRiwayat();
   };
   function gantiTab(tab, btn) { window.gantiTab(tab, btn); }
 
@@ -1480,7 +1470,7 @@ import {
   const hariUrut = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
   async function muatRosterGuru() {
-    const el = document.getElementById('roster-container');
+    const el = document.getElementById('roster-konten');
     if (!el) return;
     el.innerHTML = '<div class="loading-inline">⏳ Memuat roster...</div>';
 
@@ -1523,7 +1513,7 @@ import {
   }
 
   function renderRoster() {
-    const el = document.getElementById('roster-container');
+    const el = document.getElementById('roster-konten');
     if (!el || !rosterCache) return;
     const { perHari, jamBakuAll } = rosterCache;
 
