@@ -626,6 +626,31 @@
       .main { margin-left: 0; }
       .chart-grid { grid-template-columns: 1fr; }
     }
+
+    /* PAGE SISWA */
+    .siswa-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+    .siswa-filter{display:flex;flex-direction:column;gap:3px}
+    .siswa-filter label{font-size:11px;font-weight:700;color:var(--abu);text-transform:uppercase}
+    .siswa-filter select,.siswa-filter input{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+
+    /* CETAK QR ROMBEL */
+    @media print {
+      .no-print { display:none !important; }
+      body { background: white; }
+      .sidebar, .topbar, .main-header { display:none !important; }
+      .qr-print-grid { display:grid !important; grid-template-columns:repeat(2,10cm); gap:1cm; padding:1cm; background:white; }
+      .qr-rombel-card { width:10cm; height:10cm; border:2px solid #1A3A5C; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; page-break-inside:avoid; background:white; }
+    }
+    .qr-print-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto}
+    .qr-print-box{background:white;border-radius:16px;width:min(95vw,900px);max-height:92vh;overflow:auto;display:flex;flex-direction:column}
+    .qr-print-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .qr-print-body{padding:20px;flex:1;overflow:auto}
+    .qr-grid-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+    .qr-rombel-card{border:2px solid var(--biru-tua);border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;background:white}
+    .qr-rombel-nama{font-family:'Syne','Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--biru-tua);letter-spacing:-0.5px}
+    .qr-rombel-fase{font-size:11px;font-weight:700;color:var(--oranye);letter-spacing:1px;text-transform:uppercase}
+    .qr-rombel-sekolah{font-size:10px;color:var(--abu);text-align:center;line-height:1.4}
+    .qr-rombel-scan{font-size:9px;font-weight:700;color:var(--biru-tua);text-align:center;padding:4px 10px;background:var(--biru-muda);border-radius:6px;letter-spacing:0.5px}
   </style>
 </head>
 <body>
@@ -688,15 +713,15 @@
     <button class="nav-item" onclick="gantiPage('guru', this)">
       <span class="nav-ikon">👨‍🏫</span> Data Guru
     </button>
-    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/kelola-siswa.html" target="_blank">
+    <button class="nav-item" onclick="gantiPage('siswa', this)">
       <span class="nav-ikon">👥</span> Data Siswa
-    </a>
-    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/rekap.html" target="_blank">
+    </button>
+    <button class="nav-item" onclick="gantiPage('presensi-siswa', this)">
       <span class="nav-ikon">📊</span> Data Presensi Siswa
-    </a>
-    <a class="nav-item" href="https://suhermantaher-tech.github.io/Agenda-Kelas/presensi/import-materi.html" target="_blank">
+    </button>
+    <button class="nav-item" onclick="gantiPage('materi', this)">
       <span class="nav-ikon">📚</span> Bank Materi
-    </a>
+    </button>
 
     <div class="nav-label" style="margin-top:12px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('profil', this)">
@@ -1113,6 +1138,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
       <div class="section-judul" style="margin:0">🏫 Rombongan Belajar (Kelas)</div>
       <div style="display:flex;gap:8px;">
+        <button class="btn-ekspor" style="background:var(--hijau);color:white;border-color:#1B5E20" onclick="tampilCetakQRRombel()">🖨️ Cetak QR Kelas</button>
         <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormRombel(null)">+ Tambah Kelas</button>
       </div>
     </div>
@@ -1574,6 +1600,112 @@
   </div>
 </div>
 
+
+<!-- PAGE: DATA SISWA -->
+<div class="page" id="page-siswa">
+  <div class="page-header">
+    <div>
+      <div class="page-title">👥 Data Siswa</div>
+      <div class="page-sub">Kelola data siswa dan cetak kartu QR presensi</div>
+    </div>
+  </div>
+  <div class="siswa-toolbar">
+    <div class="siswa-filter">
+      <label>Kelas</label>
+      <select id="admin-siswa-kelas" onchange="adminFilterSiswa()">
+        <option value="">Semua Kelas</option>
+      </select>
+    </div>
+    <div class="siswa-filter">
+      <label>Cari</label>
+      <input type="text" id="admin-siswa-cari" placeholder="Nama / NIS..." oninput="adminFilterSiswa()">
+    </div>
+    <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+      <button class="btn-ekspor" style="background:var(--hijau);color:white;border-color:#1B5E20" onclick="document.getElementById('admin-file-siswa').click()">📂 Import Excel</button>
+      <input type="file" id="admin-file-siswa" accept=".xlsx,.xls" style="display:none" onchange="adminImportSiswa(this)">
+      <button class="btn-ekspor primary" onclick="adminTambahSiswa()">+ Tambah Siswa</button>
+      <button class="btn-ekspor" onclick="adminCetakQRSiswa()">🖨️ Cetak Kartu QR</button>
+      <button class="btn-ekspor" onclick="adminEksporSiswa()">📊 Excel</button>
+    </div>
+  </div>
+  <!-- Form tambah siswa -->
+  <div id="admin-form-siswa" style="display:none;background:#F8F9FA;border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid var(--border)">
+    <div style="display:grid;grid-template-columns:1fr 2fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:3px">NIS</label><input type="text" id="as-nis" class="form-input" placeholder="2324001"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:3px">Nama Lengkap</label><input type="text" id="as-nama" class="form-input" placeholder="Nama siswa"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:3px">Kelas</label><input type="text" id="as-kelas" class="form-input" placeholder="X 1"></div>
+      <div><label style="font-size:11px;font-weight:700;color:var(--abu);display:block;margin-bottom:3px">JK</label><select id="as-jk" class="form-input"><option value="L">L</option><option value="P">P</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-ekspor primary" onclick="adminSimpanSiswa()">💾 Simpan</button>
+      <button class="btn-ekspor" onclick="document.getElementById('admin-form-siswa').style.display='none'">Batal</button>
+    </div>
+  </div>
+  <div class="kartu" style="padding:0">
+    <div class="tabel-wrap"><table class="tbl">
+      <thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>JK</th><th>Aksi</th></tr></thead>
+      <tbody id="admin-tbody-siswa"><tr><td colspan="6" class="loading-inline">Memuat...</td></tr></tbody>
+    </table></div>
+    <div id="admin-siswa-info" style="font-size:11px;color:var(--abu);padding:10px 14px"></div>
+  </div>
+</div>
+
+<!-- PAGE: DATA PRESENSI SISWA -->
+<div class="page" id="page-presensi-siswa">
+  <div class="page-header">
+    <div>
+      <div class="page-title">📊 Data Presensi Siswa</div>
+      <div class="page-sub">Rekap kehadiran siswa berdasarkan scan QR</div>
+    </div>
+  </div>
+  <div class="siswa-toolbar">
+    <div class="siswa-filter">
+      <label>Dari Tanggal</label>
+      <input type="date" id="ps-dari" class="form-input">
+    </div>
+    <div class="siswa-filter">
+      <label>Sampai Tanggal</label>
+      <input type="date" id="ps-sampai" class="form-input">
+    </div>
+    <div class="siswa-filter">
+      <label>Kelas</label>
+      <select id="ps-kelas" class="form-input">
+        <option value="">Semua Kelas</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:6px;align-items:flex-end">
+      <button class="btn-ekspor primary" onclick="adminMuatPresensi()">🔍 Tampilkan</button>
+      <button class="btn-ekspor" style="background:var(--hijau);color:white" onclick="adminEksporPresensi()">📊 Excel</button>
+      <button class="btn-ekspor" onclick="window.print()">🖨️ Cetak</button>
+    </div>
+  </div>
+  <!-- KPI -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="kartu" style="padding:14px;text-align:center">
+      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--biru-tua)" id="ps-total">0</div>
+      <div style="font-size:11px;color:var(--abu)">Total Scan</div>
+    </div>
+    <div class="kartu" style="padding:14px;text-align:center">
+      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-siswa">0</div>
+      <div style="font-size:11px;color:var(--abu)">Siswa Hadir</div>
+    </div>
+    <div class="kartu" style="padding:14px;text-align:center">
+      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--oranye)" id="ps-hari">0</div>
+      <div style="font-size:11px;color:var(--abu)">Hari</div>
+    </div>
+    <div class="kartu" style="padding:14px;text-align:center">
+      <div style="font-size:24px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="ps-pct">0%</div>
+      <div style="font-size:11px;color:var(--abu)">Rata-rata Kehadiran</div>
+    </div>
+  </div>
+  <div class="kartu" style="padding:0">
+    <div class="tabel-wrap"><table class="tbl">
+      <thead><tr><th>Tanggal</th><th>Hari</th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Jam Masuk</th><th>Status</th></tr></thead>
+      <tbody id="ps-tbody"><tr><td colspan="7" class="loading-inline">Pilih periode → Tampilkan</td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
 </div><!-- .main -->
 
 <div class="toast" id="toast"></div>
@@ -1639,16 +1771,30 @@
   window.gantiPage = function(page, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('aktif'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('aktif'));
-    document.getElementById('page-'+page).classList.add('aktif');
+    const pageEl = document.getElementById('page-'+page);
+    if (pageEl) pageEl.classList.add('aktif');
     btn.classList.add('aktif');
 
-    const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', jadwal:'Jadwal Pelajaran' };
+    const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', siswa:'Data Siswa', 'presensi-siswa':'Data Presensi Siswa', materi:'Bank Materi Kurikulum', profil:'Profil Sekolah', kalender:'Kalender Akademik', mapel:'Mata Pelajaran', jambaku:'Jam Baku', rombel:'Rombel / Kelas', roster:'Penyusunan Roster' };
     const sub   = { beranda:'Ringkasan data hari ini', agenda:'Semua data agenda KBM', laporan:'Rekap mingguan, bulanan, semester, tahunan', guru:'Daftar dan status guru', jadwal:'Jadwal KBM per hari' };
     document.getElementById('topbar-judul').textContent = judul[page]||page;
     document.getElementById('topbar-sub').textContent   = sub[page]||'';
 
     if (page === 'laporan')  renderLaporan().catch(e => console.error(e));
     if (page === 'materi')   muatBankMateri();
+    if (page === 'siswa')    muatDataSiswaAdmin();
+    if (page === 'presensi-siswa') {
+      muatDataSiswaAdmin();
+      const now2 = new Date();
+      const h2 = now2.getDay()||7;
+      const s2 = new Date(now2); s2.setDate(now2.getDate()-h2+1);
+      const m2 = new Date(s2); m2.setDate(s2.getDate()+6);
+      const p2 = v => String(v).padStart(2,'0');
+      const dEl = document.getElementById('ps-dari');
+      const sEl = document.getElementById('ps-sampai');
+      if (dEl) dEl.value = `${s2.getFullYear()}-${p2(s2.getMonth()+1)}-${p2(s2.getDate())}`;
+      if (sEl) sEl.value = `${m2.getFullYear()}-${p2(m2.getMonth()+1)}-${p2(m2.getDate())}`;
+    }
     if (page === 'guru')     renderGuru();
     if (page === 'jadwal')   renderJadwal();
     if (page === 'agenda')   renderTabelAgenda(allAgenda);
@@ -3363,51 +3509,7 @@
   // tampilFormGuru didefinisikan di bawah
 
   // Override simpanGuru untuk simpan field baru
-  window.simpanGuru = async function() {
-    const nama   = document.getElementById('fg-nama').value.trim();
-    const kode   = document.getElementById('fg-kode').value.trim().toUpperCase();
-    const pin    = document.getElementById('fg-pin').value.trim();
-    const errEl  = document.getElementById('guru-form-error');
-    errEl.textContent = '';
-
-    if (!nama)  { errEl.textContent = 'Nama lengkap wajib diisi!'; return; }
-    if (!kode)  { errEl.textContent = 'Kode guru wajib diisi! (contoh: SS, SA)'; return; }
-    if (!pin || pin.length !== 4 || isNaN(pin)) { errEl.textContent = 'PIN harus 4 digit angka!'; return; }
-
-    // Cek PIN duplikat
-    const pinExist = Object.entries(cacheGuru).find(([id,g]) => g.pin_login === pin && id !== editGuruId);
-    if (pinExist) { errEl.textContent = 'PIN sudah digunakan guru lain!'; return; }
-
-    // Cek kode duplikat
-    const kodeExist = Object.entries(cacheGuru).find(([id,g]) => (g.kode_guru||'').toUpperCase() === kode && id !== editGuruId);
-    if (kodeExist) { errEl.textContent = `Kode "${kode}" sudah digunakan ${kodeExist[1].nama_lengkap}!`; return; }
-
-    const data = {
-      nama_lengkap: nama,
-      kode_guru:    kode,
-      nip:          document.getElementById('fg-nip').value.trim(),
-      pin_login:    pin,
-      no_hp:        document.getElementById('fg-hp').value.trim(),
-      status_aktif: document.getElementById('fg-status').value === 'true'
-    };
-
-    try {
-      if (editGuruId) {
-        const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-        await updateDoc(doc(db, 'Data_Guru', editGuruId), data);
-        cacheGuru[editGuruId] = data;
-        tampilToast('✅ Data guru berhasil diperbarui!');
-      } else {
-        const { addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-        const ref = await addDoc(collection(db, 'Data_Guru'), data);
-        cacheGuru[ref.id] = data;
-        tampilToast('✅ Guru baru berhasil ditambahkan!');
-      }
-      tutupFormGuru();
-      renderGuru();
-      isiFilterGuru();
-    } catch(e) { errEl.textContent = 'Gagal menyimpan: ' + e.message; }
-  };
+  // simpanGuru defined below
 
   // ══════════════════════════════════════
   // JAM BAKU — Data & State
@@ -4619,6 +4721,303 @@
     tampilToast(`✅ ${parsed.length} materi berhasil disimpan!`);
     await muatBankMateri();
   };
+
+
+
+  // ══════════════════════════════════════════
+  // DATA SISWA (terintegrasi)
+  // ══════════════════════════════════════════
+  let adminAllSiswa = [], adminFilteredSiswa = [];
+
+  async function muatDataSiswaAdmin() {
+    const snap = await getDocs(collection(db, 'Data_Siswa'));
+    adminAllSiswa = snap.docs.map(d => ({docId:d.id,...d.data()}))
+      .sort((a,b) => (a.kelas||'').localeCompare(b.kelas||'') || (a.nama||'').localeCompare(b.nama||''));
+
+    // Isi filter kelas
+    const kelas = [...new Set(adminAllSiswa.map(s=>s.kelas||'').filter(Boolean))].sort();
+    const sel = document.getElementById('admin-siswa-kelas');
+    const psSel = document.getElementById('ps-kelas');
+    if (sel) sel.innerHTML = '<option value="">Semua Kelas</option>' + kelas.map(k=>`<option>${k}</option>`).join('');
+    if (psSel) psSel.innerHTML = '<option value="">Semua Kelas</option>' + kelas.map(k=>`<option>${k}</option>`).join('');
+
+    adminFilterSiswa();
+  }
+
+  window.adminFilterSiswa = function() {
+    const kelas = document.getElementById('admin-siswa-kelas')?.value || '';
+    const cari  = (document.getElementById('admin-siswa-cari')?.value || '').toLowerCase();
+    adminFilteredSiswa = adminAllSiswa.filter(s => {
+      if (kelas && s.kelas !== kelas) return false;
+      if (cari && !(s.nama||'').toLowerCase().includes(cari) && !(s.nis||'').includes(cari)) return false;
+      return true;
+    });
+    renderTabelSiswaAdmin();
+  };
+
+  function renderTabelSiswaAdmin() {
+    const tbody = document.getElementById('admin-tbody-siswa');
+    const info  = document.getElementById('admin-siswa-info');
+    if (!tbody) return;
+    if (info) info.textContent = `${adminFilteredSiswa.length} dari ${adminAllSiswa.length} siswa`;
+    if (!adminFilteredSiswa.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading-inline">Tidak ada data</td></tr>';
+      return;
+    }
+    tbody.innerHTML = adminFilteredSiswa.map((s,i) => `<tr>
+      <td style="color:var(--abu);font-family:'DM Mono',monospace">${i+1}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nis||'—'}</td>
+      <td style="font-weight:600">${s.nama||'—'}</td>
+      <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--biru-muda);color:var(--biru-tua)">${s.kelas||'—'}</span></td>
+      <td>${s.jk||'—'}</td>
+      <td>
+        <button onclick="adminHapusSiswa('${s.docId}')" style="font-size:10px;padding:2px 7px;border:1px solid #FFCDD2;border-radius:5px;background:#FFEBEE;color:#C62828;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Hapus</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  window.adminTambahSiswa = function() {
+    document.getElementById('admin-form-siswa').style.display = 'block';
+  };
+
+  window.adminSimpanSiswa = async function() {
+    const nis   = document.getElementById('as-nis').value.trim();
+    const nama  = document.getElementById('as-nama').value.trim();
+    const kelas = document.getElementById('as-kelas').value.trim();
+    const jk    = document.getElementById('as-jk').value;
+    if (!nis||!nama||!kelas) { tampilToast('⚠ NIS, Nama, dan Kelas wajib diisi'); return; }
+    await addDoc(collection(db,'Data_Siswa'),{nis,nama,kelas,jk});
+    tampilToast('✅ Siswa berhasil ditambahkan');
+    document.getElementById('admin-form-siswa').style.display = 'none';
+    ['as-nis','as-nama','as-kelas'].forEach(id => document.getElementById(id).value = '');
+    await muatDataSiswaAdmin();
+  };
+
+  window.adminHapusSiswa = async function(docId) {
+    if (!confirm('Hapus siswa ini?')) return;
+    await deleteDoc(doc(db,'Data_Siswa',docId));
+    tampilToast('✅ Siswa dihapus');
+    await muatDataSiswaAdmin();
+  };
+
+  window.adminImportSiswa = async function(input) {
+    const file = input.files[0]; if (!file) return; input.value = '';
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const wb   = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      let count = 0;
+      const batch = writeBatch(db);
+      rows.forEach(row => {
+        const nis  = String(row['NIS']||row['nis']||'').trim();
+        const nama = String(row['Nama Lengkap']||row['nama']||row['Nama']||'').trim();
+        const kelas= String(row['Kelas']||row['kelas']||'').trim();
+        const jk   = String(row['JK']||row['jk']||'').trim();
+        if (!nis||!nama||!kelas) return;
+        if (adminAllSiswa.find(s=>s.nis===nis)) return;
+        batch.set(doc(collection(db,'Data_Siswa')),{nis,nama,kelas,jk});
+        count++;
+      });
+      await batch.commit();
+      tampilToast(`✅ ${count} siswa diimport`);
+      await muatDataSiswaAdmin();
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  window.adminEksporSiswa = function() {
+    const rows = adminAllSiswa.map(s=>({'NIS':s.nis,'Nama Lengkap':s.nama,'Kelas':s.kelas,'JK':s.jk}));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Siswa');
+    XLSX.writeFile(wb,'Data_Siswa_SMAN5.xlsx');
+  };
+
+  window.adminCetakQRSiswa = async function() {
+    if (!adminFilteredSiswa.length) { tampilToast('⚠ Tidak ada data siswa'); return; }
+    // Load QRCode library
+    if (typeof QRCode === 'undefined') {
+      await new Promise(resolve => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        s.onload = resolve; document.head.appendChild(s);
+      });
+    }
+    const div = document.createElement('div');
+    div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;overflow:auto;padding:20px';
+    div.innerHTML = `<div style="background:white;border-radius:16px;max-width:900px;margin:0 auto;">
+      <div style="padding:16px 20px;border-bottom:1px solid #E0E0E0;display:flex;align-items:center;justify-content:space-between" class="no-print">
+        <div style="font-size:15px;font-weight:700">🖨️ Kartu QR Siswa — ${adminFilteredSiswa.length} siswa</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="window.print()" style="padding:7px 16px;background:#E07020;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">🖨️ Print</button>
+          <button onclick="this.closest('[style*=fixed]').remove()" style="padding:7px 12px;background:#F5F5F5;border:1px solid #E0E0E0;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">✕ Tutup</button>
+        </div>
+      </div>
+      <div id="qr-siswa-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px"></div>
+    </div>`;
+    document.body.appendChild(div);
+    const grid = div.querySelector('#qr-siswa-grid');
+    adminFilteredSiswa.forEach(s => {
+      const card = document.createElement('div');
+      card.style.cssText = 'border:1.5px solid #1A3A5C;border-radius:10px;padding:10px;text-align:center;background:white';
+      card.innerHTML = `<div style="font-size:9px;font-weight:700;color:#1A3A5C;margin-bottom:5px">SMAN 5 SAROLANGUN</div>
+        <div id="qrs-${s.nis}" style="display:flex;justify-content:center"></div>
+        <div style="font-size:11px;font-weight:800;color:#1A1A2E;margin-top:5px;line-height:1.2">${s.nama?.split(' ').slice(0,3).join(' ')||'—'}</div>
+        <div style="font-size:10px;color:#78909C">${s.kelas||'—'}</div>
+        <div style="font-size:9px;font-family:monospace;color:#546E7A">NIS: ${s.nis||'—'}</div>`;
+      grid.appendChild(card);
+      setTimeout(() => {
+        new QRCode(document.getElementById(`qrs-${s.nis}`),{
+          text:`${s.nis}|${s.nama}|${s.kelas}`,width:80,height:80,
+          colorDark:'#1A3A5C',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M
+        });
+      }, 50);
+    });
+  };
+
+  // ══════════════════════════════════════════
+  // PRESENSI SISWA (terintegrasi)
+  // ══════════════════════════════════════════
+  const HARI_ADMIN = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  let psData = [];
+
+  window.adminMuatPresensi = async function() {
+    const dari   = document.getElementById('ps-dari').value;
+    const sampai = document.getElementById('ps-sampai').value;
+    const kelas  = document.getElementById('ps-kelas').value;
+    if (!dari||!sampai) { tampilToast('⚠ Pilih periode terlebih dahulu'); return; }
+
+    const snap = await getDocs(query(
+      collection(db,'Presensi_Harian'),
+      where('tanggal','>=',dari),
+      where('tanggal','<=',sampai)
+    ));
+    let data = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.nama||'').localeCompare(b.nama||''));
+    if (kelas) data = data.filter(d=>d.kelas===kelas);
+    psData = data;
+
+    // KPI
+    const unikSiswa = new Set(data.map(d=>d.nis)).size;
+    const unikHari  = new Set(data.map(d=>d.tanggal)).size;
+    const totalSiswa = adminAllSiswa.filter(s=>!kelas||s.kelas===kelas).length || 1;
+    const rata = unikHari>0 ? Math.round(data.length/(totalSiswa*unikHari)*100) : 0;
+    document.getElementById('ps-total').textContent  = data.length;
+    document.getElementById('ps-siswa').textContent  = unikSiswa;
+    document.getElementById('ps-hari').textContent   = unikHari;
+    document.getElementById('ps-pct').textContent    = rata+'%';
+
+    const tbody = document.getElementById('ps-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="loading-inline">Tidak ada data presensi periode ini</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(d => {
+      const ts = d.jam_masuk ? new Date(d.jam_masuk) : null;
+      const jam = ts ? `${String(ts.getHours()).padStart(2,'0')}:${String(ts.getMinutes()).padStart(2,'0')}` : '—';
+      const hari = d.tanggal ? HARI_ADMIN[new Date(d.tanggal).getDay()] : '—';
+      return `<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:11px">${d.tanggal||'—'}</td>
+        <td>${hari}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px">${d.nis||'—'}</td>
+        <td style="font-weight:600">${d.nama||'—'}</td>
+        <td><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--biru-muda);color:var(--biru-tua)">${d.kelas||'—'}</span></td>
+        <td style="font-family:'DM Mono',monospace">${jam}</td>
+        <td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:#E8F5E9;color:#2E7D32">✓ Hadir</span></td>
+      </tr>`;
+    }).join('');
+  };
+
+  window.adminEksporPresensi = function() {
+    if (!psData.length) { tampilToast('⚠ Muat data dulu'); return; }
+    const rows = psData.map(d => ({
+      Tanggal:d.tanggal, NIS:d.nis, Nama:d.nama, Kelas:d.kelas,
+      JamMasuk:(d.jam_masuk||'').slice(11,19), Status:'Hadir'
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Presensi');
+    XLSX.writeFile(wb,`Presensi_${document.getElementById('ps-dari').value}_${document.getElementById('ps-sampai').value}.xlsx`);
+  };
+
+  // ══════════════════════════════════════════
+  // CETAK QR ROMBEL (10x10 cm)
+  // ══════════════════════════════════════════
+  window.tampilCetakQRRombel = async function() {
+    // Load QRCode library
+    if (typeof QRCode === 'undefined') {
+      await new Promise(resolve => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        s.onload = resolve; document.head.appendChild(s);
+      });
+    }
+
+    // Ambil data rombel
+    const snap = await getDocs(collection(db,'Rombel'));
+    const rombels = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.nama_kelas||'').localeCompare(b.nama_kelas||''));
+
+    // Buat overlay cetak
+    const overlay = document.createElement('div');
+    overlay.id = 'qr-rombel-overlay';
+    overlay.className = 'qr-print-overlay';
+    overlay.innerHTML = `
+      <div class="qr-print-box">
+        <div class="qr-print-header no-print">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--biru-tua)">🖨️ Cetak QR Code Kelas</div>
+            <div style="font-size:11px;color:var(--abu);margin-top:2px">Ukuran cetak: 10×10 cm per QR · Tempel di pintu kelas untuk verifikasi agenda</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="window.print()" style="padding:8px 18px;background:var(--oranye);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">🖨️ Print Semua</button>
+            <button onclick="document.getElementById('qr-rombel-overlay').remove()" style="padding:8px 14px;background:#F5F5F5;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">✕ Tutup</button>
+          </div>
+        </div>
+        <div style="background:#FFF8F0;border-bottom:1px solid var(--border);padding:10px 16px;font-size:12px;color:var(--oranye-gelap)" class="no-print">
+          💡 QR Code ini dibaca Portal Guru untuk verifikasi bahwa agenda benar-benar diinput dari ruang kelas. Tempel di dinding kelas atau papan kelas.
+        </div>
+        <div class="qr-print-body">
+          <div class="qr-grid-preview" id="qr-rombel-grid"></div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const grid = document.getElementById('qr-rombel-grid');
+
+    rombels.forEach(r => {
+      const namaKelas = r.nama_kelas || r.id;
+      const fase = r.fase || '';
+      const wali = cacheGuru[r.id_wali]?.nama_lengkap?.split(',')[0] || '—';
+      const qrData = `KELAS:${namaKelas}|SEKOLAH:SMAN5SRL|TA:${r.tahun_ajaran||'2025/2026'}`;
+
+      const card = document.createElement('div');
+      card.className = 'qr-rombel-card';
+      card.innerHTML = `
+        <div class="qr-rombel-sekolah">SMAN 5 SAROLANGUN<br>T.A. ${r.tahun_ajaran||'2025/2026'}</div>
+        <div id="qr-kelas-${r.id}" style="display:flex;justify-content:center"></div>
+        <div class="qr-rombel-nama">${namaKelas}</div>
+        <div class="qr-rombel-fase">Fase ${fase}</div>
+        <div class="qr-rombel-sekolah">Wali: ${wali}</div>
+        <div class="qr-rombel-scan">📱 SCAN UNTUK VERIFIKASI LOKASI KELAS</div>`;
+      grid.appendChild(card);
+
+      setTimeout(() => {
+        const el = document.getElementById(`qr-kelas-${r.id}`);
+        if (el) {
+          new QRCode(el, {
+            text: qrData,
+            width: 140, height: 140,
+            colorDark: '#1A3A5C',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
+      }, 100);
+    });
+  };
+
+  // Hook tambahan page baru dipanggil dari gantiPage asli
 
 
 </script>
