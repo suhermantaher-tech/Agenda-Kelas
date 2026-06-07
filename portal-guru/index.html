@@ -1195,42 +1195,52 @@ import {
   // ── RIWAYAT ──
   async function muatRiwayat() {
     const el = document.getElementById('riwayat-container');
-    el.innerHTML = '';
+    if (!el) return;
+    el.innerHTML = '<div class="loading-inline">⏳ Memuat riwayat...</div>';
     try {
       const snap = await getDocs(query(
         collection(db,'Agenda_Harian'),
         where('id_guru','==',guruAktif.id),
         orderBy('timestamp_input','desc'),
-        limit(30)
+        limit(50)
       ));
       if (snap.empty) {
-        el.innerHTML = `<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.</p></div>`;
+        el.innerHTML = '<div class="empty-state"><div class="ikon">📂</div><p>Belum ada riwayat agenda.<br><small>Mulai isi agenda hari ini.</small></p></div>';
         return;
       }
-      snap.docs.forEach(d => {
+      const HARI = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+      const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      el.innerHTML = snap.docs.map(d => {
         const r = d.data();
-        const div = document.createElement('div');
-        div.className = 'riwayat-item';
-        div.innerHTML = `
-          <span class="riwayat-kelas">${r.kelas}</span>
-          <div class="riwayat-top">
-            <span class="riwayat-mapel">${r.mapel}</span>
-            <span class="riwayat-tgl">${r.tanggal}</span>
+        const tgl = r.tanggal ? new Date(r.tanggal) : null;
+        const tglStr = tgl ? `${HARI[tgl.getDay()]}, ${tgl.getDate()} ${BULAN[tgl.getMonth()]} ${tgl.getFullYear()}` : r.tanggal || '—';
+        const verif = (r.verif_gps ? '📍' : '') + (r.verif_qr ? '📷' : '');
+        return `<div class="riwayat-item">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span class="riwayat-kelas">${r.kelas||'—'}</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${verif ? `<span style="font-size:10px">${verif}</span>` : ''}
+              <span class="riwayat-tgl">${tglStr}</span>
+            </div>
           </div>
-          <div class="riwayat-materi">${r.materi_pokok}</div>
-        `;
-        el.appendChild(div);
-      });
+          <div class="riwayat-mapel">${r.mapel||'—'}</div>
+          <div class="riwayat-materi">${r.materi_pokok||'—'}${r.sub_materi ? ' · '+r.sub_materi : ''}</div>
+          ${r.catatan ? `<div style="font-size:11px;color:var(--abu);margin-top:3px;font-style:italic">"${r.catatan}"</div>` : ''}
+        </div>`;
+      }).join('');
     } catch(e) {
-      el.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat riwayat.</p></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="ikon">⚠️</div><p>Gagal memuat riwayat.<br><small>${e.message}</small></p></div>`;
+      console.error('muatRiwayat error:', e);
     }
   }
 
   function gantiTab(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
-    document.querySelectorAll('.tab-konten').forEach(t => t.classList.remove('aktif'));
-    btn.classList.add('aktif');
-    document.getElementById('tab-'+tab).classList.add('aktif');
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('aktif'));
+    btn?.classList.add('aktif');
+    document.getElementById('tab-'+tab)?.classList.add('aktif');
+    if (tab === 'roster'  && guruAktif) muatRosterGuru();
+    if (tab === 'riwayat' && guruAktif) muatRiwayat();
   }
 
   function keluar() {
@@ -1313,16 +1323,24 @@ import {
     if (!el || !rosterCache) return;
     const { perHari, jamBakuAll } = rosterCache;
 
+    // Tombol filter hari
+    const hariAda = hariUrut.filter(h => perHari[h]);
+    const filterBtns = ['Semua', ...hariAda].map(h =>
+      `<button class="roster-hari-btn ${rosterHariAktif===h?'aktif':''}"
+        onclick="gantiHariRoster('${h}',this)">${h}</button>`
+    ).join('');
+
     const hariTampil = rosterHariAktif === 'Semua'
-      ? hariUrut.filter(h => perHari[h])
+      ? hariAda
       : [rosterHariAktif].filter(h => perHari[h]);
 
     if (!hariTampil.length) {
-      el.innerHTML = '<div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal di hari ini.</p></div>';
+      el.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${filterBtns}</div>
+        <div class="empty-state"><div class="ikon">🏖️</div><p>Tidak ada jadwal hari ini.</p></div>`;
       return;
     }
 
-    el.innerHTML = hariTampil.map(hari => {
+    const kartuHari = hariTampil.map(hari => {
       const slots   = perHari[hari] || [];
       const jamBaku = jamBakuAll[hari] || [];
       const totalJP = slots.reduce((s,j) => s + (j.durasi_jp||1), 0);
@@ -1375,6 +1393,8 @@ import {
         <div class="roster-total-jp">✅ Total ${totalJP} JP hari ${hari}</div>
       </div>`;
     }).join('');
+
+    el.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${filterBtns}</div>${kartuHari}`;
   }
 
   window.gantiHariRoster = function(hari, el) {
