@@ -157,7 +157,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
 /* Tab konten */
 .tab-konten{flex:1;overflow-y:auto;min-height:0}
-.tab-page{display:none;padding:14px;max-width:800px;margin:0 auto;min-height:200px}
+.tab-page{display:none;padding:14px;max-width:800px;margin:0 auto;min-height:100px}
 .tab-page.aktif{display:block}
 
 /* Kartu jadwal */
@@ -775,16 +775,20 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
     </div>
 
     <!-- TAB ROSTER SAYA -->
-    <div class="tab-page" id="tab-roster">
-      <div id="roster-container">
-        <div class="loading-inline">Memuat roster...</div>
+    <div class="tab-page" id="tab-roster" style="min-height:300px">
+      <div id="roster-container" style="min-height:200px">
+        <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
+          ⏳ Klik tab ini untuk memuat roster...
+        </div>
       </div>
     </div>
 
     <!-- TAB RIWAYAT -->
-    <div class="tab-page" id="tab-riwayat">
-      <div id="riwayat-container">
-        <div class="loading-inline">Memuat riwayat...</div>
+    <div class="tab-page" id="tab-riwayat" style="min-height:300px">
+      <div id="riwayat-container" style="min-height:200px">
+        <div class="loading-inline" style="padding:40px;color:var(--oranye);font-weight:700">
+          ⏳ Klik tab ini untuk memuat riwayat...
+        </div>
       </div>
     </div>
 
@@ -1424,14 +1428,22 @@ import {
     }
   }
 
-  function gantiTab(tab, btn) {
+  window.gantiTab = function(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
-    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('aktif'));
+    document.querySelectorAll('.tab-page').forEach(p => {
+      p.classList.remove('aktif');
+      p.style.display = 'none';
+    });
     btn?.classList.add('aktif');
-    document.getElementById('tab-'+tab)?.classList.add('aktif');
-    if (tab === 'roster'  && guruAktif && !rosterCache) muatRosterGuru();
-    if (tab === 'riwayat' && guruAktif) muatRiwayat();
-  }
+    const pageEl = document.getElementById('tab-'+tab);
+    if (pageEl) {
+      pageEl.classList.add('aktif');
+      pageEl.style.display = 'block';
+    }
+    if (tab === 'roster')  { muatRosterGuru(); }
+    if (tab === 'riwayat') { muatRiwayat(); }
+  };
+  function gantiTab(tab, btn) { window.gantiTab(tab, btn); }
 
   function keluar() {
     guruAktif = null; jadwalDipilih = null;
@@ -1597,7 +1609,6 @@ import {
     else renderRoster();
   };
 
-  window.gantiTab    = gantiTab;
   window.simpanAgenda = simpanAgenda;
   window.tutupForm   = tutupForm;
 
