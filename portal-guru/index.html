@@ -520,22 +520,22 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--tek
 
       <!-- Numpad -->
       <div class="numpad">
-        <button class="numpad-btn" onclick="inputPin('1')">1</button>
-        <button class="numpad-btn" onclick="inputPin('2')">2</button>
-        <button class="numpad-btn" onclick="inputPin('3')">3</button>
-        <button class="numpad-btn" onclick="inputPin('4')">4</button>
-        <button class="numpad-btn" onclick="inputPin('5')">5</button>
-        <button class="numpad-btn" onclick="inputPin('6')">6</button>
-        <button class="numpad-btn" onclick="inputPin('7')">7</button>
-        <button class="numpad-btn" onclick="inputPin('8')">8</button>
-        <button class="numpad-btn" onclick="inputPin('9')">9</button>
-        <button class="numpad-btn hapus" onclick="hapusPin()">⌫</button>
-        <button class="numpad-btn" onclick="inputPin('0')">0</button>
+        <button class="numpad-btn" onclick="window.inputPin('1')">1</button>
+        <button class="numpad-btn" onclick="window.inputPin('2')">2</button>
+        <button class="numpad-btn" onclick="window.inputPin('3')">3</button>
+        <button class="numpad-btn" onclick="window.inputPin('4')">4</button>
+        <button class="numpad-btn" onclick="window.inputPin('5')">5</button>
+        <button class="numpad-btn" onclick="window.inputPin('6')">6</button>
+        <button class="numpad-btn" onclick="window.inputPin('7')">7</button>
+        <button class="numpad-btn" onclick="window.inputPin('8')">8</button>
+        <button class="numpad-btn" onclick="window.inputPin('9')">9</button>
+        <button class="numpad-btn hapus" onclick="window.hapusPin()">⌫</button>
+        <button class="numpad-btn" onclick="window.inputPin('0')">0</button>
         <button class="numpad-btn kosong"></button>
       </div>
 
       <!-- Tombol masuk -->
-      <button class="btn-login" id="btn-login" onclick="prosesLogin()" disabled>
+      <button class="btn-login" id="btn-login" onclick="window.prosesLogin()" disabled>
         Masuk →
       </button>
 
@@ -2123,21 +2123,15 @@ import {
     }
   }
 
-  // Override isiDropdownMateriPokok untuk update picker button juga
-  const _origIsiPokok = isiDropdownMateriPokok;
-  function isiDropdownMateriPokok() {
-    _origIsiPokok();
-    // Reset picker button
+  // Reset picker buttons setelah isiDropdownMateriPokok dipanggil
+  function resetPickerButtons() {
     const btn = document.getElementById('pb-materi');
     const teks = document.getElementById('pb-materi-teks');
     if(btn && teks) {
       btn.classList.remove('aktif','open');
-      teks.textContent = materiPokok.length
-        ? 'Pilih materi pokok...'
-        : 'Belum ada materi di bank';
+      teks.textContent = materiPokok.length ? 'Pilih materi pokok...' : 'Belum ada materi di bank';
       teks.classList.add('placeholder');
     }
-    // Reset sub materi picker juga
     const sbtn = document.getElementById('pb-submateri');
     const steks = document.getElementById('pb-submateri-teks');
     if(sbtn && steks) {
