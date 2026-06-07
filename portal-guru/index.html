@@ -1362,7 +1362,7 @@
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const namaBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const sekarang  = new Date();
-  const hariIni   = 'Senin';
+  const hariIni   = namaHari[sekarang.getDay()];
 
   muatProfilSekolah();
   document.getElementById('teks-tanggal').textContent =
@@ -2345,11 +2345,21 @@
   function loadJsQR() {
     return new Promise(res => {
       if (window.jsQR) { res(); return; }
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-      s.onload = res;
-      s.onerror = () => { console.error('Gagal load jsQR'); res(); };
-      document.head.appendChild(s);
+      // Coba unpkg dulu, fallback ke cdnjs
+      const urls = [
+        'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
+        'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+      ];
+      let idx = 0;
+      function tryLoad() {
+        if (idx >= urls.length) { console.error('Semua CDN jsQR gagal'); res(); return; }
+        const s = document.createElement('script');
+        s.src = urls[idx++];
+        s.onload = res;
+        s.onerror = () => { console.warn('jsQR CDN gagal, coba berikutnya...'); tryLoad(); };
+        document.head.appendChild(s);
+      }
+      tryLoad();
     });
   }
 
