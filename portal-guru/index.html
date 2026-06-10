@@ -12279,16 +12279,45 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
       bankMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // Filter: harus cocok id_mapel DAN is_pokok = true
-      // Urut berdasarkan field 'no' (nomor urut)
+      // Debug: lihat nilai yang tersedia
+      console.log('muatBankMateri — idMapel:', idMapel, '| namaKelas:', namaKelas);
+      if (bankMateri.length > 0) {
+        console.log('Contoh dokumen Materi_Kurikulum:', bankMateri[0]);
+      }
+
+      // Normalisasi nama kelas untuk filter fase
+      // namaKelas contoh: "X 1", "XI IPA 2", "XII 3"
+      const tingkat = namaKelas ? namaKelas.trim().split(/\s+/)[0].toUpperCase() : '';
+      // tingkat: "X", "XI", "XII"
+
+      // Filter: is_pokok = true DAN cocok mapel DAN cocok kelas/fase
       materiPokok = bankMateri
-        .filter(m => m.id_mapel === idMapel && m.is_pokok === true)
+        .filter(m => {
+          if (!m.is_pokok) return false;
+          
+          // Cocokkan mapel — coba beberapa cara
+          const mapelOK = idMapel && (
+            m.id_mapel   === idMapel ||
+            m.nama_mapel === idMapel ||
+            m.kode_mapel === idMapel ||
+            (m.nama_mapel || '').toLowerCase() === (namaKelas || '').toLowerCase()
+          );
+          if (!mapelOK) return false;
+
+          // Cocokkan kelas/tingkat jika ada
+          if (!namaKelas) return true;
+          const mKelas = String(m.kelas || '').toUpperCase().trim();
+          return !mKelas || mKelas === tingkat ||
+                 mKelas === namaKelas.toUpperCase() ||
+                 namaKelas.toUpperCase().startsWith(mKelas);
+        })
         .sort((a, b) => {
-          // Sort numerik berdasarkan field 'no'
           const na = parseFloat(String(a.no || '0').replace(/[^0-9.]/g, '')) || 0;
           const nb = parseFloat(String(b.no || '0').replace(/[^0-9.]/g, '')) || 0;
           return na - nb;
         });
+
+      console.log('Materi pokok ditemukan:', materiPokok.length, materiPokok.map(m=>m.nama));
 
       // Cek materi sudah diajarkan (dari Agenda_Harian guru+kelas ini)
       if (guruAktif && jadwalDipilih) {
