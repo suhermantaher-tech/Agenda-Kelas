@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Presensi QR — SMAN 5</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --or:#E07020;--or-t:#FFF0E0;--or-d:#B85510;
+  --hi:#2E7D32;--hi-m:#E8F5E9;
+  --me:#C62828;--me-m:#FFEBEE;
+  --bi:#1A3A5C;--bi-m:#E3EEF8;
+  --ab:#78909C;--bg:#0D1B2A;--bg2:#132233;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:white}
+body{overflow:hidden}
+
+/* ── FLASH ── */
+#flash{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity .12s}
+#flash.ok{background:rgba(46,125,50,.4)}
+#flash.err{background:rgba(198,40,40,.4)}
+#flash.show{opacity:1}
+
+/* ══════════ LOGIN ══════════ */
+#hal-login{
+  position:fixed;inset:0;z-index:100;
+  background:linear-gradient(160deg,#0D1B2A 0%,#1A3A5C 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px
+}
+.lc{/* login card */
+  background:white;border-radius:24px;width:min(340px,100%);
+  overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);
+  animation:popUp .4s cubic-bezier(.34,1.2,.64,1)
+}
+@keyframes popUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.lc-hdr{background:linear-gradient(135deg,var(--or-d),var(--or));padding:22px 20px;text-align:center}
+.lc-logo{width:60px;height:60px;border-radius:14px;background:white;margin:0 auto 10px;
+  overflow:hidden;padding:4px;display:flex;align-items:center;justify-content:center}
+.lc-logo img{width:100%;height:100%;object-fit:contain}
+.lc-judul{font-size:16px;font-weight:800;color:white}
+.lc-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px}
+.lc-body{padding:22px 20px}
+.lc-lbl{font-size:11px;font-weight:700;color:var(--ab);text-align:center;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.pin-row{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.pd{width:50px;height:56px;border:2px solid #E0E0E0;border-radius:11px;
+  font-size:24px;font-weight:700;font-family:'DM Mono',monospace;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--or);background:#F8F9FA;transition:all .2s}
+.pd.isi{border-color:var(--or);background:var(--or-t);
+  box-shadow:0 0 0 3px rgba(224,112,32,.12)}
+.np-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.np{height:50px;border:1.5px solid #E0E0E0;border-radius:10px;background:white;
+  font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--bi);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+  transition:background .12s,border-color .12s}
+.np:active{background:var(--or-t);border-color:var(--or);transform:scale(.95)}
+.np.del{font-size:14px;color:var(--me)}
+.np.kosong{visibility:hidden}
+.btn-ok{width:100%;height:46px;background:linear-gradient(135deg,var(--or-d),var(--or));
+  color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer;touch-action:manipulation;
+  box-shadow:0 4px 14px rgba(224,112,32,.4);transition:opacity .2s}
+.btn-ok:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.lerr{text-align:center;color:var(--me);font-size:12px;font-weight:600;
+  margin-top:8px;min-height:16px}
+
+/* ══════════ APP ══════════ */
+#app{display:none;height:100dvh;flex-direction:column}
+#app.on{display:flex}
+
+/* Header */
+.hdr{
+  background:rgba(255,255,255,.05);
+  padding:8px 12px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  flex-shrink:0
+}
+.hdr-logo{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.1);
+  overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hdr-logo img{width:100%;height:100%;object-fit:contain}
+.hdr-txt{flex:1;min-width:0}
+.hdr-nm{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-sb{font-size:10px;color:rgba(255,255,255,.4)}
+.hdr-jam{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;
+  color:rgba(255,255,255,.7);flex-shrink:0}
+.hdr-guru{font-size:11px;font-weight:700;color:var(--or);flex-shrink:0;
+  max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-out{padding:4px 9px;border:1px solid rgba(255,255,255,.2);border-radius:6px;
+  font-size:11px;font-weight:600;background:transparent;color:rgba(255,255,255,.6);
+  cursor:pointer;font-family:inherit;flex-shrink:0;touch-action:manipulation}
+
+/* ── LAYOUT UTAMA ──
+   Desktop: kiri=kamera, kanan=data
+   Mobile : atas=kamera, bawah=data
+*/
+.body{flex:1;display:grid;min-height:0;
+  grid-template-columns:1fr 320px; /* desktop */
+}
+
+/* ── PANEL KIRI: KAMERA ── */
+.p-kiri{display:flex;flex-direction:column;padding:10px;gap:8px;overflow:hidden}
+.cam-wrap{flex:1;border-radius:12px;background:#000;position:relative;
+  overflow:hidden;min-height:0;cursor:pointer}
+.cam-idle{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:8px}
+.cam-idle .ico{font-size:48px}
+.cam-idle p{font-size:13px;font-weight:600;color:rgba(255,255,255,.7)}
+.cam-idle small{font-size:11px;color:rgba(255,255,255,.3)}
+.btn-cam{padding:9px 22px;background:var(--or);border:none;border-radius:9px;
+  font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;
+  touch-action:manipulation}
+video{width:100%;height:100%;object-fit:cover;display:none}
+#cv{display:none}
+.frame-ov{position:absolute;inset:0;display:none;pointer-events:none}
+.frame-box{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:190px;height:190px;border:2px solid rgba(255,255,255,.25);border-radius:12px}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:var(--or);
+  animation:scan 2s linear infinite;box-shadow:0 0 8px var(--or),0 0 16px rgba(224,112,32,.3)}
+@keyframes scan{0%{top:0}100%{top:calc(100% - 2px)}}
+.c-tr{position:absolute;top:-1px;right:-1px;width:22px;height:22px;
+  border-top:3px solid var(--or);border-right:3px solid var(--or);border-radius:0 11px 0 0}
+.c-bl{position:absolute;bottom:-1px;left:-1px;width:22px;height:22px;
+  border-bottom:3px solid var(--or);border-left:3px solid var(--or);border-radius:0 0 0 11px}
+.cam-hint{font-size:11px;color:rgba(255,255,255,.3);text-align:center;flex-shrink:0}
+
+/* ── PANEL KANAN: DATA ── */
+.p-kanan{
+  display:flex;flex-direction:column;
+  border-left:1px solid rgba(255,255,255,.07);
+  overflow:hidden
+}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.kpi{background:rgba(255,255,255,.05);border-radius:8px;padding:7px;text-align:center}
+.kpi-v{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;line-height:1}
+.kpi-l{font-size:9px;color:rgba(255,255,255,.35);font-weight:600;
+  text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+
+/* Filter kelas */
+.filter-bar{display:flex;gap:5px;flex-wrap:wrap;padding:7px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.kb{padding:3px 10px;border:1px solid rgba(255,255,255,.12);border-radius:16px;
+  font-size:11px;font-weight:600;background:transparent;color:rgba(255,255,255,.45);
+  cursor:pointer;font-family:inherit;touch-action:manipulation;transition:all .15s}
+.kb.on{background:var(--or);border-color:var(--or);color:white}
+
+/* ── SCAN TERBARU ── */
+.scan-terbaru{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0
+}
+.scan-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.scan-card{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.06);border-radius:10px;
+  padding:10px 12px;border:1.5px solid rgba(255,255,255,.08);
+  transition:all .3s
+}
+.scan-card.ok{background:rgba(46,125,50,.18);border-color:rgba(46,125,50,.5)}
+.scan-card.err{background:rgba(198,40,40,.12);border-color:rgba(198,40,40,.4)}
+.scan-avatar{width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;flex-shrink:0}
+.scan-nama{font-size:13px;font-weight:800;line-height:1.2}
+.scan-card.ok .scan-nama{color:#81C784}
+.scan-card.err .scan-nama{color:#EF9A9A}
+.scan-kls{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+.scan-wkt{font-size:11px;font-family:'DM Mono',monospace;
+  color:rgba(255,255,255,.35);margin-left:auto;flex-shrink:0}
+
+/* ── DAFTAR SEBELUMNYA ── */
+.list-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;
+  font-size:10px;color:rgba(255,255,255,.3);font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;
+  flex-shrink:0
+}
+.siswa-list{flex:1;overflow-y:auto;padding:0 8px 8px;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.siswa-list::-webkit-scrollbar{width:3px}
+.siswa-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+.si{/* siswa item */
+  display:flex;align-items:center;gap:8px;
+  padding:6px 4px;
+  border-bottom:.5px solid rgba(255,255,255,.04)
+}
+.si:last-child{border-bottom:none}
+.si-av{width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0}
+.si-nm{font-size:11px;font-weight:600;flex:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-kl{font-size:9px;color:rgba(255,255,255,.35)}
+.si-jm{font-size:10px;font-family:'DM Mono',monospace;
+  color:rgba(255,255,255,.3);flex-shrink:0}
+
+/* ── MOBILE ── */
+@media(max-width:680px){
+  /* MOBILE: kamera di atas, data di bawah */
+  .body{
+    grid-template-columns:1fr;
+    grid-template-rows:1fr auto;
+  }
+
+  /* Panel kiri: kamera mengambil sisa ruang */
+  .p-kiri{padding:8px 8px 4px}
+  .cam-hint{display:none} /* hemat ruang */
+
+  /* Panel kanan: tinggi pas untuk scan-terbaru + 4 item
+     Komponen: hdr(32) + kpi(52) + filter(34) + scan-terbaru(80) + list-hdr(26) + 4×(item32=128) = ~352px */
+  .p-kanan{
+    border-left:none;
+    border-top:1px solid rgba(255,255,255,.08);
+    height:352px;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .kpi-strip{padding:6px 10px;gap:4px}
+  .kpi-v{font-size:16px}
+  .kpi{padding:5px 4px}
+  .filter-bar{padding:4px 10px;gap:4px}
+  .filter-bar .kb{padding:2px 8px;font-size:10px}
+  .hdr{padding:6px 10px}
+  .scan-terbaru{padding:8px 10px}
+  .scan-card{padding:7px 10px;gap:8px}
+  .scan-avatar{width:38px;height:38px;font-size:14px}
+  .scan-nama{font-size:13px}
+  .scan-terbaru{padding:6px 10px 7px}
+  .scan-label{display:none} /* hemat space, cukup jelas dari konteks */
+  /* Siswa list: compact, max 4 item visible */
+  .si{padding:5px 2px;min-height:32px}
+  .si-nm{font-size:11px}
+  .si-av{width:26px;height:26px}
+  /* Batasi siswa-list ke ~4 item = 4×32=128px */
+  .siswa-list{
+    max-height:128px;
+    overflow-y:auto;
+  }
+  .list-hdr{padding:5px 10px}
+  /* Di HP: siswa list lebih compact */
+  .si{padding:5px 4px}
+  .si-av{width:26px;height:26px;font-size:10px}
+  .si-nm{font-size:11px}
+  /* Sembunyikan list header di hp */
+  .list-hdr{padding:5px 10px}
+}
+@media(max-width:380px){
+  .kpi-v{font-size:13px}
+  .kpi-l{display:none} /* super compact di HP kecil */
+  .hdr-nm{font-size:11px}
+  .hdr-guru{max-width:70px}
+  .scan-avatar{width:34px;height:34px;font-size:13px}
+  .scan-nama{font-size:12px}
+  .pd{width:46px;height:52px;font-size:22px}
+  .np{height:46px;font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div id="flash"></div>
+
+<!-- LOGIN -->
+<div id="hal-login">
+  <div class="lc">
+    <div class="lc-hdr">
+      <div class="lc-logo">
+        <img src="../shared/logo.jpg" alt="Logo" onerror="this.style.display='none'">
+      </div>
+      <div class="lc-judul">Presensi QR Siswa</div>
+      <div class="lc-sub">SMAN 5 Sarolangun · Masuk dengan PIN Guru</div>
+    </div>
+    <div class="lc-body">
+      <div class="lc-lbl">PIN 4 Digit Guru</div>
+      <div class="pin-row">
+        <div class="pd" id="d0"></div>
+        <div class="pd" id="d1"></div>
+        <div class="pd" id="d2"></div>
+        <div class="pd" id="d3"></div>
+      </div>
+      <div class="np-grid">
+        <button class="np" onclick="ip('1')">1</button>
+        <button class="np" onclick="ip('2')">2</button>
+        <button class="np" onclick="ip('3')">3</button>
+        <button class="np" onclick="ip('4')">4</button>
+        <button class="np" onclick="ip('5')">5</button>
+        <button class="np" onclick="ip('6')">6</button>
+        <button class="np" onclick="ip('7')">7</button>
+        <button class="np" onclick="ip('8')">8</button>
+        <button class="np" onclick="ip('9')">9</button>
+        <button class="np del" onclick="hp()">⌫</button>
+        <button class="np" onclick="ip('0')">0</button>
+        <button class="np kosong"></button>
+      </div>
+      <button class="btn-ok" id="btn-ok" onclick="doLogin()" disabled>Masuk →</button>
+      <div class="lerr" id="lerr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-logo">
+      <img src="../shared/logo.jpg" alt="" onerror="this.style.display='none'">
+    </div>
+    <div class="hdr-txt">
+      <div class="hdr-nm">Presensi QR — SMAN 5 Sarolangun</div>
+      <div class="hdr-sb" id="tgl">—</div>
+    </div>
+    <div class="hdr-guru" id="hdr-guru"></div>
+    <div class="hdr-jam" id="jam">--:--</div>
+    <button class="btn-out" onclick="doKeluar()">Keluar</button>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- PANEL KIRI: Kamera -->
+    <div class="p-kiri">
+      <div class="cam-wrap" id="cam-wrap" onclick="mulaiKamera()">
+        <div class="cam-idle" id="cam-idle">
+          <div class="ico">📷</div>
+          <p>Tap untuk mulai scan</p>
+          <small>Kamera aktif setelah diklik</small>
+          <button class="btn-cam" onclick="event.stopPropagation();mulaiKamera()">▶ Mulai Scan</button>
+        </div>
+        <video id="vid" autoplay playsinline muted></video>
+        <canvas id="cv"></canvas>
+        <div class="frame-ov" id="frame-ov">
+          <div class="frame-box">
+            <div class="scan-line"></div>
+            <div class="c-tr"></div>
+            <div class="c-bl"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cam-hint" id="cam-hint">Tap area kamera → arahkan QR siswa ke bingkai</div>
+    </div>
+
+    <!-- PANEL KANAN: Data -->
+    <div class="p-kanan">
+
+      <!-- KPI -->
+      <div class="kpi-strip">
+        <div class="kpi">
+          <div class="kpi-v" id="kpi-hadir" style="color:#81C784">0</div>
+          <div class="kpi-l">Hadir</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-v" id="kpi-total" style="color:white">0</div>
+          <div class="kpi-l">Total</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-v" id="kpi-pct" style="color:var(--or)">0%</div>
+          <div class="kpi-l">%</div>
+        </div>
+      </div>
+
+      <!-- Filter kelas -->
+      <div class="filter-bar" id="filter-bar">
+        <button class="kb on" onclick="setFilter('',this)">Semua</button>
+      </div>
+
+      <!-- Scan TERBARU (besar) -->
+      <div class="scan-terbaru">
+        <div class="scan-label">Scan Terakhir</div>
+        <div class="scan-card" id="scan-card">
+          <div class="scan-avatar" id="sc-av" style="background:rgba(255,255,255,.08)">📷</div>
+          <div style="flex:1;min-width:0">
+            <div class="scan-nama" id="sc-nm" style="color:rgba(255,255,255,.4)">Menunggu scan...</div>
+            <div class="scan-kls" id="sc-kl">Arahkan QR siswa ke kamera</div>
+          </div>
+          <div class="scan-wkt" id="sc-wkt">--:--</div>
+        </div>
+      </div>
+
+      <!-- Daftar sebelumnya -->
+      <div class="list-hdr">
+        <span>Sebelumnya</span>
+        <span id="list-count" style="font-weight:400">0 siswa</span>
+      </div>
+      <div class="siswa-list" id="siswa-list">
+        <div style="text-align:center;padding:20px;color:rgba(255,255,255,.12);font-size:11px">
+          Belum ada data
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const db = getFirestore(initializeApp({
+  apiKey:"AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+  authDomain:"agedasmanli.firebaseapp.com", projectId:"agedasmanli",
+  storageBucket:"agedasmanli.firebasestorage.app",
+  messagingSenderId:"969562298791",
+  appId:"1:969562298791:web:320a29a007c74739217e82"
+}));
+
+// ── helpers ──
+const $ = id => document.getElementById(id);
+const pad = v => String(v).padStart(2,'0');
+const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const HARI  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const today = (() => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; })();
+
+// warna avatar deterministic
+function avatarColor(nama) {
+  const hue = (nama.charCodeAt(0)*41 + (nama.charCodeAt(1)||0)*17) % 360;
+  return `hsl(${hue},50%,36%)`;
+}
+
+// ── jam live ──
+function updateJam() {
+  const n = new Date();
+  $('jam').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  $('tgl').textContent = `${HARI[n.getDay()]}, ${n.getDate()} ${BULAN[n.getMonth()]} ${n.getFullYear()}`;
+}
+setInterval(updateJam, 1000); updateJam();
+
+// ── state ──
+let pin = '', guru = null, allSiswa = {}, hadirMap = {}, fKelas = '', unsub = null;
+// hadirArr: urut scan terbaru dulu
+let hadirArr = [];
+
+// ══════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════
+function updDots() {
+  for(let i=0;i<4;i++) {
+    const d = $('d'+i);
+    d.classList.toggle('isi', i < pin.length);
+    d.textContent = i < pin.length ? '●' : '';
+  }
+}
+window.ip = a => { if(pin.length>=4)return; pin+=a; updDots(); $('btn-ok').disabled=pin.length<4; };
+window.hp = ()=> { pin=pin.slice(0,-1); updDots(); $('btn-ok').disabled=true; $('lerr').textContent=''; };
+
+window.doLogin = async () => {
+  const btn=$('btn-ok'), err=$('lerr');
+  btn.disabled=true; err.textContent='⏳ Verifikasi...';
+  try {
+    const snap = await getDocs(collection(db,'Data_Guru'));
+    const g = snap.docs.find(d => d.data().pin_login===pin && d.data().status_aktif!==false);
+    if(!g){ err.textContent='❌ PIN tidak ditemukan'; pin=''; updDots(); btn.disabled=true; return; }
+    guru = { id:g.id, ...g.data() };
+    $('hal-login').style.display = 'none';
+    $('app').classList.add('on');
+    $('hdr-guru').textContent = (guru.nama_lengkap||'').split(',')[0];
+    err.textContent='';
+    await muatSiswa();
+    langganan();
+  } catch(e) { err.textContent='❌ '+e.message; }
+  finally { btn.disabled = pin.length < 4; }
+};
+
+window.doKeluar = () => {
+  if(unsub){ unsub(); unsub=null; }
+  stopKamera();
+  guru=null; pin=''; updDots(); hadirArr=[]; hadirMap={};
+  $('app').classList.remove('on');
+  $('hal-login').style.display='flex';
+  $('btn-ok').disabled=true;
+  $('lerr').textContent='';
+  resetScanCard();
+};
+
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+async function muatSiswa() {
+  const snap = await getDocs(collection(db,'Data_Siswa'));
+  allSiswa = {};
+  snap.docs.forEach(d => { const v=d.data(); allSiswa[v.nis]=v; });
+
+  // Filter bar kelas
+  const kelas = [...new Set(snap.docs.map(d=>d.data().kelas||'').filter(Boolean))].sort();
+  $('filter-bar').innerHTML =
+    '<button class="kb on" onclick="setFilter(\'\',this)">Semua</button>' +
+    kelas.map(k=>`<button class="kb" onclick="setFilter('${k}',this)">${k}</button>`).join('');
+
+  $('kpi-total').textContent = snap.docs.length;
+}
+
+function langganan() {
+  if(unsub) unsub();
+  unsub = onSnapshot(
+    query(collection(db,'Presensi_Harian'), where('tanggal','==',today)),
+    snap => {
+      hadirMap = {};
+      hadirArr = [];
+      snap.docs.forEach(d => {
+        const v = d.data();
+        hadirMap[v.nis] = v;
+        hadirArr.push(v);
+      });
+      // Sort: terbaru di index 0
+      hadirArr.sort((a,b) => (b.jam_masuk||'').localeCompare(a.jam_masuk||''));
+      renderPanel();
+    }
+  );
+}
+
+window.setFilter = (kls, el) => {
+  fKelas = kls;
+  document.querySelectorAll('.kb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderPanel();
+};
+
+function renderPanel() {
+  let data = hadirArr;
+  if(fKelas) data = data.filter(s=>s.kelas===fKelas);
+
+  // KPI
+  const jmlHadir = Object.keys(hadirMap).length;
+  const jmlTotal = Object.keys(allSiswa).length;
+  $('kpi-hadir').textContent = jmlHadir;
+  $('kpi-pct').textContent   = jmlTotal>0 ? Math.round(jmlHadir/jmlTotal*100)+'%' : '0%';
+  $('list-count').textContent = (data.length>0 ? data.length-1 : 0) + ' siswa';
+
+  // Scan terbaru (index 0) — sudah dirender oleh showScanCard saat scan
+  // tapi jika reload, render dari data
+  if(data.length>0 && !lastScanNis) {
+    const s0 = data[0];
+    const nm = s0.nama || allSiswa[s0.nis]?.nama || s0.nis || '?';
+    renderScanCard('ok', nm, s0.kelas||'—', s0.nis, s0.jam_masuk);
+  }
+
+  // Daftar sebelumnya: index 1 dst (max 20)
+  const prev = data.slice(1, 21);
+  if(!prev.length) {
+    $('siswa-list').innerHTML =
+      '<div style="text-align:center;padding:16px;color:rgba(255,255,255,.1);font-size:11px">'+
+      (data.length===1?'Ini scan pertama hari ini':'Belum ada data')+'</div>';
+    return;
+  }
+  $('siswa-list').innerHTML = prev.map(s => {
+    const nm = s.nama || allSiswa[s.nis]?.nama || s.nis || '?';
+    const jam = s.jam_masuk ? new Date(s.jam_masuk) : null;
+    const jt  = jam ? `${pad(jam.getHours())}:${pad(jam.getMinutes())}` : '—';
+    const init = nm[0]?.toUpperCase()||'?';
+    const bg   = avatarColor(nm);
+    return `<div class="si">
+      <div class="si-av" style="background:${bg}">${init}</div>
+      <div style="flex:1;min-width:0">
+        <div class="si-nm">${nm}</div>
+        <div class="si-kl">${s.kelas||'—'}</div>
+      </div>
+      <div class="si-jm">${jt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// SCAN CARD
+// ══════════════════════════════════════════
+let lastScanNis = '';
+
+function renderScanCard(tipe, nama, kelas, nis, jamISO) {
+  const card = $('scan-card');
+  card.className = 'scan-card ' + (tipe==='ok'?'ok':'err');
+  const jam = jamISO ? new Date(jamISO) : new Date();
+  const jt  = `${pad(jam.getHours())}:${pad(jam.getMinutes())}`;
+  const init = nama[0]?.toUpperCase()||'?';
+  const bg   = tipe==='ok' ? avatarColor(nama) : '#6D3333';
+  $('sc-av').style.background = bg;
+  $('sc-av').textContent = tipe==='ok' ? init : '❌';
+  $('sc-nm').textContent = nama;
+  $('sc-nm').style.color = tipe==='ok' ? '#81C784' : '#EF9A9A';
+  $('sc-kl').textContent = kelas + (nis ? ' · NIS '+nis : '');
+  $('sc-wkt').textContent = jt;
+}
+
+function resetScanCard() {
+  const card = $('scan-card');
+  card.className = 'scan-card';
+  $('sc-av').style.background = 'rgba(255,255,255,.08)';
+  $('sc-av').textContent = '📷';
+  $('sc-nm').textContent = 'Menunggu scan...';
+  $('sc-nm').style.color = 'rgba(255,255,255,.4)';
+  $('sc-kl').textContent = 'Arahkan QR siswa ke kamera';
+  $('sc-wkt').textContent = '--:--';
+  lastScanNis = '';
+}
+
+// ══════════════════════════════════════════
+// KAMERA & QR
+// ══════════════════════════════════════════
+let stream=null, scanning=false, lastCode='', lastCodeTime=0;
+
+window.mulaiKamera = async () => {
+  if(stream) return;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    const v = $('vid');
+    v.srcObject = stream;
+    v.style.display = 'block';
+    $('cam-idle').style.display = 'none';
+    $('frame-ov').style.display = 'block';
+    $('cam-hint').textContent   = 'Arahkan QR Code siswa ke bingkai · Scan otomatis';
+    scanning = true;
+    reqScan();
+  } catch(e) {
+    $('cam-hint').textContent = '❌ Kamera tidak bisa diakses: ' + e.message;
+  }
+};
+
+function stopKamera() {
+  scanning = false;
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  const v = $('vid');
+  v.srcObject=null; v.style.display='none';
+  $('cam-idle').style.display='flex';
+  $('frame-ov').style.display='none';
+}
+
+async function loadJsQR() {
+  if(window.jsQR) return;
+  await new Promise(res => {
+    const s = document.createElement('script');
+    s.src = '../shared/libs/jsQR.min.js';
+    s.onload = res; document.head.appendChild(s);
+  });
+}
+
+async function reqScan() {
+  if(!scanning) return;
+  const v=$('vid'), cv=$('cv');
+  if(v.readyState===v.HAVE_ENOUGH_DATA) {
+    await loadJsQR();
+    cv.width=v.videoWidth; cv.height=v.videoHeight;
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(v,0,0);
+    const img=ctx.getImageData(0,0,cv.width,cv.height);
+    const code=window.jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+    if(code?.data) {
+      const now=Date.now();
+      if(code.data!==lastCode || now-lastCodeTime>5000) {
+        lastCode=code.data; lastCodeTime=now;
+        await prosesQR(code.data);
+      }
+    }
+  }
+  requestAnimationFrame(reqScan);
+}
+
+async function prosesQR(data) {
+  const now=new Date();
+  const jt=`${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  // Parse QR: "NIS|NAMA|KELAS" atau hanya NIS
+  const parts=data.split('|');
+  const nis=parts[0]?.trim();
+  if(!nis) {
+    renderScanCard('err','QR tidak valid','Format tidak dikenal','',null);
+    beep('err'); doFlash('err'); return;
+  }
+
+  // Cari siswa
+  let s = allSiswa[nis];
+  if(!s) {
+    try {
+      const snap=await getDocs(query(collection(db,'Data_Siswa'),where('nis','==',nis)));
+      if(!snap.empty){ s=snap.docs[0].data(); allSiswa[nis]=s; }
+    } catch(e){}
+  }
+  if(!s) {
+    renderScanCard('err','Siswa tidak ditemukan','NIS '+nis+' tidak terdaftar',nis,null);
+    beep('err'); doFlash('err'); return;
+  }
+
+  const nm=s.nama||nis, kls=s.kelas||'—';
+
+  // Sudah hadir?
+  if(hadirMap[nis]) {
+    const jHadir=hadirMap[nis].jam_masuk?new Date(hadirMap[nis].jam_masuk):null;
+    const jHadirTxt=jHadir?`${pad(jHadir.getHours())}:${pad(jHadir.getMinutes())}`:'—';
+    renderScanCard('err',nm,'Sudah absen pukul '+jHadirTxt,nis,hadirMap[nis].jam_masuk);
+    beep('warn'); return;
+  }
+
+  // Simpan
+  try {
+    await addDoc(collection(db,'Presensi_Harian'),{
+      nis, nama:nm, kelas:kls,
+      tanggal:today, jam_masuk:now.toISOString(),
+      dicatat_oleh:guru?.id||'presensi',
+    });
+    lastScanNis=nis;
+    renderScanCard('ok',nm,kls,nis,now.toISOString());
+    beep('ok'); doFlash('ok');
+  } catch(e) {
+    renderScanCard('err','Gagal simpan',e.message,nis,null);
+  }
+}
+
+function doFlash(tipe) {
+  const el=$('flash');
+  el.className='';
+  void el.offsetWidth; // reflow
+  el.className=tipe+' show';
+  setTimeout(()=>el.className=tipe,300);
+}
+
+function beep(tipe) {
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value=tipe==='ok'?880:tipe==='warn'?550:220;
+    g.gain.setValueAtTime(.25,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(tipe==='ok'?.25:.4));
+    o.start(); o.stop(ctx.currentTime+(tipe==='ok'?.25:.4));
+  } catch(e){}
+}
+</script>
+</body>
+</html>
