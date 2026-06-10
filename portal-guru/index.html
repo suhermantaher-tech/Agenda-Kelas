@@ -12290,10 +12290,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       bankMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       // Debug: lihat nilai yang tersedia
-      console.log('muatBankMateri — idMapel:', idMapel, '| namaKelas:', namaKelas);
-      if (bankMateri.length > 0) {
-        console.log('Contoh dokumen Materi_Kurikulum:', bankMateri[0]);
-      }
 
       // Normalisasi nama kelas untuk filter fase
       // namaKelas contoh: "X 1", "XI IPA 2", "XII 3"
@@ -12331,17 +12327,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
           return na - nb;
         });
 
-      console.log('Materi pokok ditemukan:', materiPokok.length, materiPokok.map(m=>m.nama));
-      // Debug: lihat semua dokumen yang ada id_mapel sama
-      const semuaMapelIni = bankMateri.filter(m => m.id_mapel === idMapel);
-      const semuaMapelIni2 = bankMateri.filter(m => m.mapel && (m.mapel === jadwalDipilih?.nama_mapel || m.mapel === jadwalDipilih?.mapel));
-      console.log('Dok dengan id_mapel cocok:', semuaMapelIni.length);
-      console.log('Dok dengan mapel cocok:', semuaMapelIni2.length);
-      if (semuaMapelIni.length === 0 && bankMateri.length > 0) {
-        console.log('Semua field dok pertama:', Object.keys(bankMateri[0]));
-        const sampel = bankMateri.find(m => !m.is_pokok);
-        if (sampel) console.log('Contoh sub materi:', sampel);
-      }
 
       // Cek materi sudah diajarkan (dari Agenda_Harian guru+kelas ini)
       if (guruAktif && jadwalDipilih) {
@@ -12617,7 +12602,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     const btn  = document.getElementById('verif-qr-btn');
     const ikon = document.getElementById('verif-qr-ikon');
 
-    console.log('QR data:', data);
 
     // Format: KELAS:X1|SEKOLAH:SMAN5SRL|TA:2025/2026
     // atau format lain yang mungkin dipakai
@@ -12759,7 +12743,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
   function _renderPickerItems(valAktif, items) {
     const list = document.getElementById('picker-list');
-    console.log('_renderPickerItems — items:', items.length, '| list el:', !!list);
     if (!items.length) { list.innerHTML = '<div class="picker-empty">Tidak ada pilihan</div>'; return; }
     list.innerHTML = items.map(it => `
       <div class="picker-item${it.done?' done':''}${it.value===valAktif?' selected':''}"
@@ -12846,12 +12829,6 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       return 0;
     });
 
-    console.log('bukaPickerSubMateri — pokok:', pokok.nama, '| no:', pokok.no, '| subs:', subs.length);
-    console.log('pokok fields:', JSON.stringify(pokok));
-    // Debug filter step by step
-    const allNoPrefixOK = bankMateri.filter(m => !m.is_pokok && String(m.no??'').includes('.') && String(m.no).startsWith(String(pokok.no)+'.'));
-    console.log('Lolos filter no prefix:', allNoPrefixOK.length, allNoPrefixOK.map(m=>m.no+' '+m.nama));
-    if (subs.length) console.log('Contoh sub:', subs[0]);
     if (!subs.length) {
       tampilToast('Tidak ada sub materi untuk materi ini');
       return;
