@@ -12717,6 +12717,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
   function _renderPickerItems(valAktif, items) {
     const list = document.getElementById('picker-list');
+    console.log('_renderPickerItems — items:', items.length, '| list el:', !!list);
     if (!items.length) { list.innerHTML = '<div class="picker-empty">Tidak ada pilihan</div>'; return; }
     list.innerHTML = items.map(it => `
       <div class="picker-item${it.done?' done':''}${it.value===valAktif?' selected':''}"
@@ -12786,6 +12787,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     });
 
     console.log('bukaPickerSubMateri — pokok:', pokok.nama, '| no:', pokok.no, '| subs:', subs.length);
+    if (subs.length) console.log('Contoh sub:', subs[0]);
     if (!subs.length) {
       tampilToast('Tidak ada sub materi untuk materi ini');
       return;
