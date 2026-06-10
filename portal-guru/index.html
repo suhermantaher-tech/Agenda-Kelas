@@ -12110,6 +12110,16 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('tampil'), 3200);
   }
+  // ── HELPER: konversi nama kelas ke tingkat romawi ──
+  function tingkatKelas(namaKelas) {
+    // "X1 1" → "X", "XI IPA 2" → "XI", "XII 3" → "XII", "XI" → "XI"
+    const kata = String(namaKelas || '').trim().split(/\s+/)[0].toUpperCase();
+    if (kata.startsWith('XII')) return 'XII';
+    if (kata.startsWith('XI'))  return 'XI';
+    if (kata.startsWith('X'))   return 'X';
+    return kata;
+  }
+
   // ── EXPOSE KE GLOBAL ──
   window.inputPin    = inputPin;
   window.hapusPin    = hapusPin;
@@ -12420,8 +12430,12 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const noStr = String(m.no ?? '').trim();
       if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
-      // Filter kelas tidak diterapkan pada sub materi
-      // (sudah cukup difilter via mapel + nomor prefix)
+      // Filter kelas — konversi namaKelas ke format romawi untuk cocokkan m.kelas
+      const tkAktif = tingkatKelas(jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '');
+      if (tkAktif && m.kelas) {
+        const mKelasRomawi = String(m.kelas).toUpperCase().trim();
+        if (mKelasRomawi !== tkAktif) return false;
+      }
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
@@ -12809,8 +12823,12 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const noStr = String(m.no ?? '').trim();
       if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
-      // Filter kelas tidak diterapkan pada sub materi
-      // (sudah cukup difilter via mapel + nomor prefix)
+      // Filter kelas — konversi namaKelas ke format romawi untuk cocokkan m.kelas
+      const tkAktif = tingkatKelas(jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '');
+      if (tkAktif && m.kelas) {
+        const mKelasRomawi = String(m.kelas).toUpperCase().trim();
+        if (mKelasRomawi !== tkAktif) return false;
+      }
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
