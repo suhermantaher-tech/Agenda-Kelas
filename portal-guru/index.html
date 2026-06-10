@@ -12291,20 +12291,24 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       // tingkat: "X", "XI", "XII"
 
       // Filter: is_pokok = true DAN cocok mapel DAN cocok kelas/fase
+      // Nama mapel dari jadwal yang dipilih
+      const namaMapelJadwal = (jadwalDipilih?.nama_mapel || jadwalDipilih?.mapel || '').toLowerCase();
+
       materiPokok = bankMateri
         .filter(m => {
-          if (!m.is_pokok) return false;
-          
-          // Cocokkan mapel — coba beberapa cara
+          if (m.is_pokok !== true) return false; // harus explicitly true
+
+          // Cocokkan mapel — coba id_mapel, nama_mapel, atau mapel
           const mapelOK = idMapel && (
-            m.id_mapel   === idMapel ||
-            m.nama_mapel === idMapel ||
-            m.kode_mapel === idMapel ||
-            (m.nama_mapel || '').toLowerCase() === (namaKelas || '').toLowerCase()
-          );
+            m.id_mapel === idMapel ||
+            m.nama_mapel === idMapel
+          ) || (namaMapelJadwal && (
+            (m.nama_mapel || '').toLowerCase() === namaMapelJadwal ||
+            (m.mapel || '').toLowerCase() === namaMapelJadwal
+          ));
           if (!mapelOK) return false;
 
-          // Cocokkan kelas/tingkat jika ada
+          // Cocokkan kelas/tingkat
           if (!namaKelas) return true;
           const mKelas = String(m.kelas || '').toUpperCase().trim();
           return !mKelas || mKelas === tingkat ||
@@ -12318,6 +12322,16 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         });
 
       console.log('Materi pokok ditemukan:', materiPokok.length, materiPokok.map(m=>m.nama));
+      // Debug: lihat semua dokumen yang ada id_mapel sama
+      const semuaMapelIni = bankMateri.filter(m => m.id_mapel === idMapel);
+      const semuaMapelIni2 = bankMateri.filter(m => m.mapel && (m.mapel === jadwalDipilih?.nama_mapel || m.mapel === jadwalDipilih?.mapel));
+      console.log('Dok dengan id_mapel cocok:', semuaMapelIni.length);
+      console.log('Dok dengan mapel cocok:', semuaMapelIni2.length);
+      if (semuaMapelIni.length === 0 && bankMateri.length > 0) {
+        console.log('Semua field dok pertama:', Object.keys(bankMateri[0]));
+        const sampel = bankMateri.find(m => !m.is_pokok);
+        if (sampel) console.log('Contoh sub materi:', sampel);
+      }
 
       // Cek materi sudah diajarkan (dari Agenda_Harian guru+kelas ini)
       if (guruAktif && jadwalDipilih) {
@@ -12396,12 +12410,22 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
     // Filter: id_mapel sama, bukan pokok, nomor dimulai dari nomor pokok
     const nokPokok = String(pokok.no ?? '').trim();
-    const subs = bankMateri.filter(m =>
-      m.id_mapel === pokok.id_mapel &&
-      !m.is_pokok &&
-      nokPokok !== '' &&
-      String(m.no ?? '').trim().startsWith(nokPokok + '.')
-    ).sort((a,b) => {
+    const namaMapelPokok = pokok.nama_mapel || pokok.mapel || '';
+    const subs = bankMateri.filter(m => {
+      if (nokPokok === '') return false;
+      if (m.is_pokok === true) return false; // skip materi pokok
+      // Harus punya nomor bertingkat (misal 1.1, 1.2)
+      const noStr = String(m.no ?? '').trim();
+      if (!noStr.includes('.')) return false; // sub materi pasti punya titik
+      if (!noStr.startsWith(nokPokok + '.')) return false;
+      // Cocokkan mapel
+      const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
+                      (m.mapel && namaMapelPokok &&
+                       m.mapel.toLowerCase() === namaMapelPokok.toLowerCase()) ||
+                      (m.nama_mapel && namaMapelPokok &&
+                       m.nama_mapel.toLowerCase() === namaMapelPokok.toLowerCase());
+      return mapelOK;
+    }).sort((a,b) => {
       // Sort numerik: 1.1, 1.2, 1.10 bukan 1.1, 1.10, 1.2
       const partsA = String(a.no).split('.').map(Number);
       const partsB = String(b.no).split('.').map(Number);
@@ -12771,12 +12795,22 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
     // Ambil sub materi langsung dari bankMateri (bukan dari sel.options)
     const nokPokok = String(pokok.no ?? '').trim();
-    const subs = bankMateri.filter(m =>
-      m.id_mapel === pokok.id_mapel &&
-      !m.is_pokok &&
-      nokPokok !== '' &&
-      String(m.no ?? '').trim().startsWith(nokPokok + '.')
-    ).sort((a, b) => {
+    const namaMapelPokok = pokok.nama_mapel || pokok.mapel || '';
+    const subs = bankMateri.filter(m => {
+      if (nokPokok === '') return false;
+      if (m.is_pokok === true) return false; // skip materi pokok
+      // Harus punya nomor bertingkat (misal 1.1, 1.2)
+      const noStr = String(m.no ?? '').trim();
+      if (!noStr.includes('.')) return false; // sub materi pasti punya titik
+      if (!noStr.startsWith(nokPokok + '.')) return false;
+      // Cocokkan mapel
+      const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
+                      (m.mapel && namaMapelPokok &&
+                       m.mapel.toLowerCase() === namaMapelPokok.toLowerCase()) ||
+                      (m.nama_mapel && namaMapelPokok &&
+                       m.nama_mapel.toLowerCase() === namaMapelPokok.toLowerCase());
+      return mapelOK;
+    }).sort((a, b) => {
       const pA = String(a.no).split('.').map(Number);
       const pB = String(b.no).split('.').map(Number);
       for (let i = 0; i < Math.max(pA.length, pB.length); i++) {
