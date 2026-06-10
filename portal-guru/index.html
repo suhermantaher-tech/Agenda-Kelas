@@ -12829,6 +12829,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     });
 
     console.log('bukaPickerSubMateri — pokok:', pokok.nama, '| no:', pokok.no, '| subs:', subs.length);
+    console.log('pokok fields:', JSON.stringify(pokok));
+    // Debug filter step by step
+    const allNoPrefixOK = bankMateri.filter(m => !m.is_pokok && String(m.no??'').includes('.') && String(m.no).startsWith(String(pokok.no)+'.'));
+    console.log('Lolos filter no prefix:', allNoPrefixOK.length, allNoPrefixOK.map(m=>m.no+' '+m.nama));
     if (subs.length) console.log('Contoh sub:', subs[0]);
     if (!subs.length) {
       tampilToast('Tidak ada sub materi untuk materi ini');
