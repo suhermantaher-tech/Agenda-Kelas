@@ -12395,10 +12395,12 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     if (!pokok) return;
 
     // Filter: id_mapel sama, bukan pokok, nomor dimulai dari nomor pokok
+    const nokPokok = String(pokok.no ?? '').trim();
     const subs = bankMateri.filter(m =>
       m.id_mapel === pokok.id_mapel &&
       !m.is_pokok &&
-      String(m.no).startsWith(String(pokok.no) + '.')
+      nokPokok !== '' &&
+      String(m.no ?? '').trim().startsWith(nokPokok + '.')
     ).sort((a,b) => {
       // Sort numerik: 1.1, 1.2, 1.10 bukan 1.1, 1.10, 1.2
       const partsA = String(a.no).split('.').map(Number);
@@ -12767,10 +12769,12 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     }
 
     // Ambil sub materi langsung dari bankMateri (bukan dari sel.options)
+    const nokPokok = String(pokok.no ?? '').trim();
     const subs = bankMateri.filter(m =>
       m.id_mapel === pokok.id_mapel &&
       !m.is_pokok &&
-      String(m.no).startsWith(String(pokok.no) + '.')
+      nokPokok !== '' &&
+      String(m.no ?? '').trim().startsWith(nokPokok + '.')
     ).sort((a, b) => {
       const pA = String(a.no).split('.').map(Number);
       const pB = String(b.no).split('.').map(Number);
@@ -12781,6 +12785,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       return 0;
     });
 
+    console.log('bukaPickerSubMateri — pokok:', pokok.nama, '| no:', pokok.no, '| subs:', subs.length);
     if (!subs.length) {
       tampilToast('Tidak ada sub materi untuk materi ini');
       return;
