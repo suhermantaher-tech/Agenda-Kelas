@@ -12420,10 +12420,8 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const noStr = String(m.no ?? '').trim();
       if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
-      // Filter kelas — harus cocok dengan tingkat guru mengajar
-      if (tingkatAktif && m.kelas) {
-        if (String(m.kelas).toUpperCase().trim() !== tingkatAktif) return false;
-      }
+      // Filter kelas tidak diterapkan pada sub materi
+      // (sudah cukup difilter via mapel + nomor prefix)
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
@@ -12811,10 +12809,8 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const noStr = String(m.no ?? '').trim();
       if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
-      // Filter kelas — harus cocok dengan tingkat guru mengajar
-      if (tingkatAktif && m.kelas) {
-        if (String(m.kelas).toUpperCase().trim() !== tingkatAktif) return false;
-      }
+      // Filter kelas tidak diterapkan pada sub materi
+      // (sudah cukup difilter via mapel + nomor prefix)
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
