@@ -12751,20 +12751,58 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   };
 
   window.bukaPickerSubMateri = function() {
-    const sel = document.getElementById('inp-submateri');
-    const items = [...sel.options].slice(1).map(o => ({
-      value: o.value, label: o.text.replace(/^[✅○]\s*/,''),
-      no: o.dataset.no || '', done: o.dataset.done === 'true'
-    })).filter(it => it.value);
-    if (!items.length) { tampilToast('Tidak ada sub materi'); return; }
+    // Ambil materi pokok yang sedang dipilih
+    const selPokok = document.getElementById('inp-materi');
+    const idPokok  = selPokok?.value || '';
+    if (!idPokok) {
+      tampilToast('⚠ Pilih materi pokok dulu');
+      return;
+    }
+
+    // Cari objek pokok dari materiPokok
+    const pokok = materiPokok.find(m => m.id === idPokok);
+    if (!pokok) {
+      tampilToast('⚠ Materi pokok tidak ditemukan');
+      return;
+    }
+
+    // Ambil sub materi langsung dari bankMateri (bukan dari sel.options)
+    const subs = bankMateri.filter(m =>
+      m.id_mapel === pokok.id_mapel &&
+      !m.is_pokok &&
+      String(m.no).startsWith(String(pokok.no) + '.')
+    ).sort((a, b) => {
+      const pA = String(a.no).split('.').map(Number);
+      const pB = String(b.no).split('.').map(Number);
+      for (let i = 0; i < Math.max(pA.length, pB.length); i++) {
+        const d = (pA[i]||0) - (pB[i]||0);
+        if (d !== 0) return d;
+      }
+      return 0;
+    });
+
+    if (!subs.length) {
+      tampilToast('Tidak ada sub materi untuk materi ini');
+      return;
+    }
+
+    const selSub = document.getElementById('inp-submateri');
+    const items  = subs.map(s => ({
+      value: s.id,
+      label: s.no + ' ' + s.nama,
+      no:    s.no,
+      done:  materiSudahDiajarkan.has(s.nama)
+    }));
+
     const btn = document.getElementById('pb-submateri');
     btn.classList.add('aktif');
-    _bukaPicker('Pilih Sub Materi', items, sel.value, (val, label) => {
+    _bukaPicker('Sub Materi — ' + pokok.nama, items, selSub.value, (val, label) => {
       btn.classList.remove('aktif');
-      sel.value = val;
+      selSub.value = val;
       const teks = document.getElementById('pb-submateri-teks');
       teks.textContent = val ? label : 'Pilih sub materi...';
-      teks.className = 'pb-teks' + (val ? '' : ' placeholder');
+      teks.className   = 'pb-teks' + (val ? '' : ' placeholder');
+      if (val) btn.style.borderColor = 'var(--oranye)';
       onPilihSubMateri();
     }, false);
   };
