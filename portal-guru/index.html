@@ -12411,13 +12411,19 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     // Filter: id_mapel sama, bukan pokok, nomor dimulai dari nomor pokok
     const nokPokok = String(pokok.no ?? '').trim();
     const namaMapelPokok = pokok.nama_mapel || pokok.mapel || '';
+    // Tingkat kelas aktif: X, XI, XII
+    const tingkatAktif = (jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '')
+                          .trim().split(' ')[0].toUpperCase();
     const subs = bankMateri.filter(m => {
       if (nokPokok === '') return false;
-      if (m.is_pokok === true) return false; // skip materi pokok
-      // Harus punya nomor bertingkat (misal 1.1, 1.2)
+      if (m.is_pokok === true) return false;
       const noStr = String(m.no ?? '').trim();
-      if (!noStr.includes('.')) return false; // sub materi pasti punya titik
+      if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
+      // Filter kelas — harus cocok dengan tingkat guru mengajar
+      if (tingkatAktif && m.kelas) {
+        if (String(m.kelas).toUpperCase().trim() !== tingkatAktif) return false;
+      }
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
@@ -12796,13 +12802,19 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     // Ambil sub materi langsung dari bankMateri (bukan dari sel.options)
     const nokPokok = String(pokok.no ?? '').trim();
     const namaMapelPokok = pokok.nama_mapel || pokok.mapel || '';
+    // Tingkat kelas aktif: X, XI, XII
+    const tingkatAktif = (jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '')
+                          .trim().split(' ')[0].toUpperCase();
     const subs = bankMateri.filter(m => {
       if (nokPokok === '') return false;
-      if (m.is_pokok === true) return false; // skip materi pokok
-      // Harus punya nomor bertingkat (misal 1.1, 1.2)
+      if (m.is_pokok === true) return false;
       const noStr = String(m.no ?? '').trim();
-      if (!noStr.includes('.')) return false; // sub materi pasti punya titik
+      if (!noStr.includes('.')) return false;
       if (!noStr.startsWith(nokPokok + '.')) return false;
+      // Filter kelas — harus cocok dengan tingkat guru mengajar
+      if (tingkatAktif && m.kelas) {
+        if (String(m.kelas).toUpperCase().trim() !== tingkatAktif) return false;
+      }
       // Cocokkan mapel
       const mapelOK = (m.id_mapel && m.id_mapel === pokok.id_mapel) ||
                       (m.mapel && namaMapelPokok &&
