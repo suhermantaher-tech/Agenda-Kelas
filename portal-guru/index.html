@@ -11529,9 +11529,30 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
   }
 
   async function masukDashboard() {
+    // Reset semua cache saat login akun baru
+    rosterCache       = null;
+    rosterHariAktif   = 'Semua';
+    bankMateri        = [];
+    materiPokok       = [];
+    materiSudahDiajarkan = new Set();
+    jadwalDipilih     = null;
+
     document.getElementById('hal-login').style.display = 'none';
     document.getElementById('hal-utama').style.display = 'block';
-    document.getElementById('nama-guru').textContent = guruAktif.nama_lengkap;
+    document.getElementById('nama-guru').textContent   = guruAktif.nama_lengkap;
+
+    // Reset tab ke Hari Ini
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('aktif'));
+    document.querySelectorAll('.tab-konten').forEach(t => t.classList.remove('aktif'));
+    const firstBtn = document.querySelector('.tab-btn');
+    if (firstBtn) firstBtn.classList.add('aktif');
+    const tabJadwal = document.getElementById('tab-jadwal');
+    if (tabJadwal) tabJadwal.classList.add('aktif');
+
+    // Reset jadwal container
+    const jadwalEl = document.getElementById('jadwal-list');
+    if (jadwalEl) jadwalEl.innerHTML = '<div class="loading-inline">Memuat jadwal...</div>';
+
     await muatJadwal();
     await muatRiwayat();
   }
@@ -12258,20 +12279,24 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const snap = await getDocs(collection(db, 'Materi_Kurikulum'));
       bankMateri = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // Filter sesuai mapel dan kelas
-      materiPokok = bankMateri.filter(m =>
-        (m.id_mapel === idMapel || (m.nama_mapel||'').toLowerCase() === (namaKelas||'').toLowerCase() ||
-         m.id_mapel === idMapel) &&
-        (!namaKelas || m.kelas === namaKelas.charAt(0) || m.kelas === namaKelas.split(' ')[0])
-        && m.is_pokok
-      );
+      // Filter: harus cocok id_mapel DAN is_pokok = true
+      // Urut berdasarkan field 'no' (nomor urut)
+      materiPokok = bankMateri
+        .filter(m => m.id_mapel === idMapel && m.is_pokok === true)
+        .sort((a, b) => {
+          // Sort numerik berdasarkan field 'no'
+          const na = parseFloat(String(a.no || '0').replace(/[^0-9.]/g, '')) || 0;
+          const nb = parseFloat(String(b.no || '0').replace(/[^0-9.]/g, '')) || 0;
+          return na - nb;
+        });
 
-      // Cek materi sudah diajarkan (dari Agenda_Harian)
+      // Cek materi sudah diajarkan (dari Agenda_Harian guru+kelas ini)
       if (guruAktif && jadwalDipilih) {
+        const kelasAktif = jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '';
         const aSnap = await getDocs(query(
           collection(db, 'Agenda_Harian'),
           where('id_guru', '==', guruAktif.id),
-          where('kelas', '==', jadwalDipilih.nama_kelas || jadwalDipilih.kelas || '')
+          where('kelas', '==', kelasAktif)
         ));
         const diajarkan = aSnap.docs.map(d => d.data().materi_pokok || '');
         materiSudahDiajarkan = new Set(diajarkan);
@@ -12340,9 +12365,21 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     const pokok = materiPokok.find(m => m.id === idPokok);
     if (!pokok) return;
 
+    // Filter: id_mapel sama, bukan pokok, nomor dimulai dari nomor pokok
     const subs = bankMateri.filter(m =>
-      !m.is_pokok && String(m.no).startsWith(String(pokok.no) + '.')
-    ).sort((a,b) => String(a.no).localeCompare(String(b.no), undefined, {numeric:true}));
+      m.id_mapel === pokok.id_mapel &&
+      !m.is_pokok &&
+      String(m.no).startsWith(String(pokok.no) + '.')
+    ).sort((a,b) => {
+      // Sort numerik: 1.1, 1.2, 1.10 bukan 1.1, 1.10, 1.2
+      const partsA = String(a.no).split('.').map(Number);
+      const partsB = String(b.no).split('.').map(Number);
+      for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+        const diff = (partsA[i]||0) - (partsB[i]||0);
+        if (diff !== 0) return diff;
+      }
+      return 0;
+    });
 
     if (!subs.length) {
       sel.innerHTML = '<option value="">-- Tidak ada sub materi --</option>';
@@ -12521,27 +12558,22 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     const sekolahQR = parts['SEKOLAH'] || parts['sekolah'] || '';
     const kelasForm = jadwalDipilih?.nama_kelas || jadwalDipilih?.kelas || '';
 
-    // Toleran: jika format tidak dikenal tapi ada data, anggap valid
-    // (untuk kasus QR dari Admin yang formatnya berbeda)
-    if (!kelasQR && !sekolahQR) {
-      // Format tidak dikenal — tunjukkan data mentah dan tanya guru
-      verifQR = true; // beri override — guru yang tanggung jawab
-      if (ikon) ikon.textContent = '⚠️';
-      item.className = 'verif-item ok';
-      sub.textContent = 'QR terbaca: ' + data.slice(0, 40);
-      btn.textContent = '✓ QR Terbaca';
-      btn.className   = 'verif-btn done';
+    // Format wajib: KELAS:X1|SEKOLAH:SMAN5SRL
+    if (!kelasQR || !sekolahQR) {
+      verifQR = false;
+      if (ikon) ikon.textContent = '❌';
+      item.className = 'verif-item fail';
+      sub.textContent = 'QR tidak valid — bukan QR ruang kelas';
+      btn.className = 'verif-btn fail';
+      btn.textContent = '↺ Scan Ulang';
       document.getElementById('verif-override').style.display = 'block';
       window.updateVerifStatus();
       return;
     }
 
-    // Cek sekolah — toleran (tidak wajib cocok persis)
-    const sekolahOK = !sekolahQR ||
-      sekolahQR.toUpperCase().includes('SMAN5') ||
-      sekolahQR.toUpperCase().includes('SMAN 5') ||
-      sekolahQR === 'SMAN5SRL';
-
+    // Cek sekolah harus cocok
+    const sekolahOK = sekolahQR.toUpperCase() === 'SMAN5SRL' ||
+                      sekolahQR.toUpperCase().replace(/\s/g,'') === 'SMAN5SAROLANGUN';
     if (!sekolahOK) {
       verifQR = false;
       if (ikon) ikon.textContent = '❌';
@@ -12554,25 +12586,35 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       return;
     }
 
-    // Cek kecocokan kelas
+    // Cek kecocokan kelas — wajib cocok
     const normQR   = kelasQR.replace(/[\s\-_]/g,'').toUpperCase();
     const normForm = kelasForm.replace(/[\s\-_]/g,'').toUpperCase();
-    const kelasOK  = !normQR || !normForm || normQR === normForm ||
-                     normForm.includes(normQR) || normQR.includes(normForm);
 
-    if (kelasOK) {
+    if (!normForm) {
+      // Jadwal belum dipilih
+      verifQR = false;
+      if (ikon) ikon.textContent = '⚠️';
+      item.className = 'verif-item fail';
+      sub.textContent = 'Pilih jadwal dulu sebelum scan QR';
+      btn.className = 'verif-btn fail';
+      btn.textContent = '↺ Scan Ulang';
+      window.updateVerifStatus();
+      return;
+    }
+
+    if (normQR === normForm) {
       verifQR = true;
-      kelasQRVerif = kelasQR || kelasForm;
+      kelasQRVerif = kelasQR;
       if (ikon) ikon.textContent = '✅';
       item.className = 'verif-item ok';
-      sub.textContent = `Kelas ${kelasQR||kelasForm} ✓ Terverifikasi`;
+      sub.textContent = 'Kelas ' + kelasQR + ' ✓ Terverifikasi';
       btn.className   = 'verif-btn done';
       btn.textContent = '✅ Terverifikasi';
     } else {
       verifQR = false;
-      if (ikon) ikon.textContent = '⚠️';
+      if (ikon) ikon.textContent = '❌';
       item.className = 'verif-item fail';
-      sub.textContent = `QR: ${kelasQR} ≠ Jadwal: ${kelasForm}`;
+      sub.textContent = 'QR kelas ' + kelasQR + ' ≠ jadwal kelas ' + kelasForm;
       btn.className = 'verif-btn fail';
       btn.textContent = '↺ Scan Ulang';
       document.getElementById('verif-override').style.display = 'block';
