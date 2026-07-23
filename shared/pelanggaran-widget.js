@@ -225,6 +225,11 @@ function pasangEvent() {
   document.getElementById('plgw-cari').addEventListener('input', e => {
     clearTimeout(debounceTimer);
     const teks = e.target.value.trim();
+    if (teks.length < 2) {
+      document.getElementById('plgw-hasil').innerHTML =
+        '<div style="padding:10px 4px;color:#8A9BAE;font-size:13px">Ketik minimal 2 huruf nama siswa...</div>';
+      return;
+    }
     debounceTimer = setTimeout(() => cariSiswa(teks), 250);
   });
 
@@ -240,7 +245,8 @@ function pasangEvent() {
 function bukaSheet() {
   gotoStep(1);
   document.getElementById('plgw-overlay').classList.add('tampil');
-  cariSiswa('');
+  document.getElementById('plgw-hasil').innerHTML =
+    '<div style="padding:10px 4px;color:#8A9BAE;font-size:13px">Ketik minimal 2 huruf nama siswa...</div>';
 }
 
 function tutupSheet() {
