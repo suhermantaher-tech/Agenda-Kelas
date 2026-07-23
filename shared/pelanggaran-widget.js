@@ -265,7 +265,8 @@ async function cariSiswa(teks) {
   const hasilEl = document.getElementById('plgw-hasil');
   hasilEl.innerHTML = '<div style="padding:10px 4px;color:#8A9BAE;font-size:13px">Memuat...</div>';
   try {
-    const list = await cfg.getSiswaList(teks);
+    const hasilMentah = await cfg.getSiswaList(teks);
+    const list = urutkanSiswa(hasilMentah, teks);
     if (!list || !list.length) {
       hasilEl.innerHTML = '<div style="padding:10px 4px;color:#8A9BAE;font-size:13px">Tidak ada siswa ditemukan</div>';
       return;
@@ -283,6 +284,23 @@ async function cariSiswa(teks) {
     hasilEl.innerHTML = '<div style="padding:10px 4px;color:#C62828;font-size:13px">Gagal memuat daftar siswa</div>';
     console.error('[pelanggaran-widget] getSiswaList error', e);
   }
+}
+
+// Urutkan A-Z; kalau ada teks pencarian, nama yang DIAWALI teks tersebut naik ke atas dulu
+// (baru sisanya yang cocok di tengah/akhir nama), supaya hasil paling relevan terlihat duluan.
+function urutkanSiswa(list, teks) {
+  if (!list) return [];
+  const t = (teks || '').trim().toLowerCase();
+  return [...list].sort((a, b) => {
+    const na = (a.nama || '').toLowerCase();
+    const nb = (b.nama || '').toLowerCase();
+    if (t) {
+      const aAwal = na.startsWith(t) ? 0 : 1;
+      const bAwal = nb.startsWith(t) ? 0 : 1;
+      if (aAwal !== bAwal) return aAwal - bAwal;
+    }
+    return (a.nama || '').localeCompare(b.nama || '', 'id');
+  });
 }
 
 function pilihSiswa(siswa) {
