@@ -277,6 +277,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
   <button class="tab-btn" onclick="gt('agenda',this)">📚 Rekap Agenda</button>
   <button class="tab-btn" onclick="gt('materi',this)">📖 Ketercapaian Materi</button>
   <button class="tab-btn" onclick="gt('bolos',this)">⚠️ Alert Bolos</button>
+  <button class="tab-btn" onclick="gt('pelanggaran',this)">🚨 Pelanggaran</button>
 </div>
 
 <div class="konten">
@@ -490,12 +491,54 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
     <div id="bolos-list"><div class="empty"><div class="empty-ikon">⏳</div><div class="empty-teks">Memuat data...</div></div></div>
   </div>
 
+  <!-- ════════ PELANGGARAN ════════ -->
+  <div class="tab-page" id="tab-pelanggaran">
+    <div class="kartu" style="margin-bottom:14px;padding:12px 16px;background:var(--merah-muda);border-color:#FFCDD2">
+      <div style="font-size:12px;color:var(--merah);line-height:1.7">
+        🚨 <strong>Catatan Pelanggaran Kelas</strong> — gunakan tombol merah mengambang di pojok layar untuk melapor pelanggaran baru kapan saja, tidak harus saat mengajar.
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      <div class="kpi" style="--kc:var(--merah)">
+        <div class="kpi-val" id="plg-k-total">—</div>
+        <div class="kpi-lbl">Total Catatan</div>
+      </div>
+      <div class="kpi" style="--kc:var(--oranye)">
+        <div class="kpi-val" id="plg-k-siswa">—</div>
+        <div class="kpi-lbl">Siswa Tercatat</div>
+      </div>
+      <div class="kpi" style="--kc:var(--kuning)">
+        <div class="kpi-val" id="plg-k-perhatian">—</div>
+        <div class="kpi-lbl">Perlu Perhatian (Level ≥ 4)</div>
+      </div>
+    </div>
+
+    <div class="kartu" style="margin-bottom:14px">
+      <div class="sec-judul">📊 Rekap Poin per Siswa
+        <button class="btn btn-sc btn-sm" style="margin-left:auto" onclick="muatPelanggaranWali()">🔄 Refresh</button>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>Nama Siswa</th><th>Total Poin</th><th>Level Tindakan</th><th>Terakhir</th></tr></thead>
+          <tbody id="plg-tbody-rekap"><tr><td colspan="4" style="padding:24px;text-align:center;color:var(--abu)">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="kartu">
+      <div class="sec-judul">📋 Riwayat Catatan Terbaru</div>
+      <div id="plg-list"><div class="empty"><div class="empty-ikon">⏳</div><div class="empty-teks">Memuat...</div></div></div>
+    </div>
+  </div>
+
 </div><!-- .konten -->
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs, orderBy, limit, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initPelanggaranWidget } from '../shared/pelanggaran-widget.js';
 
 const db = getFirestore(initializeApp({
   apiKey:"AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
@@ -513,6 +556,11 @@ const tglStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate()
 const tglLabel = s => { if(!s)return'—'; const d=new Date(s); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
 const hariLabel = s => { if(!s)return'—'; return HARI[new Date(s).getDay()]; };
 const warnaPct = p => p>=80?'var(--hijau)':p>=50?'var(--kuning)':'var(--merah)';
+const tahunAjaranSaatIni = () => {
+  const n = new Date(); const y = n.getFullYear(); const m = n.getMonth()+1; // 1-12
+  return m>=7 ? `${y}/${y+1}` : `${y-1}/${y}`;
+};
+const semesterSaatIni = () => (new Date().getMonth()+1) >= 7 ? 'Ganjil' : 'Genap';
 
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -558,8 +606,23 @@ window.loginWali = async function() {
     document.getElementById('hwk').textContent = `Wali Kelas ${rombelData.nama_kelas||''}`;
     document.getElementById('lo').style.display = 'none';
 
-    await Promise.all([muatSiswa(), muatBeranda(), muatMateri(), muatBolos()]);
+    await Promise.all([muatSiswa(), muatBeranda(), muatMateri(), muatBolos(), muatPelanggaranWali()]);
     isiFilterMapel();
+
+    initPelanggaranWidget({
+      db,
+      mode: 'wali_kelas',
+      currentUser: { id: waliData.id, nama: (waliData.nama_lengkap||'').split(',')[0] },
+      tahunAjaran: tahunAjaranSaatIni(),
+      semester: semesterSaatIni(),
+      getSiswaList: async (teks) => {
+        const kelasIni = rombelData?.nama_kelas || '';
+        const sumber = teks
+          ? allSiswa.filter(s => (s.nama||'').toLowerCase().includes(teks.toLowerCase()))
+          : allSiswa;
+        return sumber.map(s => ({ id: s.id, nama: s.nama, nis: s.nis, kelas: s.kelas || kelasIni }));
+      }
+    });
 
   } catch(e) {
     le.textContent = '❌ Error: '+e.message;
@@ -568,12 +631,7 @@ window.loginWali = async function() {
 };
 
 window.keluar = function() {
-  waliData=null; rombelData=null; allSiswa=[]; pin='';
-  updateDots();
-  document.getElementById('lo').style.display='flex';
-  document.getElementById('le').textContent='';
-  document.getElementById('hwn').textContent='—';
-  document.getElementById('hwk').textContent='—';
+  location.reload(); // reset penuh termasuk menyembunyikan FAB pelanggaran
 };
 
 // ── TAB NAVIGATION ──
@@ -1056,6 +1114,66 @@ window.muatBolos = async function() {
       </div>
     </div>`;
   }).join('');
+};
+
+// ── PELANGGARAN KELAS ──
+window.muatPelanggaranWali = async function() {
+  const kelas = rombelData?.nama_kelas || '';
+  const tbodyRekap = document.getElementById('plg-tbody-rekap');
+  const listEl = document.getElementById('plg-list');
+  if (!kelas) return;
+
+  const [snapCatatan, snapRekap] = await Promise.all([
+    getDocs(query(collection(db,'Catatan_Pelanggaran'), where('kelas','==',kelas))),
+    getDocs(query(collection(db,'Rekap_Poin_Siswa'), where('kelas','==',kelas)))
+  ]);
+
+  const catatan = snapCatatan.docs.map(d=>d.data())
+    .sort((a,b)=> (b.waktu?.toMillis?.()||0) - (a.waktu?.toMillis?.()||0));
+  const rekap = snapRekap.docs.map(d=>d.data())
+    .sort((a,b)=> (b.total_poin||0)-(a.total_poin||0));
+
+  document.getElementById('plg-k-total').textContent = catatan.length;
+  document.getElementById('plg-k-siswa').textContent = new Set(catatan.map(c=>c.id_siswa)).size;
+  document.getElementById('plg-k-perhatian').textContent = rekap.filter(r=>(r.level_saat_ini||0)>=4).length;
+
+  if (!rekap.length) {
+    tbodyRekap.innerHTML = '<tr><td colspan="4" style="padding:24px;text-align:center;color:var(--abu)">Belum ada catatan pelanggaran</td></tr>';
+  } else {
+    tbodyRekap.innerHTML = rekap.map(r=>{
+      const lvl = r.level_saat_ini||0;
+      const kelasBadge = lvl>=7?'badge-err':lvl>=4?'badge-warn':'badge-biru';
+      const t = r.terakhir_diperbarui?.toDate ? r.terakhir_diperbarui.toDate() : null;
+      const terakhir = t ? tglLabel(tglStr(t)) : '—';
+      return `<tr>
+        <td style="font-weight:600">${r.nama_siswa||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-weight:700">${r.total_poin||0}</td>
+        <td><span class="badge ${kelasBadge}">Lv.${lvl} — ${r.nama_level||'—'}</span></td>
+        <td style="font-size:11px;color:var(--abu)">${terakhir}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  if (!catatan.length) {
+    listEl.innerHTML = '<div class="empty"><div class="empty-ikon">🎉</div><div class="empty-teks">Belum ada pelanggaran tercatat</div></div>';
+  } else {
+    listEl.innerHTML = catatan.slice(0,20).map(c=>{
+      const warna = c.kategori==='berat'?'var(--merah)':c.kategori==='sedang'?'var(--oranye)':'var(--hijau)';
+      const w = c.waktu?.toDate ? c.waktu.toDate() : null;
+      const waktuStr = w ? `${tglLabel(tglStr(w))} ${pad(w.getHours())}:${pad(w.getMinutes())}` : '—';
+      return `<div class="agd-card">
+        <div class="agd-header">
+          <div class="agd-jam" style="min-width:130px">${waktuStr}</div>
+          <div class="agd-mapel" style="color:${warna}">${c.nama_jenis||'—'}</div>
+          <span class="badge" style="background:${warna}22;color:${warna}">${(c.kategori||'').toUpperCase()} · ${c.poin||0} poin</span>
+        </div>
+        <div class="agd-body">
+          <div class="agd-materi">${c.nama_siswa||'—'}</div>
+          <div style="font-size:11px;color:var(--abu)">Dilaporkan oleh ${c.nama_guru_pelapor||'—'} (${c.peran_pelapor||'—'})</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 };
 
 // ── SET DEFAULT TANGGAL ──
