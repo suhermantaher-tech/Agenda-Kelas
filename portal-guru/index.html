@@ -11569,35 +11569,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       tahunAjaran: tahunAjaranSaatIni(),
       semester: semesterSaatIni(),
       getSiswaList: async (teks) => {
-        const normalisasi = v => (v || '').toString().trim().toUpperCase().replace(/\s+/g, ' ');
-        let kelasTarget = [];
-        if (jadwalDipilih) {
-          kelasTarget = [jadwalDipilih.nama_kelas || jadwalDipilih.kelas || ''].filter(Boolean);
-        } else {
-          const snapJ = await getDocs(query(
-            collection(db, 'Jadwal_Pelajaran'),
-            where('id_guru', '==', guruAktif.id),
-            where('hari', '==', hariIni)
-          ));
-          kelasTarget = [...new Set(snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean))];
-        }
-        const kelasTargetNorm = kelasTarget.map(normalisasi);
-
+        // Pelanggaran bisa terjadi kapan saja, tidak terikat jam/kelas yang sedang diajar —
+        // jadi pencarian dibuka ke semua siswa, sama seperti Wali Kelas dan BK.
         const sSnap = await getDocs(collection(db, 'Data_Siswa'));
-        const semuaSiswa = sSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-        let list = kelasTargetNorm.length
-          ? semuaSiswa.filter(s => kelasTargetNorm.includes(normalisasi(s.kelas)))
-          : [];
-
-        // Fallback: kalau nama kelas di Data_Siswa tidak persis sama formatnya dengan
-        // Jadwal_Pelajaran (mis. "X1" vs "X 1"), jangan biarkan pencarian nama gagal total —
-        // cari lintas kelas selama guru memang mengetik sebagian nama siswa.
-        if (teks && !list.length) {
-          list = semuaSiswa;
-        }
-        if (!teks && !list.length) return [];
-
+        let list = sSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         if (teks) list = list.filter(s => (s.nama || '').toLowerCase().includes(teks.toLowerCase()));
         return list.map(s => ({ id: s.id, nama: s.nama, nis: s.nis, kelas: s.kelas }));
       }
