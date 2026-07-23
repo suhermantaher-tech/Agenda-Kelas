@@ -247,6 +247,7 @@ function bukaSheet() {
   document.getElementById('plgw-overlay').classList.add('tampil');
   document.getElementById('plgw-hasil').innerHTML =
     '<div style="padding:10px 4px;color:#8A9BAE;font-size:13px">Ketik minimal 2 huruf nama siswa...</div>';
+  muatMaster(); // ambil ulang master data pelanggaran terbaru setiap kali dibuka
 }
 
 function tutupSheet() {
