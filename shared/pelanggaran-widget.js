@@ -91,7 +91,7 @@ function suntikStyle() {
   style.id = 'plgw-style';
   style.textContent = `
     .plgw-fab {
-      position: fixed; right: 18px; bottom: 22px; z-index: 9990;
+      position: fixed; right: 18px; bottom: 22px; z-index: 2147483000;
       width: 58px; height: 58px; border-radius: 50%;
       background: #C62828; color: #fff; border: none;
       box-shadow: 0 4px 14px rgba(198,40,40,0.4);
@@ -100,7 +100,7 @@ function suntikStyle() {
     }
     .plgw-fab:active { transform: scale(0.94); }
     .plgw-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9995;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2147483000;
       display: none; align-items: flex-end; justify-content: center;
     }
     .plgw-overlay.tampil { display: flex; }
@@ -151,7 +151,7 @@ function suntikStyle() {
     .plgw-toast {
       position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
       background: #1A2332; color: #fff; padding: 10px 18px; border-radius: 10px;
-      font-size: 13px; z-index: 9999; opacity: 0; transition: 0.25s; pointer-events: none;
+      font-size: 13px; z-index: 2147483000; opacity: 0; transition: 0.25s; pointer-events: none;
     }
     .plgw-toast.tampil { opacity: 1; transform: translateX(-50%) translateY(0); }
   `;
@@ -212,7 +212,9 @@ function suntikHTML() {
 }
 
 function pasangEvent() {
-  document.getElementById('plgw-fab').addEventListener('click', bukaSheet);
+  document.getElementById('plgw-fab').addEventListener('click', () => {
+    try { bukaSheet(); } catch (e) { console.error('[pelanggaran-widget] gagal membuka panel:', e); }
+  });
   document.getElementById('plgw-tutup').addEventListener('click', tutupSheet);
   document.getElementById('plgw-overlay').addEventListener('click', e => {
     if (e.target.id === 'plgw-overlay') tutupSheet();
