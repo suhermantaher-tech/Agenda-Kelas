@@ -782,6 +782,11 @@
       <span class="nav-ikon">📚</span> Bank Materi
     </button>
 
+    <div class="nav-label" style="margin-top:12px;">Kesiswaan</div>
+    <button class="nav-item" onclick="gantiPage('pelanggaran', this)">
+      <span class="nav-ikon">🚨</span> Master Pelanggaran
+    </button>
+
     <div class="nav-label" style="margin-top:12px;">Pengaturan</div>
     <button class="nav-item" onclick="gantiPage('profil', this)">
       <span class="nav-ikon">🏫</span> Profil Sekolah
@@ -1841,6 +1846,106 @@
   </div>
 </div>
 
+<!-- PAGE: MASTER PELANGGARAN -->
+<div class="page" id="page-pelanggaran">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <div class="section-judul" style="margin:0">🚨 Master Data Pelanggaran</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-ekspor" style="background:var(--biru-tua);color:white;" onclick="infoFormatPelanggaran()">📋 Info Format</button>
+      <button class="btn-ekspor" style="background:var(--hijau);color:white;" onclick="seedPelanggaranStandar()">🌱 Muat Data Standar (Tata Tertib)</button>
+      <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="tampilFormPelanggaran(null)">+ Tambah Jenis</button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card hijau">
+      <div class="kpi-ikon">🟢</div>
+      <div class="kpi-val" id="plg-kpi-ringan">0</div>
+      <div class="kpi-label">Kategori Ringan (1–15 poin)</div>
+    </div>
+    <div class="kpi-card oranye">
+      <div class="kpi-ikon">🟠</div>
+      <div class="kpi-val" id="plg-kpi-sedang">0</div>
+      <div class="kpi-label">Kategori Sedang (16–50 poin)</div>
+    </div>
+    <div class="kpi-card merah">
+      <div class="kpi-ikon">🔴</div>
+      <div class="kpi-val" id="plg-kpi-berat">0</div>
+      <div class="kpi-label">Kategori Berat (51–100 poin)</div>
+    </div>
+    <div class="kpi-card biru">
+      <div class="kpi-ikon">📋</div>
+      <div class="kpi-val" id="plg-kpi-total">0</div>
+      <div class="kpi-label">Total Jenis Pelanggaran</div>
+    </div>
+  </div>
+
+  <div id="form-pelanggaran-wrap" style="display:none;margin-bottom:20px;">
+    <div class="tabel-card" style="padding:20px;">
+      <div class="section-judul" id="form-pelanggaran-judul" style="margin-bottom:12px;">➕ Tambah Jenis Pelanggaran</div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;">
+        <div>
+          <label class="form-lbl">Kode *</label>
+          <input type="text" class="filter-input" id="fplg-kode" placeholder="PLG-R16" style="width:100%;margin-top:4px;font-family:'DM Mono',monospace;">
+        </div>
+        <div>
+          <label class="form-lbl">Nama Pelanggaran *</label>
+          <input type="text" class="filter-input" id="fplg-nama" placeholder="Membolos" style="width:100%;margin-top:4px">
+        </div>
+        <div>
+          <label class="form-lbl">Kategori *</label>
+          <select class="filter-select" id="fplg-kategori" style="width:100%;margin-top:4px" onchange="fplgUbahKategori()">
+            <option value="ringan">Ringan (1–15 poin)</option>
+            <option value="sedang">Sedang (16–50 poin)</option>
+            <option value="berat">Berat (51–100 poin)</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-lbl">Poin * <span id="fplg-poin-hint" style="font-weight:400;color:var(--abu)">(1–15)</span></label>
+          <input type="number" class="filter-input" id="fplg-poin" placeholder="10" min="1" max="100" style="width:100%;margin-top:4px">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label class="form-lbl">Tindak Lanjut Awal</label>
+        <textarea id="fplg-tindak" rows="2" placeholder="Teguran lisan oleh guru piket, dicatat di buku pembinaan" style="width:100%;margin-top:4px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="btn-ekspor" style="background:var(--oranye);color:white;" onclick="simpanPelanggaran()">💾 Simpan</button>
+        <button class="btn-ekspor" style="background:#f0f0f0;color:var(--teks);" onclick="tutupFormPelanggaran()">Batal</button>
+      </div>
+      <div id="pelanggaran-form-error" style="color:var(--merah);font-size:13px;margin-top:8px;font-weight:600;"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <select class="filter-select" id="plg-filter-kategori" onchange="renderPelanggaranTabel()">
+      <option value="">Semua Kategori</option>
+      <option value="ringan">Ringan</option>
+      <option value="sedang">Sedang</option>
+      <option value="berat">Berat</option>
+    </select>
+    <input type="text" class="filter-input" id="plg-cari" placeholder="Cari nama atau kode..." oninput="renderPelanggaranTabel()" style="flex:1;min-width:180px;">
+  </div>
+
+  <div class="tabel-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama Pelanggaran</th>
+          <th>Kategori</th>
+          <th>Poin</th>
+          <th>Tindak Lanjut Awal</th>
+          <th style="width:90px">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabel-pelanggaran">
+        <tr><td colspan="6" class="loading-inline">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 </div><!-- .main -->
 
 <div class="toast" id="toast"></div>
@@ -1870,6 +1975,7 @@
 
   // Cache
   let cacheGuru = {}, allAgenda = [], allJadwal = [];
+  let cachePelanggaran = {};
   let chartTren, chartMetode, chartGuru, chartKehadiran;
 
   const namaHari  = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -1917,11 +2023,11 @@
       mainEl.classList.toggle('page-filter-aktif', halamanDenganFilter.includes(page));
     }
 
-    const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', siswa:'Data Siswa', 'presensi-siswa':'Data Presensi Siswa', materi:'Bank Materi Kurikulum', profil:'Profil Sekolah', kalender:'Kalender Akademik', mapel:'Mata Pelajaran', jambaku:'Jam Baku', rombel:'Rombel / Kelas', roster:'Penyusunan Roster' };
+    const judul = { beranda:'Beranda', agenda:'Data Agenda', laporan:'Laporan Berkala', guru:'Manajemen Guru', siswa:'Data Siswa', 'presensi-siswa':'Data Presensi Siswa', materi:'Bank Materi Kurikulum', profil:'Profil Sekolah', kalender:'Kalender Akademik', mapel:'Mata Pelajaran', jambaku:'Jam Baku', rombel:'Rombel / Kelas', roster:'Penyusunan Roster', pelanggaran:'Master Pelanggaran' };
     const pageFilter = ['beranda','agenda','laporan'];
     const filterEl = document.getElementById('topbar-filter');
     if (filterEl) filterEl.style.display = pageFilter.includes(page) ? 'flex' : 'none';
-    const sub   = { beranda:'Ringkasan data hari ini', agenda:'Semua data agenda KBM', laporan:'Rekap mingguan, bulanan, semester, tahunan', guru:'Daftar dan status guru', jadwal:'Jadwal KBM per hari' };
+    const sub   = { beranda:'Ringkasan data hari ini', agenda:'Semua data agenda KBM', laporan:'Rekap mingguan, bulanan, semester, tahunan', guru:'Daftar dan status guru', jadwal:'Jadwal KBM per hari', pelanggaran:'Jenis pelanggaran, poin, dan tindak lanjut — sumber pilihan di Portal Guru, Wali Kelas, dan BK' };
     document.getElementById('topbar-judul').textContent = judul[page]||page;
     document.getElementById('topbar-sub').textContent   = sub[page]||'';
 
@@ -1950,6 +2056,7 @@
     if (page === 'roster')   { if(!rosterSudahMuat) rosterMuat(); else rosterRenderGrid(); }
     if (page === 'mapel')    { renderMapelGrid(allMapel); }
     if (page === 'rombel')   { renderRombelGrid(); }
+    if (page === 'pelanggaran') { muatPelanggaran(); }
   };
 
   // ── INIT ──
@@ -5367,6 +5474,230 @@
     );
   };
 
+  // ══════════════════════════════════════
+  // MASTER PELANGGARAN
+  // ══════════════════════════════════════
+  const PLG_RANGE = {
+    ringan: [1, 15],
+    sedang: [16, 50],
+    berat:  [51, 100]
+  };
+
+  function plgBadge(kategori) {
+    const map = {
+      ringan: { bg: 'var(--hijau-muda)', teks: '#1B5E20', label: 'Ringan' },
+      sedang: { bg: 'var(--oranye-terang)', teks: 'var(--oranye-gelap)', label: 'Sedang' },
+      berat:  { bg: '#FDE8E8', teks: 'var(--merah)', label: 'Berat' }
+    };
+    const s = map[kategori] || map.ringan;
+    return `<span style="background:${s.bg};color:${s.teks};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${s.label}</span>`;
+  }
+
+  async function muatPelanggaran() {
+    document.getElementById('tabel-pelanggaran').innerHTML = '<tr><td colspan="6" class="loading-inline">Memuat data...</td></tr>';
+    const snap = await getDocs(collection(db, 'Master_Pelanggaran'));
+    cachePelanggaran = {};
+    snap.docs.forEach(d => { cachePelanggaran[d.id] = d.data(); });
+    renderPelanggaranTabel();
+  }
+
+  window.renderPelanggaranTabel = function () {
+    const kategoriF = document.getElementById('plg-filter-kategori')?.value || '';
+    const cariF = (document.getElementById('plg-cari')?.value || '').toLowerCase().trim();
+
+    let list = Object.entries(cachePelanggaran).map(([id, p]) => ({ id, ...p }));
+
+    document.getElementById('plg-kpi-ringan').textContent = list.filter(p => p.kategori === 'ringan').length;
+    document.getElementById('plg-kpi-sedang').textContent = list.filter(p => p.kategori === 'sedang').length;
+    document.getElementById('plg-kpi-berat').textContent  = list.filter(p => p.kategori === 'berat').length;
+    document.getElementById('plg-kpi-total').textContent  = list.length;
+
+    if (kategoriF) list = list.filter(p => p.kategori === kategoriF);
+    if (cariF) list = list.filter(p =>
+      (p.nama || '').toLowerCase().includes(cariF) || (p.kode || '').toLowerCase().includes(cariF)
+    );
+    list.sort((a, b) => (a.kode || '').localeCompare(b.kode || ''));
+
+    const tbody = document.getElementById('tabel-pelanggaran');
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading-inline">Belum ada data. Klik "Muat Data Standar" atau "Tambah Jenis".</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(p => `
+      <tr>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.kode || '—'}</td>
+        <td>${p.nama || ''}</td>
+        <td>${plgBadge(p.kategori)}</td>
+        <td style="font-weight:700;">${p.poin ?? 0}</td>
+        <td style="font-size:12px;color:var(--teks-muted);max-width:320px;">${p.tindak_lanjut || '—'}</td>
+        <td>
+          <button class="btn-ekspor" style="padding:5px 10px;font-size:12px;" onclick="tampilFormPelanggaran('${p.id}')">✏️</button>
+          <button class="btn-ekspor" style="padding:5px 10px;font-size:12px;color:var(--merah);" onclick="hapusPelanggaran('${p.id}')">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  };
+
+  let editPelanggaranId = null;
+
+  window.fplgUbahKategori = function () {
+    const kat = document.getElementById('fplg-kategori').value;
+    const [min, max] = PLG_RANGE[kat];
+    document.getElementById('fplg-poin-hint').textContent = `(${min}–${max})`;
+  };
+
+  window.tampilFormPelanggaran = function (id) {
+    editPelanggaranId = id;
+    document.getElementById('form-pelanggaran-wrap').style.display = 'block';
+    document.getElementById('pelanggaran-form-error').textContent = '';
+    if (id && cachePelanggaran[id]) {
+      const p = cachePelanggaran[id];
+      document.getElementById('form-pelanggaran-judul').textContent = '✏️ Edit Jenis Pelanggaran';
+      document.getElementById('fplg-kode').value = p.kode || '';
+      document.getElementById('fplg-nama').value = p.nama || '';
+      document.getElementById('fplg-kategori').value = p.kategori || 'ringan';
+      document.getElementById('fplg-poin').value = p.poin ?? '';
+      document.getElementById('fplg-tindak').value = p.tindak_lanjut || '';
+    } else {
+      document.getElementById('form-pelanggaran-judul').textContent = '➕ Tambah Jenis Pelanggaran';
+      document.getElementById('fplg-kode').value = '';
+      document.getElementById('fplg-nama').value = '';
+      document.getElementById('fplg-kategori').value = 'ringan';
+      document.getElementById('fplg-poin').value = '';
+      document.getElementById('fplg-tindak').value = '';
+    }
+    fplgUbahKategori();
+    document.getElementById('form-pelanggaran-wrap').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.tutupFormPelanggaran = function () {
+    document.getElementById('form-pelanggaran-wrap').style.display = 'none';
+    editPelanggaranId = null;
+  };
+
+  window.simpanPelanggaran = async function () {
+    const kode = document.getElementById('fplg-kode').value.trim().toUpperCase();
+    const nama = document.getElementById('fplg-nama').value.trim();
+    const kategori = document.getElementById('fplg-kategori').value;
+    const poin = Number(document.getElementById('fplg-poin').value);
+    const tindak = document.getElementById('fplg-tindak').value.trim();
+    const errEl = document.getElementById('pelanggaran-form-error');
+    errEl.textContent = '';
+
+    if (!kode)  { errEl.textContent = 'Kode wajib diisi!'; return; }
+    if (!nama)  { errEl.textContent = 'Nama pelanggaran wajib diisi!'; return; }
+    const [min, max] = PLG_RANGE[kategori];
+    if (!poin || poin < min || poin > max) { errEl.textContent = `Poin harus di rentang ${min}–${max} untuk kategori ini!`; return; }
+
+    const kodeExist = Object.entries(cachePelanggaran).find(([id, p]) => p.kode === kode && id !== editPelanggaranId);
+    if (kodeExist) { errEl.textContent = 'Kode sudah dipakai jenis pelanggaran lain!'; return; }
+
+    const data = { kode, nama, kategori, poin, tindak_lanjut: tindak, aktif: true };
+
+    try {
+      if (editPelanggaranId) {
+        const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        await updateDoc(doc(db, 'Master_Pelanggaran', editPelanggaranId), data);
+      } else {
+        await addDoc(collection(db, 'Master_Pelanggaran'), data);
+      }
+      tampilToast('✅ Data pelanggaran tersimpan');
+      tutupFormPelanggaran();
+      await muatPelanggaran();
+    } catch (e) {
+      errEl.textContent = 'Gagal menyimpan: ' + e.message;
+    }
+  };
+
+  window.hapusPelanggaran = async function (id) {
+    const p = cachePelanggaran[id];
+    if (!p) return;
+    if (!confirm(`Hapus jenis pelanggaran "${p.nama}"? Data ini akan tetap ada di catatan pelanggaran yang sudah terlanjur dicatat.`)) return;
+    await deleteDoc(doc(db, 'Master_Pelanggaran', id));
+    tampilToast('🗑️ Jenis pelanggaran dihapus');
+    await muatPelanggaran();
+  };
+
+  window.infoFormatPelanggaran = function () {
+    const html = `<div class="modal-overlay" id="modal-info-plg" onclick="if(event.target===this)document.getElementById('modal-info-plg').remove()">
+      <div class="modal-box">
+        <div class="modal-judul">📋 Tentang Master Data Pelanggaran</div>
+        <div class="modal-note">
+          ℹ️ Data ini disimpan di koleksi <strong>Master_Pelanggaran</strong> di Firestore, dan menjadi sumber grid pilihan pelanggaran di Portal Guru, Portal Wali Kelas, dan Portal BK.
+        </div>
+        <div class="modal-note" style="background:var(--hijau-muda);border:1px solid #A5D6A7;">
+          🌱 <strong>Muat Data Standar</strong> mengisi otomatis 42 jenis pelanggaran sesuai Penyempurnaan Pedoman Tata Tertib SMAN 5 Sarolangun (15 ringan, 15 sedang, 12 berat). Kode yang sudah ada tidak akan digandakan.
+        </div>
+        <div class="modal-note">⚠️ Poin harus sesuai rentang kategori: <strong>Ringan 1–15</strong>, <strong>Sedang 16–50</strong>, <strong>Berat 51–100</strong> — mengikuti Bagian B pedoman tata tertib.</div>
+        <button class="btn-modal-tutup" onclick="document.getElementById('modal-info-plg').remove()">Tutup</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  };
+
+  window.seedPelanggaranStandar = async function () {
+    if (!confirm('Muat 42 jenis pelanggaran standar dari Pedoman Tata Tertib? Kode yang sudah ada di database tidak akan digandakan.')) return;
+
+    const DATA_STANDAR = [
+      ['PLG-R01','Terlambat hadir ke sekolah atau masuk kelas setelah bel berbunyi','ringan',5,'Teguran lisan oleh guru piket/wali kelas, dicatat di buku pembinaan'],
+      ['PLG-R02','Tidak mengenakan atribut seragam lengkap (topi, dasi, badge lokasi/OSIS)','ringan',5,'Teguran lisan, atribut dilengkapi saat itu juga'],
+      ['PLG-R03','Seragam tidak sesuai ketentuan hari yang berlaku','ringan',10,'Teguran lisan oleh guru piket'],
+      ['PLG-R04','Baju/kemeja tidak dimasukkan ke dalam celana/rok','ringan',5,'Diingatkan untuk merapikan'],
+      ['PLG-R05','Rambut siswa putra melebihi ketentuan, dicat, atau model tidak rapi','ringan',10,'Teguran dan bimbingan wali kelas'],
+      ['PLG-R06','Tidak memakai sepatu/kaos kaki sesuai ketentuan','ringan',10,'Teguran lisan oleh guru piket'],
+      ['PLG-R07','Berkuku panjang, mengecat kuku, atau berhias berlebihan (khusus siswa putri)','ringan',5,'Teguran dan diminta memperbaiki'],
+      ['PLG-R08','Memakai perhiasan/aksesoris berlebihan atau tidak sesuai ketentuan gender','ringan',10,'Aksesoris diamankan sementara, teguran lisan'],
+      ['PLG-R09','Tidak membawa buku dan perlengkapan belajar / tidak mengerjakan tugas','ringan',10,'Teguran wali kelas dan guru mapel'],
+      ['PLG-R10','Tidak melaksanakan tugas piket kebersihan kelas atau membuang sampah sembarangan','ringan',10,'Diminta membersihkan, teguran lisan'],
+      ['PLG-R11','Bercanda berlebihan, jahil, atau berteriak-teriak di lingkungan sekolah','ringan',5,'Teguran lisan oleh guru terdekat'],
+      ['PLG-R12','Berada di kantin atau luar kelas pada jam pelajaran tanpa izin guru','ringan',10,'Diarahkan kembali ke kelas, teguran lisan'],
+      ['PLG-R13','Mengaktifkan HP/laptop tanpa izin guru saat pembelajaran berlangsung','ringan',10,'Perangkat diamankan sementara, teguran lisan'],
+      ['PLG-R14','Tidak mengikuti upacara bendera atau kegiatan rutin keagamaan tanpa alasan','ringan',10,'Teguran dan bimbingan wali kelas'],
+      ['PLG-R15','Alpa/tidak hadir ke sekolah tanpa keterangan (1 hari)','ringan',10,'Konfirmasi wali kelas ke orang tua melalui buku penghubung'],
+      ['PLG-S01','Membolos atau meninggalkan lingkungan sekolah tanpa izin resmi','sedang',20,'Pemberitahuan tertulis ke orang tua, bimbingan wali kelas/BK'],
+      ['PLG-S02','Memalsukan surat izin, tanda tangan orang tua/wali, atau guru','sedang',25,'Pemanggilan orang tua, bimbingan BK, dicatat dalam buku pembinaan'],
+      ['PLG-S03','Bekerja sama, mencontek, atau memberi jawaban saat ulangan/ujian','sedang',25,'Nilai ujian pada sesi tersebut dinolkan; bimbingan guru mapel'],
+      ['PLG-S04','Membawa, menyimpan, atau menggunakan rokok maupun rokok elektrik (vape) di lingkungan sekolah','sedang',30,'Barang disita, pemanggilan orang tua, bimbingan BK'],
+      ['PLG-S05','Mengucapkan kata-kata kasar, menghina, atau merendahkan teman/warga sekolah (kekerasan verbal/psikis)','sedang',25,'Mediasi oleh wali kelas/BK, permintaan maaf terbuka'],
+      ['PLG-S06','Melakukan perundungan (bullying) termasuk verbal, fisik ringan, atau siber','sedang',40,'Ditangani wali kelas/BK berkoordinasi dengan TPPK, pemanggilan orang tua, pemulihan bagi korban'],
+      ['PLG-S07','Berpacaran melewati batas norma dan etika kesusilaan di lingkungan sekolah','sedang',30,'Pemanggilan orang tua, bimbingan BK, surat pernyataan'],
+      ['PLG-S08','Merusak, mencoret, atau mencemari sarana dan prasarana sekolah secara sengaja','sedang',20,'Mengganti/memperbaiki kerusakan, pemanggilan orang tua bila berulang'],
+      ['PLG-S09','Berjudi, bermain kartu remi/gaple, atau berjudi daring di lingkungan sekolah','sedang',35,'Barang bukti disita, pemanggilan orang tua, bimbingan BK'],
+      ['PLG-S10','Membawa, menyimpan, atau mengakses media pornografi melalui jaringan/perangkat sekolah','sedang',40,'Pemanggilan orang tua, bimbingan BK, surat pernyataan bermaterai'],
+      ['PLG-S11','Tindakan diskriminatif atau intoleran karena suku, agama, ras, kondisi fisik, atau latar belakang lain (SARA)','sedang',40,'Ditangani wali kelas/BK berkoordinasi dengan TPPK, mediasi dan edukasi nilai kebinekaan'],
+      ['PLG-S12','Terlibat perkelahian atau adu fisik ringan dengan sesama siswa','sedang',35,'Pemanggilan orang tua, mediasi restitusi, surat pernyataan'],
+      ['PLG-S13','Memalak atau meminta uang/barang milik teman secara paksa','sedang',40,'Pemanggilan orang tua, pemulihan hak korban, surat pernyataan bermaterai'],
+      ['PLG-S14','Mencemarkan nama baik sekolah atau warga sekolah melalui media sosial/elektronik','sedang',40,'Pemanggilan orang tua, klarifikasi tertulis, surat pernyataan'],
+      ['PLG-S15','Bersikap melawan atau berkata kasar kepada guru/karyawan tanpa ancaman fisik','sedang',35,'Pemanggilan orang tua, mediasi dengan guru BK, surat pernyataan'],
+      ['PLG-B01','Terlibat tawuran atau pengeroyokan antar-pelajar, di dalam maupun di luar sekolah','berat',75,'Skorsing, konferensi kasus, pemanggilan orang tua oleh Kepala Sekolah'],
+      ['PLG-B02','Melakukan kekerasan fisik yang mengakibatkan cedera terhadap teman, guru, atau karyawan','berat',80,'Skorsing, koordinasi TPPK, konferensi kasus, pendampingan medis/psikologis korban'],
+      ['PLG-B03','Melakukan kekerasan seksual (pelecehan, pencabulan, atau tindakan asusila lainnya)','berat',100,'Penanganan segera oleh TPPK, pelaporan kepada pihak berwajib, pemulihan korban, sanksi tegas sesuai hasil konferensi kasus'],
+      ['PLG-B04','Hamil di luar nikah, menghamili, atau menikah selama berstatus peserta didik','berat',90,'Konferensi kasus yang mengutamakan hak pendidikan anak, pendampingan BK dan orang tua'],
+      ['PLG-B05','Membawa, menggunakan, atau mengedarkan narkoba, minuman keras, atau zat adiktif lainnya','berat',100,'Pelaporan kepada pihak berwajib, konferensi kasus, pendampingan rehabilitasi'],
+      ['PLG-B06','Membawa dan/atau menggunakan senjata tajam/api untuk mengancam atau melukai orang lain','berat',100,'Barang bukti disita, pelaporan kepada pihak berwajib, konferensi kasus'],
+      ['PLG-B07','Terbukti mencuri barang milik sekolah, guru, karyawan, atau teman','berat',75,'Konferensi kasus, restitusi barang/kerugian, pemanggilan orang tua'],
+      ['PLG-B08','Memalsukan dokumen resmi sekolah (rapor, ijazah, surat keterangan, legalisasi)','berat',90,'Konferensi kasus, koordinasi dengan Dinas Pendidikan bila diperlukan'],
+      ['PLG-B09','Perundungan berat atau berulang yang mengakibatkan dampak psikis serius pada korban','berat',75,'Penanganan oleh TPPK, konferensi kasus, pemulihan korban, sanksi edukatif bagi pelaku'],
+      ['PLG-B10','Tindak pidana yang melibatkan aparat penegak hukum (penganiayaan, pengrusakan berat, penipuan)','berat',90,'Pelaporan kepada pihak berwajib, konferensi kasus, pendampingan hukum bagi anak'],
+      ['PLG-B11','Melawan atau menganiaya guru/tenaga kependidikan secara fisik','berat',90,'Pelaporan kepada pihak berwajib, konferensi kasus, pemanggilan orang tua oleh Kepala Sekolah'],
+      ['PLG-B12','Mengancam keselamatan warga sekolah, termasuk melalui pesan atau media sosial','berat',75,'Koordinasi TPPK, konferensi kasus, pendampingan psikologis']
+    ];
+
+    const kodeSudahAda = new Set(Object.values(cachePelanggaran).map(p => p.kode));
+    const batch = writeBatch(db);
+    let ditambah = 0;
+    DATA_STANDAR.forEach(([kode, nama, kategori, poin, tindak]) => {
+      if (kodeSudahAda.has(kode)) return;
+      const ref = doc(collection(db, 'Master_Pelanggaran'));
+      batch.set(ref, { kode, nama, kategori, poin, tindak_lanjut: tindak, aktif: true });
+      ditambah++;
+    });
+
+    if (ditambah === 0) { tampilToast('ℹ️ Semua kode standar sudah ada di database'); return; }
+    await batch.commit();
+    tampilToast(`✅ ${ditambah} jenis pelanggaran standar ditambahkan`);
+    await muatPelanggaran();
+  };
 
 </script>
 </body>
