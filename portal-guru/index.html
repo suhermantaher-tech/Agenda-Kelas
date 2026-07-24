@@ -11575,6 +11575,82 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         let list = sSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         if (teks) list = list.filter(s => (s.nama || '').toLowerCase().includes(teks.toLowerCase()));
         return list.map(s => ({ id: s.id, nama: s.nama, nis: s.nis, kelas: s.kelas }));
+      },
+      onScanQR: () => pindaiKartuSiswa()
+    });
+  }
+
+  // Pindai kartu siswa untuk fitur pelanggaran — pakai ulang jsQR yang sudah ter-embed
+  // di file ini, format QR & pencarian NIS sama persis dengan presensi/index.html
+  function pindaiKartuSiswa() {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:2147483200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = `
+        <video id="plg-scan-video" autoplay playsinline muted style="width:100%;max-width:420px;border-radius:12px;background:#111"></video>
+        <canvas id="plg-scan-canvas" style="display:none"></canvas>
+        <p id="plg-scan-status" style="color:#fff;margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;text-align:center">Arahkan QR kartu siswa ke kamera...</p>
+        <button id="plg-scan-batal" style="margin-top:18px;padding:10px 28px;border-radius:10px;border:none;background:#C62828;color:#fff;font-weight:700;cursor:pointer">Batal</button>
+      `;
+      document.body.appendChild(overlay);
+
+      let stream = null, scanning = true;
+      const video  = overlay.querySelector('#plg-scan-video');
+      const canvas = overlay.querySelector('#plg-scan-canvas');
+      const status = overlay.querySelector('#plg-scan-status');
+
+      function selesai(hasil) {
+        scanning = false;
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        overlay.remove();
+        resolve(hasil);
+      }
+      overlay.querySelector('#plg-scan-batal').addEventListener('click', () => selesai(null));
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      }).then(s => {
+        stream = s;
+        video.srcObject = s;
+        tick();
+      }).catch(e => {
+        status.textContent = '❌ Kamera tidak bisa diakses: ' + e.message;
+      });
+
+      let kodeTerakhir = '', waktuTerakhir = 0;
+
+      async function tick() {
+        if (!scanning) return;
+        if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+          canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+          const now = Date.now();
+          if (code?.data && (code.data !== kodeTerakhir || now - waktuTerakhir > 3000)) {
+            kodeTerakhir = code.data; waktuTerakhir = now;
+
+            // Parse QR: "NIS|NAMA|KELAS" atau hanya NIS — sama seperti presensi/index.html
+            const nis = code.data.split('|')[0]?.trim();
+            if (nis) {
+              status.textContent = '🔍 Mencari data siswa...';
+              try {
+                const snap = await getDocs(query(collection(db, 'Data_Siswa'), where('nis', '==', nis)));
+                if (!snap.empty) {
+                  const d = snap.docs[0];
+                  selesai({ id: d.id, nama: d.data().nama, nis: d.data().nis, kelas: d.data().kelas });
+                  return;
+                } else {
+                  status.textContent = `❌ NIS ${nis} tidak terdaftar, coba lagi...`;
+                }
+              } catch (e) {
+                status.textContent = '❌ Gagal cari data: ' + e.message;
+              }
+            }
+          }
+        }
+        requestAnimationFrame(tick);
       }
     });
   }
