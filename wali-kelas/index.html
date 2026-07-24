@@ -518,12 +518,23 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
       <div class="sec-judul">📊 Rekap Poin per Siswa
         <button class="btn btn-sc btn-sm" style="margin-left:auto" onclick="muatPelanggaranWali()">🔄 Refresh</button>
       </div>
+      <div style="font-size:11px;color:var(--abu);margin:-4px 0 10px">Klik nama siswa untuk lihat rincian lengkap dan cetak laporan</div>
       <div class="tbl-wrap">
         <table class="tbl">
           <thead><tr><th>Nama Siswa</th><th>Total Poin</th><th>Level Tindakan</th><th>Terakhir</th></tr></thead>
           <tbody id="plg-tbody-rekap"><tr><td colspan="4" style="padding:24px;text-align:center;color:var(--abu)">Memuat...</td></tr></tbody>
         </table>
       </div>
+    </div>
+
+    <div class="kartu" id="plg-detail-wrap" style="display:none;margin-bottom:14px;border-color:var(--merah)">
+      <div class="sec-judul">
+        📄 <span id="plg-detail-nama">—</span>
+        <button class="btn btn-sc btn-sm" style="margin-left:auto" onclick="cetakLaporanSiswa()">🖨️ Cetak Laporan</button>
+        <button class="btn btn-sc btn-sm" onclick="tutupDetailSiswa()">✕ Tutup</button>
+      </div>
+      <div id="plg-detail-ringkasan" style="font-size:12px;color:var(--abu);margin-bottom:10px"></div>
+      <div id="plg-detail-list"></div>
     </div>
 
     <div class="kartu">
@@ -1117,6 +1128,8 @@ window.muatBolos = async function() {
 };
 
 // ── PELANGGARAN KELAS ──
+let _plgCatatanCache = [], _plgRekapCache = [];
+
 window.muatPelanggaranWali = async function() {
   const kelas = rombelData?.nama_kelas || '';
   const tbodyRekap = document.getElementById('plg-tbody-rekap');
@@ -1133,6 +1146,9 @@ window.muatPelanggaranWali = async function() {
   const rekap = snapRekap.docs.map(d=>d.data())
     .sort((a,b)=> (b.total_poin||0)-(a.total_poin||0));
 
+  _plgCatatanCache = catatan;
+  _plgRekapCache = rekap;
+
   document.getElementById('plg-k-total').textContent = catatan.length;
   document.getElementById('plg-k-siswa').textContent = new Set(catatan.map(c=>c.id_siswa)).size;
   document.getElementById('plg-k-perhatian').textContent = rekap.filter(r=>(r.level_saat_ini||0)>=4).length;
@@ -1145,7 +1161,7 @@ window.muatPelanggaranWali = async function() {
       const kelasBadge = lvl>=7?'badge-err':lvl>=4?'badge-warn':'badge-biru';
       const t = r.terakhir_diperbarui?.toDate ? r.terakhir_diperbarui.toDate() : null;
       const terakhir = t ? tglLabel(tglStr(t)) : '—';
-      return `<tr>
+      return `<tr onclick="tampilDetailSiswa('${(r.id_siswa||'').replace(/'/g,"\\'")}')" style="cursor:pointer" title="Klik untuk lihat rincian & cetak">
         <td style="font-weight:600">${r.nama_siswa||'—'}</td>
         <td style="font-family:'DM Mono',monospace;font-weight:700">${r.total_poin||0}</td>
         <td><span class="badge ${kelasBadge}">Lv.${lvl} — ${r.nama_level||'—'}</span></td>
@@ -1174,6 +1190,97 @@ window.muatPelanggaranWali = async function() {
       </div>`;
     }).join('');
   }
+};
+
+window.tampilDetailSiswa = function(idSiswa) {
+  const rekap = _plgRekapCache.find(r => r.id_siswa === idSiswa);
+  const daftar = _plgCatatanCache.filter(c => c.id_siswa === idSiswa)
+    .sort((a,b)=> (b.waktu?.toMillis?.()||0) - (a.waktu?.toMillis?.()||0));
+  if (!rekap && !daftar.length) return;
+
+  const nama = rekap?.nama_siswa || daftar[0]?.nama_siswa || '—';
+  document.getElementById('plg-detail-nama').textContent = nama;
+  document.getElementById('plg-detail-ringkasan').innerHTML =
+    `${rombelData?.nama_kelas || ''} · Total <strong>${rekap?.total_poin||0} poin</strong> · Level ${rekap?.level_saat_ini||0} — ${rekap?.nama_level||'—'} · ${daftar.length} catatan`;
+
+  document.getElementById('plg-detail-list').innerHTML = daftar.map((c,i) => {
+    const warna = c.kategori==='berat'?'var(--merah)':c.kategori==='sedang'?'var(--oranye)':'var(--hijau)';
+    const w = c.waktu?.toDate ? c.waktu.toDate() : null;
+    const waktuStr = w ? `${tglLabel(tglStr(w))} ${pad(w.getHours())}:${pad(w.getMinutes())}` : '—';
+    return `<div class="agd-card">
+      <div class="agd-header">
+        <div class="agd-jam" style="min-width:26px">${i+1}.</div>
+        <div class="agd-mapel" style="color:${warna}">${c.nama_jenis||'—'}</div>
+        <span class="badge" style="background:${warna}22;color:${warna}">${(c.kategori||'').toUpperCase()} · ${c.poin||0} poin</span>
+      </div>
+      <div class="agd-body">
+        <div style="font-size:11px;color:var(--abu)">${waktuStr} · Dilaporkan oleh ${c.nama_guru_pelapor||'—'} (${c.peran_pelapor||'—'})</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty"><div class="empty-teks">Tidak ada rincian</div></div>';
+
+  document.getElementById('plg-detail-wrap').dataset.idSiswa = idSiswa;
+  document.getElementById('plg-detail-wrap').style.display = 'block';
+  document.getElementById('plg-detail-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.tutupDetailSiswa = function() {
+  document.getElementById('plg-detail-wrap').style.display = 'none';
+};
+
+window.cetakLaporanSiswa = function() {
+  const idSiswa = document.getElementById('plg-detail-wrap').dataset.idSiswa;
+  const rekap = _plgRekapCache.find(r => r.id_siswa === idSiswa);
+  const daftar = _plgCatatanCache.filter(c => c.id_siswa === idSiswa)
+    .sort((a,b)=> (a.waktu?.toMillis?.()||0) - (b.waktu?.toMillis?.()||0));
+  const nama = rekap?.nama_siswa || daftar[0]?.nama_siswa || '—';
+  const tglCetak = tglLabel(tglStr(new Date()));
+
+  const baris = daftar.map((c,i) => {
+    const w = c.waktu?.toDate ? c.waktu.toDate() : null;
+    const waktuStr = w ? `${tglLabel(tglStr(w))} ${pad(w.getHours())}:${pad(w.getMinutes())}` : '—';
+    return `<tr>
+      <td style="padding:6px 8px;border:1px solid #ccc;text-align:center">${i+1}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc">${waktuStr}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc">${c.nama_jenis||'—'}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;text-transform:capitalize">${c.kategori||'—'}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc;text-align:center">${c.poin||0}</td>
+      <td style="padding:6px 8px;border:1px solid #ccc">${c.nama_guru_pelapor||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Pelanggaran - ${nama}</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:32px;color:#1A2332}
+    h1{font-size:16px;margin:0 0 2px}
+    h2{font-size:13px;font-weight:400;color:#5A6A7E;margin:0 0 18px}
+    table{border-collapse:collapse;width:100%;font-size:12px;margin-top:10px}
+    th{background:#F5F6FA;padding:6px 8px;border:1px solid #ccc;text-align:left}
+    .info{font-size:12.5px;margin-bottom:4px}
+    .ttd{margin-top:60px;display:flex;justify-content:space-between;font-size:12.5px}
+    .ttd div{text-align:center;width:220px}
+    .garis{margin-top:50px;border-top:1px solid #333}
+  </style></head><body>
+    <h1>SMAN 5 Sarolangun</h1>
+    <h2>Laporan Riwayat Pelanggaran Siswa</h2>
+    <div class="info"><strong>Nama Siswa</strong> : ${nama}</div>
+    <div class="info"><strong>Kelas</strong> : ${rombelData?.nama_kelas || '—'}</div>
+    <div class="info"><strong>Total Poin</strong> : ${rekap?.total_poin||0} — Level ${rekap?.level_saat_ini||0} (${rekap?.nama_level||'—'})</div>
+    <div class="info"><strong>Tanggal Cetak</strong> : ${tglCetak}</div>
+    <table>
+      <thead><tr><th>No</th><th>Waktu</th><th>Jenis Pelanggaran</th><th>Kategori</th><th>Poin</th><th>Pelapor</th></tr></thead>
+      <tbody>${baris || '<tr><td colspan="6" style="padding:10px;text-align:center;border:1px solid #ccc">Tidak ada catatan</td></tr>'}</tbody>
+    </table>
+    <div class="ttd">
+      <div>Wali Kelas<div class="garis">${waliData?.nama_lengkap || ''}</div></div>
+      <div>Mengetahui,<div class="garis">Kepala Sekolah</div></div>
+    </div>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => win.print();
 };
 
 // ── SET DEFAULT TANGGAL ──
