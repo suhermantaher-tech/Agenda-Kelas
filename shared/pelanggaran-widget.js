@@ -31,7 +31,7 @@
 
 import {
   collection, doc, addDoc, getDocs, query, where,
-  runTransaction, serverTimestamp
+  runTransaction, serverTimestamp, setDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Tabel 8 level tindakan — Bagian D Pedoman Tata Tertib
@@ -51,10 +51,37 @@ function levelDari(poin) {
 }
 
 const KATEGORI_WARNA = {
-  ringan: { bg: '#E8F5E9', border: '#A5D6A7', teks: '#1B5E20', label: 'Ringan' },
-  sedang: { bg: '#FFF3E0', border: '#FFCC80', teks: '#B85510', label: 'Sedang' },
-  berat:  { bg: '#FDE8E8', border: '#F5A0A0', teks: '#C62828', label: 'Berat' },
+  ringan: { bg: '#E8F5E9', border: '#A5D6A7', teks: '#1B5E20', label: 'Ringan', ikon: '📝' },
+  sedang: { bg: '#FFF3E0', border: '#FFCC80', teks: '#B85510', label: 'Sedang', ikon: '⚠️' },
+  berat:  { bg: '#FDE8E8', border: '#F5A0A0', teks: '#C62828', label: 'Berat', ikon: '🚨' },
 };
+
+// Ikon berdasarkan kata kunci di nama pelanggaran — kalau tidak cocok, pakai ikon kategori
+const IKON_KEYWORD = [
+  [/terlambat/, '⏰'], [/seragam|atribut|dasi|topi|kemeja|celana|rok/, '👔'], [/rambut/, '💇'],
+  [/sepatu|kaos kaki/, '👟'], [/kuku|hias|perhiasan|aksesoris/, '💅'],
+  [/buku|tugas|piket|sampah|kebersihan/, '📚'], [/bercanda|jahil|teriak/, '😝'],
+  [/kantin|luar kelas/, '🚶'], [/hp\b|laptop|ponsel|gawai/, '📱'],
+  [/upacara|ibadah|keagamaan/, '🚩'], [/alpa|tidak hadir/, '📅'],
+  [/membolos|meninggalkan lingkungan/, '🚪'], [/palsu|tanda tangan/, '✍️'],
+  [/contek|ulangan|ujian/, '📝'], [/rokok|vape/, '🚬'],
+  [/kasar|hina|verbal|merendahkan/, '🗯️'], [/bullying|perundungan/, '😢'],
+  [/pacar|kesusilaan/, '💔'], [/rusak|coret|cemari/, '🔨'],
+  [/judi/, '🎲'], [/pornografi/, '🔞'], [/sara|diskrimina|intoleran/, '🚫'],
+  [/kelahi|adu fisik|tawuran|keroyok/, '🥊'], [/palak|paksa/, '✊'],
+  [/nama baik|media sosial/, '📢'], [/melawan|kasar.*guru/, '🙅'],
+  [/kekerasan fisik|cedera/, '🩹'], [/seksual|cabul|asusila/, '⛔'],
+  [/hamil|menikah/, '👶'], [/narkoba|minuman keras|adiktif/, '💊'],
+  [/senjata/, '🔪'], [/mencuri/, '🕵️'], [/dokumen|ijazah|rapor/, '📄'],
+  [/pidana|penganiayaan/, '⚖️'], [/mengancam/, '⚠️'],
+];
+function ikonUntuk(nama, kategori) {
+  const n = (nama || '').toLowerCase();
+  for (const [re, ikon] of IKON_KEYWORD) if (re.test(n)) return ikon;
+  return KATEGORI_WARNA[kategori]?.ikon || '❗';
+}
+
+const JUMLAH_TAMPIL_AWAL = 4; // jenis "tersering" yang langsung ditampilkan per kategori
 
 let cfg = null;
 let masterCache = [];
@@ -77,8 +104,15 @@ export async function initPelanggaranWidget(config) {
 
 async function muatMaster() {
   try {
-    const snap = await getDocs(query(collection(cfg.db, 'Master_Pelanggaran'), where('aktif', '==', true)));
-    masterCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const [snapMaster, snapPemakaian] = await Promise.all([
+      getDocs(query(collection(cfg.db, 'Master_Pelanggaran'), where('aktif', '==', true))),
+      getDocs(collection(cfg.db, 'Pemakaian_Pelanggaran')).catch(() => ({ docs: [] }))
+    ]);
+    const pemakaianMap = {};
+    snapPemakaian.docs.forEach(d => { pemakaianMap[d.id] = d.data().jumlah || 0; });
+    masterCache = snapMaster.docs.map(d => ({
+      id: d.id, ...d.data(), jumlah_pemakaian: pemakaianMap[d.id] || 0
+    }));
   } catch (e) {
     console.error('[pelanggaran-widget] gagal memuat Master_Pelanggaran', e);
     masterCache = [];
@@ -135,8 +169,12 @@ function suntikStyle() {
       border-radius: 10px; padding: 10px; cursor: pointer; border: 1.5px solid;
     }
     .plgw-card p { margin: 0; }
-    .plgw-card .nama { font-size: 12.5px; font-weight: 700; }
+    .plgw-card .nama { font-size: 12.5px; font-weight: 700; line-height: 1.3; }
     .plgw-card .poin { font-size: 11.5px; margin-top: 2px; }
+    .plgw-lainnya {
+      width: 100%; background: none; border: 1.5px dashed; border-radius: 10px;
+      padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+    }
     .plgw-ringkasan { background: #F5F6FA; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
     .plgw-ringkasan table { width: 100%; font-size: 13px; }
     .plgw-ringkasan td { padding: 4px 0; }
@@ -320,20 +358,33 @@ function pilihSiswa(siswa) {
 function renderGrid() {
   const wrap = document.getElementById('plgw-grid-wrap');
   const kategoris = ['ringan', 'sedang', 'berat'];
+
+  const kartuHtml = (it, w) => `
+    <div class="plgw-card" data-id="${it.id}" style="background:${w.bg};border-color:${w.border}">
+      <p style="font-size:20px;line-height:1;margin:0 0 4px">${ikonUntuk(it.nama, it.kategori)}</p>
+      <p class="nama" style="color:${w.teks}">${escapeHtml(it.nama)}</p>
+      <p class="poin" style="color:${w.teks}">${it.poin} poin</p>
+    </div>
+  `;
+
   wrap.innerHTML = kategoris.map(kat => {
-    const items = masterCache.filter(m => m.kategori === kat);
+    const items = masterCache
+      .filter(m => m.kategori === kat)
+      .sort((a, b) => (b.jumlah_pemakaian || 0) - (a.jumlah_pemakaian || 0));
     if (!items.length) return '';
     const w = KATEGORI_WARNA[kat];
+    const utama = items.slice(0, JUMLAH_TAMPIL_AWAL);
+    const sisanya = items.slice(JUMLAH_TAMPIL_AWAL);
+
     return `
       <div class="plgw-kat-label" style="color:${w.teks}">${w.label}</div>
-      <div class="plgw-grid">
-        ${items.map(it => `
-          <div class="plgw-card" data-id="${it.id}" style="background:${w.bg};border-color:${w.border}">
-            <p class="nama" style="color:${w.teks}">${escapeHtml(it.nama)}</p>
-            <p class="poin" style="color:${w.teks}">${it.poin} poin</p>
-          </div>
-        `).join('')}
-      </div>
+      <div class="plgw-grid">${utama.map(it => kartuHtml(it, w)).join('')}</div>
+      ${sisanya.length ? `
+        <button class="plgw-lainnya" data-kat="${kat}" style="color:${w.teks};border-color:${w.border}">
+          Lihat ${sisanya.length} lainnya ▾
+        </button>
+        <div class="plgw-grid" id="plgw-sisa-${kat}" style="display:none">${sisanya.map(it => kartuHtml(it, w)).join('')}</div>
+      ` : ''}
     `;
   }).join('') || '<div style="padding:16px 4px;color:#8A9BAE;font-size:13px">Master data pelanggaran belum diisi admin</div>';
 
@@ -341,6 +392,15 @@ function renderGrid() {
     el.addEventListener('click', () => {
       jenisTerpilih = masterCache.find(m => m.id === el.dataset.id);
       if (jenisTerpilih) pilihJenis();
+    });
+  });
+
+  wrap.querySelectorAll('.plgw-lainnya').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(`plgw-sisa-${btn.dataset.kat}`);
+      const buka = target.style.display === 'none';
+      target.style.display = buka ? 'grid' : 'none';
+      btn.textContent = buka ? 'Sembunyikan ▴' : `Lihat lainnya ▾`;
     });
   });
 }
@@ -380,6 +440,14 @@ async function simpanCatatan() {
     });
 
     await perbaruiRekapPoin(siswaTerpilih, jenisTerpilih.poin);
+
+    // Catat pemakaian di koleksi terpisah (bukan Master_Pelanggaran) supaya tidak perlu
+    // hak tulis admin — hanya untuk menghitung mana yang "tersering" dipakai.
+    setDoc(doc(cfg.db, 'Pemakaian_Pelanggaran', jenisTerpilih.id), {
+      jumlah: increment(1)
+    }, { merge: true }).catch(e => console.error('[pelanggaran-widget] gagal update jumlah_pemakaian', e));
+    const cacheItem = masterCache.find(m => m.id === jenisTerpilih.id);
+    if (cacheItem) cacheItem.jumlah_pemakaian = (cacheItem.jumlah_pemakaian || 0) + 1;
 
     tampilkanToast('✅ Pelanggaran tersimpan');
     tutupSheet();
