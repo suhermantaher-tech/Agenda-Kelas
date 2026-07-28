@@ -576,6 +576,9 @@ const tglStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate()
 const tglLabel = s => { if(!s)return'—'; const d=new Date(s); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
 const hariLabel = s => { if(!s)return'—'; return HARI[new Date(s).getDay()]; };
 const warnaPct = p => p>=80?'var(--hijau)':p>=50?'var(--kuning)':'var(--merah)';
+// Nama kelas kadang tersimpan beda format antar-koleksi (mis. "X1" vs "X 1") —
+// samakan dulu sebelum dibandingkan supaya tidak ada data yang "hilang" karena beda spasi/huruf besar-kecil
+const normKelas = v => (v || '').toString().trim().toUpperCase().replace(/\s+/g, '');
 const tahunAjaranSaatIni = () => {
   const n = new Date(); const y = n.getFullYear(); const m = n.getMonth()+1; // 1-12
   return m>=7 ? `${y}/${y+1}` : `${y-1}/${y}`;
@@ -665,8 +668,9 @@ window.gt = function(tab, el) {
 // ── MUAT SISWA ──
 async function muatSiswa() {
   const kelas = rombelData?.nama_kelas || '';
-  const snap = await getDocs(query(collection(db,'Data_Siswa'), where('kelas','==',kelas)));
+  const snap = await getDocs(collection(db,'Data_Siswa'));
   allSiswa = snap.docs.map(d=>({id:d.id,...d.data()}))
+    .filter(s => normKelas(s.kelas) === normKelas(kelas))
     .sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
   document.getElementById('k-siswa').textContent = allSiswa.length;
 }
@@ -680,9 +684,8 @@ async function muatBeranda() {
   const kelas = rombelData?.nama_kelas || '';
 
   // Kehadiran hari ini
-  const snPres = await getDocs(query(collection(db,'Presensi_Harian'),
-    where('kelas','==',kelas), where('tanggal','==',tgl)));
-  const semuaPresensi = snPres.docs.map(d=>d.data());
+  const snPres = await getDocs(query(collection(db,'Presensi_Harian'), where('tanggal','==',tgl)));
+  const semuaPresensi = snPres.docs.map(d=>d.data()).filter(v => normKelas(v.kelas) === normKelas(kelas));
   const hadirList = semuaPresensi.filter(v => !v.status || v.status==='hadir').sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
   const izinList  = semuaPresensi.filter(v => v.status==='izin');
   const sakitList = semuaPresensi.filter(v => v.status==='sakit');
@@ -734,9 +737,9 @@ async function muatBeranda() {
   }
 
   // Agenda hari ini
-  const snAgd = await getDocs(query(collection(db,'Agenda_Harian'),
-    where('kelas','==',kelas), where('tanggal','==',tgl)));
-  const agdList = snAgd.docs.map(d=>d.data()).sort((a,b)=>(a.slot_urutan||0)-(b.slot_urutan||0));
+  const snAgd = await getDocs(query(collection(db,'Agenda_Harian'), where('tanggal','==',tgl)));
+  const agdList = snAgd.docs.map(d=>d.data()).filter(a => normKelas(a.kelas) === normKelas(kelas))
+    .sort((a,b)=>(a.slot_urutan||0)-(b.slot_urutan||0));
   const agdEl = document.getElementById('agd-hari-ini');
   if(!agdList.length) {
     agdEl.innerHTML = '<div class="empty"><div class="empty-ikon">📭</div><div class="empty-teks">Belum ada agenda hari ini</div></div>';
@@ -783,8 +786,8 @@ window.muatAbsensi = async function() {
   if(!dari||!sampai){ toast('⚠ Pilih periode dulu'); return; }
   const kelas = rombelData?.nama_kelas||'';
   const snap = await getDocs(query(collection(db,'Presensi_Harian'),
-    where('kelas','==',kelas), where('tanggal','>=',dari), where('tanggal','<=',sampai)));
-  absData = snap.docs.map(d=>d.data());
+    where('tanggal','>=',dari), where('tanggal','<=',sampai)));
+  absData = snap.docs.map(d=>d.data()).filter(d => normKelas(d.kelas) === normKelas(kelas));
   renderAbsensi();
 };
 
@@ -927,8 +930,8 @@ window.muatAgenda = async function() {
   if(!dari||!sampai){ toast('⚠ Pilih periode dulu'); return; }
   const kelas = rombelData?.nama_kelas||'';
   const snap = await getDocs(query(collection(db,'Agenda_Harian'),
-    where('kelas','==',kelas), where('tanggal','>=',dari), where('tanggal','<=',sampai)));
-  agdData = snap.docs.map(d=>d.data())
+    where('tanggal','>=',dari), where('tanggal','<=',sampai)));
+  agdData = snap.docs.map(d=>d.data()).filter(d => normKelas(d.kelas) === normKelas(kelas))
     .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.slot_urutan||0)-(b.slot_urutan||0));
   isiFilterMapel();
   renderAgenda();
@@ -1000,8 +1003,9 @@ window.muatMateri = async function() {
   materiData = snapBM.docs.map(d=>({id:d.id,...d.data()}));
 
   // Muat agenda kelas ini (untuk tahu materi sudah diajarkan)
-  const snapAgd = await getDocs(query(collection(db,'Agenda_Harian'),where('kelas','==',kelas)));
-  agendaMateriSet = new Set(snapAgd.docs.map(d=>(d.data().materi_pokok||'').toLowerCase().trim()));
+  const snapAgd = await getDocs(collection(db,'Agenda_Harian'));
+  agendaMateriSet = new Set(snapAgd.docs.map(d=>d.data()).filter(a => normKelas(a.kelas) === normKelas(kelas))
+    .map(a=>(a.materi_pokok||'').toLowerCase().trim()));
 
   renderMateri();
 };
@@ -1089,9 +1093,8 @@ window.muatBolos = async function() {
   const tglAwal = new Date(); tglAwal.setDate(tglAwal.getDate()-periode);
   const tglAwalStr = tglStr(tglAwal);
 
-  const snap = await getDocs(query(collection(db,'Presensi_Harian'),
-    where('kelas','==',kelas), where('tanggal','>=',tglAwalStr)));
-  const presData = snap.docs.map(d=>d.data());
+  const snap = await getDocs(query(collection(db,'Presensi_Harian'), where('tanggal','>=',tglAwalStr)));
+  const presData = snap.docs.map(d=>d.data()).filter(d => normKelas(d.kelas) === normKelas(kelas));
 
   // Hitung hari sekolah dalam periode
   let hariSekolah = 0;
@@ -1191,13 +1194,15 @@ window.muatPelanggaranWali = async function() {
   if (!kelas) return;
 
   const [snapCatatan, snapRekap] = await Promise.all([
-    getDocs(query(collection(db,'Catatan_Pelanggaran'), where('kelas','==',kelas))),
-    getDocs(query(collection(db,'Rekap_Poin_Siswa'), where('kelas','==',kelas)))
+    getDocs(collection(db,'Catatan_Pelanggaran')),
+    getDocs(collection(db,'Rekap_Poin_Siswa'))
   ]);
 
   const catatan = snapCatatan.docs.map(d=>d.data())
+    .filter(c => normKelas(c.kelas) === normKelas(kelas))
     .sort((a,b)=> (b.waktu?.toMillis?.()||0) - (a.waktu?.toMillis?.()||0));
   const rekap = snapRekap.docs.map(d=>d.data())
+    .filter(r => normKelas(r.kelas) === normKelas(kelas))
     .sort((a,b)=> (b.total_poin||0)-(a.total_poin||0));
 
   _plgCatatanCache = catatan;
