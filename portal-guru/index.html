@@ -11669,13 +11669,19 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       const sSnap = await getDocs(collection(db, 'Data_Siswa'));
       const semuaSiswa = sSnap.docs.map(d => ({ id:d.id, ...d.data() }));
 
-      // 2. Siswa yang sudah scan presensi hari ini
+      // 2. Presensi hari ini — simpan status per siswa (hadir/izin/sakit), bukan cuma ada/tidak
       const pSnap = await getDocs(query(
         collection(db, 'Presensi_Harian'),
         where('tanggal', '==', tanggalStr(sekarang))
       ));
-      const hadirNIS = new Set(pSnap.docs.map(d => d.data().nis).filter(Boolean));
-      const hadirNama = new Set(pSnap.docs.map(d => (d.data().nama||'').toLowerCase()).filter(Boolean));
+      const statusMap = {}; // key: nis atau nama lowercase -> 'hadir'|'izin'|'sakit'
+      pSnap.docs.forEach(d => {
+        const v = d.data();
+        const st = v.status || 'hadir';
+        if (v.nis) statusMap[v.nis] = st;
+        if (v.nama) statusMap[(v.nama||'').toLowerCase()] = st;
+      });
+      const statusSiswa = s => statusMap[s.nis] || statusMap[(s.nama||'').toLowerCase()] || null;
 
       // 3. Jadwal guru hari ini → ambil kelas
       const snapJ = await getDocs(query(
@@ -11696,7 +11702,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         return;
       }
 
-      // 5. Render per kelas — tampilkan nama siswa tidak hadir
+      // 5. Render per kelas — pisah: hadir / izin-sakit (sudah ditandai) / belum tercatat (bisa ditandai)
       let totalHadirAll = 0, totalSiswaAll = 0;
 
       wrap.innerHTML = kelasTarget.map(kelas => {
@@ -11704,12 +11710,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
           s.kelas === kelas || (s.kelas||'').replace(/\s/g,'') === kelas.replace(/\s/g,'')
         ).sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
 
-        const hadir = siswaKelas.filter(s =>
-          hadirNIS.has(s.nis) || hadirNama.has((s.nama||'').toLowerCase())
-        );
-        const tidakHadir = siswaKelas.filter(s =>
-          !hadirNIS.has(s.nis) && !hadirNama.has((s.nama||'').toLowerCase())
-        );
+        const hadir = siswaKelas.filter(s => statusSiswa(s) === 'hadir');
+        const izinSakit = siswaKelas.filter(s => statusSiswa(s) === 'izin' || statusSiswa(s) === 'sakit');
+        const belumTercatat = siswaKelas.filter(s => !statusSiswa(s));
 
         totalHadirAll += hadir.length;
         totalSiswaAll += siswaKelas.length;
@@ -11718,17 +11721,38 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         const warna = pct >= 90 ? '#2E7D32' : pct >= 75 ? '#F57F17' : '#C62828';
         const warnaLbl = pct >= 90 ? '#1B5E20' : pct >= 75 ? '#E65100' : '#B71C1C';
 
-        // Daftar nama tidak hadir
-        const namaTdkHadir = tidakHadir.length > 0
+        const esc = t => (t||'').replace(/'/g,"\\'");
+
+        // Belum tercatat — bisa ditandai izin/sakit langsung dari sini
+        const blokBelumTercatat = belumTercatat.length > 0
           ? `<div style="margin-top:8px;padding:8px 10px;background:#FFF5F5;border-radius:8px;border:1px solid #FFCDD2;">
-              <div style="font-size:10px;font-weight:700;color:#C62828;margin-bottom:5px;">⚠ Tidak hadir (${tidakHadir.length} siswa):</div>
-              <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                ${tidakHadir.map(s =>
-                  `<span style="font-size:10px;background:white;border:1px solid #FFCDD2;color:#C62828;padding:1px 7px;border-radius:10px;font-weight:600">${s.nama?.split(' ').slice(0,2).join(' ')||'—'}</span>`
-                ).join('')}
+              <div style="font-size:10px;font-weight:700;color:#C62828;margin-bottom:5px;">⚠ Belum tercatat (${belumTercatat.length} siswa) — tandai kalau izin/sakit:</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                ${belumTercatat.map(s => `
+                  <div style="display:flex;align-items:center;gap:3px;background:white;border:1px solid #FFCDD2;border-radius:10px;padding:2px 3px 2px 8px;">
+                    <span style="font-size:10px;color:#C62828;font-weight:600">${s.nama?.split(' ').slice(0,2).join(' ')||'—'}</span>
+                    <button onclick="tandaiIzinSakitGuru('${esc(s.nis)}','${esc(s.nama)}','${esc(kelas)}','izin')" title="Tandai Izin"
+                      style="border:none;background:#FFF3E0;color:#B85510;font-size:10px;padding:3px 6px;border-radius:6px;cursor:pointer;font-weight:700">📝</button>
+                    <button onclick="tandaiIzinSakitGuru('${esc(s.nis)}','${esc(s.nama)}','${esc(kelas)}','sakit')" title="Tandai Sakit"
+                      style="border:none;background:#E3EEF8;color:#1A3A5C;font-size:10px;padding:3px 6px;border-radius:6px;cursor:pointer;font-weight:700">🤒</button>
+                  </div>
+                `).join('')}
               </div>
             </div>`
-          : `<div style="margin-top:6px;font-size:10px;color:#2E7D32;font-weight:600">✅ Semua siswa hadir</div>`;
+          : '';
+
+        // Izin/Sakit — sudah ditandai (oleh guru manapun), tampil sebagai verifikasi saja
+        const blokIzinSakit = izinSakit.length > 0
+          ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">
+              ${izinSakit.map(s => {
+                const st = statusSiswa(s);
+                return `<span style="font-size:10px;background:${st==='izin'?'#FFF9E6':'#F0F4F8'};border:1px solid ${st==='izin'?'#FFE082':'#CBD5E0'};color:${st==='izin'?'#B85510':'#3A4A5C'};padding:2px 8px;border-radius:10px;font-weight:600">${st==='izin'?'📝':'🤒'} ${s.nama?.split(' ').slice(0,2).join(' ')||'—'} · ${st==='izin'?'Izin':'Sakit'}</span>`;
+              }).join('')}
+            </div>`
+          : '';
+
+        const semuaBeres = !belumTercatat.length && !izinSakit.length
+          ? `<div style="margin-top:6px;font-size:10px;color:#2E7D32;font-weight:600">✅ Semua siswa hadir</div>` : '';
 
         return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -11739,7 +11763,9 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
             <div style="font-size:12px;font-weight:700;color:${warnaLbl};font-family:'DM Mono',monospace;">${hadir.length}/${siswaKelas.length}</div>
             <div style="font-size:11px;font-weight:700;color:${warnaLbl}">${pct}%</div>
           </div>
-          ${namaTdkHadir}
+          ${blokBelumTercatat}
+          ${blokIzinSakit}
+          ${semuaBeres}
         </div>`;
       }).join('');
 
@@ -11755,6 +11781,22 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         `<div style="font-size:11px;color:var(--merah);padding:8px">Error: ${e.message}</div>`;
     }
   }
+
+  window.tandaiIzinSakitGuru = async function(nis, nama, kelas, status) {
+    try {
+      await addDoc(collection(db, 'Presensi_Harian'), {
+        nis, nama, kelas,
+        tanggal: tanggalStr(sekarang),
+        jam_masuk: new Date().toISOString(),
+        status,
+        dicatat_oleh: guruAktif?.id || '',
+      });
+      tampilToast(status === 'izin' ? `📝 ${nama} ditandai Izin` : `🤒 ${nama} ditandai Sakit`);
+      await muatKehadiranSiswaGuru();
+    } catch (e) {
+      tampilToast('❌ Gagal menandai: ' + e.message);
+    }
+  };
 
     // ── JAM AKTIF & NOTIFIKASI ──
   let jamBakuGuru = [];
