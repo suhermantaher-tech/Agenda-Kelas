@@ -308,6 +308,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
         <div class="sec-judul">👥 Kehadiran Hari Ini
           <span class="sec-sub" id="tgl-hari-ini"></span>
         </div>
+        <div id="info-izin-sakit-beranda" style="font-size:11px;color:var(--abu);margin:-6px 0 8px"></div>
         <div id="hadir-list"><div class="empty"><div class="empty-ikon">📭</div><div class="empty-teks">Memuat...</div></div></div>
       </div>
       <div class="kartu">
@@ -346,14 +347,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
       </div>
 
       <!-- KPI Absensi -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:14px">
         <div style="background:var(--hijau-muda);border-radius:var(--radius-sm);padding:10px;text-align:center">
           <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--hijau)" id="abs-k1">—</div>
-          <div style="font-size:10px;color:var(--abu);font-weight:600">Total Hadir</div>
+          <div style="font-size:10px;color:var(--abu);font-weight:600">Hadir</div>
+        </div>
+        <div style="background:#FFF9E6;border-radius:var(--radius-sm);padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:#B85510" id="abs-k-izin">—</div>
+          <div style="font-size:10px;color:var(--abu);font-weight:600">📝 Izin</div>
+        </div>
+        <div style="background:#F0F4F8;border-radius:var(--radius-sm);padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:#3A4A5C" id="abs-k-sakit">—</div>
+          <div style="font-size:10px;color:var(--abu);font-weight:600">🤒 Sakit</div>
         </div>
         <div style="background:var(--merah-muda);border-radius:var(--radius-sm);padding:10px;text-align:center">
           <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--merah)" id="abs-k2">—</div>
-          <div style="font-size:10px;color:var(--abu);font-weight:600">Tidak Hadir</div>
+          <div style="font-size:10px;color:var(--abu);font-weight:600">Alfa</div>
         </div>
         <div style="background:var(--biru-muda);border-radius:var(--radius-sm);padding:10px;text-align:center">
           <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--biru)" id="abs-k3">—</div>
@@ -374,16 +383,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:var(--t
       <div id="abs-tab-harian">
         <div class="tbl-wrap">
           <table class="tbl">
-            <thead><tr><th>Tanggal</th><th>Hari</th><th>Hadir</th><th>Tidak Hadir</th><th>% Kehadiran</th></tr></thead>
-            <tbody id="abs-tbody-harian"><tr><td colspan="5" style="padding:24px;text-align:center;color:var(--abu)">Pilih periode → Tampilkan</td></tr></tbody>
+            <thead><tr><th>Tanggal</th><th>Hari</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alfa</th><th>% Kehadiran</th></tr></thead>
+            <tbody id="abs-tbody-harian"><tr><td colspan="7" style="padding:24px;text-align:center;color:var(--abu)">Pilih periode → Tampilkan</td></tr></tbody>
           </table>
         </div>
       </div>
       <div id="abs-tab-siswa" style="display:none">
         <div class="tbl-wrap">
           <table class="tbl">
-            <thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th>JK</th><th>Hadir</th><th>Tidak Hadir</th><th>% Hadir</th><th>Status</th></tr></thead>
-            <tbody id="abs-tbody-siswa"><tr><td colspan="8" style="padding:24px;text-align:center;color:var(--abu)">Pilih periode → Tampilkan</td></tr></tbody>
+            <thead><tr><th>No</th><th>NIS</th><th>Nama Siswa</th><th>JK</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alfa</th><th>% Hadir</th><th>Status</th></tr></thead>
+            <tbody id="abs-tbody-siswa"><tr><td colspan="10" style="padding:24px;text-align:center;color:var(--abu)">Pilih periode → Tampilkan</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -673,11 +682,20 @@ async function muatBeranda() {
   // Kehadiran hari ini
   const snPres = await getDocs(query(collection(db,'Presensi_Harian'),
     where('kelas','==',kelas), where('tanggal','==',tgl)));
-  const hadirList = snPres.docs.map(d=>d.data()).sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
+  const semuaPresensi = snPres.docs.map(d=>d.data());
+  const hadirList = semuaPresensi.filter(v => !v.status || v.status==='hadir').sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
+  const izinList  = semuaPresensi.filter(v => v.status==='izin');
+  const sakitList = semuaPresensi.filter(v => v.status==='sakit');
 
   const pct = allSiswa.length ? Math.round(hadirList.length/allSiswa.length*100) : 0;
   document.getElementById('k-hadir').textContent = hadirList.length;
   document.getElementById('k-pct').textContent   = pct+'%';
+
+  const infoIS = document.getElementById('info-izin-sakit-beranda');
+  if (infoIS) {
+    infoIS.textContent = (izinList.length || sakitList.length)
+      ? `📝 Izin: ${izinList.length} · 🤒 Sakit: ${sakitList.length}` : '';
+  }
 
   // Hadir list
   const hadirEl = document.getElementById('hadir-list');
@@ -697,9 +715,9 @@ async function muatBeranda() {
     }).join('') + (hadirList.length>8?`<div style="font-size:11px;color:var(--abu);padding:8px 0;text-align:center">...dan ${hadirList.length-8} lagi</div>`:'');
   }
 
-  // Tidak hadir
-  const hadirNIS = new Set(hadirList.map(h=>h.nis||h.nama));
-  const tdkHadir = allSiswa.filter(s=>!hadirNIS.has(s.nis||s.nama));
+  // Tidak hadir — kecualikan yang sudah tercatat izin/sakit juga, bukan cuma yang hadir
+  const sudahTercatat = new Set(semuaPresensi.map(h=>h.nis||h.nama));
+  const tdkHadir = allSiswa.filter(s=>!sudahTercatat.has(s.nis||s.nama));
   const tdkEl = document.getElementById('tdk-hadir-list');
   if(!tdkHadir.length) {
     tdkEl.innerHTML = '<div class="empty"><div class="empty-ikon">🎉</div><div class="empty-teks">Semua siswa hadir!</div></div>';
@@ -784,24 +802,44 @@ function renderAbsensi() {
     for(let t=new Date(dS);t<=sS;t.setDate(t.getDate()+1)) if(t.getDay()!==0) hariSekolah++;
   }
 
-  document.getElementById('abs-k1').textContent = data.length;
-  document.getElementById('abs-k2').textContent = Math.max(0,allSiswa.length*hariSekolah-data.length);
+  const isHadir = d => !d.status || d.status==='hadir';
+  const isIzin  = d => d.status==='izin';
+  const isSakit = d => d.status==='sakit';
+
+  const jmlHadir = data.filter(isHadir).length;
+  const jmlIzin  = data.filter(isIzin).length;
+  const jmlSakit = data.filter(isSakit).length;
+  const totalSlot = allSiswa.length*hariSekolah;
+  const jmlAlfa = Math.max(0, totalSlot - jmlHadir - jmlIzin - jmlSakit);
+
+  document.getElementById('abs-k1').textContent = jmlHadir;
+  document.getElementById('abs-k-izin').textContent  = jmlIzin;
+  document.getElementById('abs-k-sakit').textContent = jmlSakit;
+  document.getElementById('abs-k2').textContent = jmlAlfa;
   document.getElementById('abs-k3').textContent = hariSekolah;
-  const rataHadir = allSiswa.length&&hariSekolah ? Math.round(data.length/(allSiswa.length*hariSekolah)*100) : 0;
+  const rataHadir = totalSlot ? Math.round(jmlHadir/totalSlot*100) : 0;
   document.getElementById('abs-k4').textContent = rataHadir+'%';
 
   // Tab Harian
   const perHari = {};
-  data.forEach(d => { if(!perHari[d.tanggal])perHari[d.tanggal]=0; perHari[d.tanggal]++; });
+  data.forEach(d => {
+    if(!perHari[d.tanggal]) perHari[d.tanggal] = { hadir:0, izin:0, sakit:0 };
+    if (isHadir(d)) perHari[d.tanggal].hadir++;
+    else if (isIzin(d)) perHari[d.tanggal].izin++;
+    else if (isSakit(d)) perHari[d.tanggal].sakit++;
+  });
   document.getElementById('abs-tbody-harian').innerHTML = Object.keys(perHari).sort().map(tgl => {
-    const h=perHari[tgl]; const tdk=Math.max(0,allSiswa.length-h);
+    const h=perHari[tgl].hadir, iz=perHari[tgl].izin, sk=perHari[tgl].sakit;
+    const alfa=Math.max(0,allSiswa.length-h-iz-sk);
     const p=allSiswa.length?Math.round(h/allSiswa.length*100):0;
     const w=warnaPct(p);
     return `<tr>
       <td style="font-weight:700">${tglLabel(tgl)}</td>
       <td>${hariLabel(tgl)}</td>
       <td><span class="badge badge-ok">${h}</span></td>
-      <td><span class="badge badge-err">${tdk}</span></td>
+      <td>${iz ? `<span class="badge" style="background:#FFF9E6;color:#B85510">${iz}</span>` : '—'}</td>
+      <td>${sk ? `<span class="badge" style="background:#F0F4F8;color:#3A4A5C">${sk}</span>` : '—'}</td>
+      <td><span class="badge badge-err">${alfa}</span></td>
       <td>
         <div style="display:flex;align-items:center;gap:6px">
           <div style="width:70px;height:5px;background:var(--border);border-radius:3px;overflow:hidden">
@@ -811,14 +849,21 @@ function renderAbsensi() {
         </div>
       </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--abu)">Tidak ada data</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--abu)">Tidak ada data</td></tr>';
 
   // Tab Per Siswa
   const perSiswa = {};
-  data.forEach(d => { const k=d.nis||d.nama; if(!perSiswa[k])perSiswa[k]={...d,hadir:0}; perSiswa[k].hadir++; });
+  data.forEach(d => {
+    const k=d.nis||d.nama;
+    if(!perSiswa[k]) perSiswa[k]={hadir:0,izin:0,sakit:0};
+    if (isHadir(d)) perSiswa[k].hadir++;
+    else if (isIzin(d)) perSiswa[k].izin++;
+    else if (isSakit(d)) perSiswa[k].sakit++;
+  });
   document.getElementById('abs-tbody-siswa').innerHTML = allSiswa.map((s,i) => {
-    const h=(perSiswa[s.nis||s.nama]||{}).hadir||0;
-    const tdk=Math.max(0,hariSekolah-h);
+    const rek = perSiswa[s.nis||s.nama] || {hadir:0,izin:0,sakit:0};
+    const h=rek.hadir, iz=rek.izin, sk=rek.sakit;
+    const alfa=Math.max(0,hariSekolah-h-iz-sk);
     const p=hariSekolah?Math.round(h/hariSekolah*100):0;
     const w=warnaPct(p);
     const st=p>=80?'badge-ok':p>=60?'badge-warn':'badge-err';
@@ -829,7 +874,9 @@ function renderAbsensi() {
       <td style="font-weight:600">${s.nama||'—'}</td>
       <td>${s.jk||'—'}</td>
       <td style="text-align:center;color:var(--hijau);font-weight:700">${h}</td>
-      <td style="text-align:center;color:var(--merah);font-weight:700">${tdk}</td>
+      <td style="text-align:center;color:#B85510;font-weight:700">${iz||'—'}</td>
+      <td style="text-align:center;color:#3A4A5C;font-weight:700">${sk||'—'}</td>
+      <td style="text-align:center;color:var(--merah);font-weight:700">${alfa}</td>
       <td>
         <div style="display:flex;align-items:center;gap:5px">
           <div style="width:50px;height:5px;background:var(--border);border-radius:3px;overflow:hidden">
@@ -840,17 +887,24 @@ function renderAbsensi() {
       </td>
       <td><span class="badge ${st}">${stTxt}</span></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--abu)">Tidak ada data</td></tr>';
+  }).join('') || '<tr><td colspan="10" style="padding:20px;text-align:center;color:var(--abu)">Tidak ada data</td></tr>';
 }
 
 window.eksporAbsensi = function() {
   if(!absData.length){ toast('⚠ Muat data dulu'); return; }
+  const dari=document.getElementById('abs-dari').value;
+  const sampai=document.getElementById('abs-sampai').value;
+  let hS=0; if(dari&&sampai){const dS=new Date(dari),sS=new Date(sampai); for(let t=new Date(dS);t<=sS;t.setDate(t.getDate()+1)) if(t.getDay()!==0) hS++;}
+  const isHadir = d => !d.status || d.status==='hadir';
+  const isIzin  = d => d.status==='izin';
+  const isSakit = d => d.status==='sakit';
   const rows = allSiswa.map(s => {
-    const h = absData.filter(d=>(d.nis||d.nama)===(s.nis||s.nama)).length;
-    const dari=document.getElementById('abs-dari').value;
-    const sampai=document.getElementById('abs-sampai').value;
-    let hS=0; if(dari&&sampai){const dS=new Date(dari),sS=new Date(sampai); for(let t=new Date(dS);t<=sS;t.setDate(t.getDate()+1)) if(t.getDay()!==0) hS++;}
-    return {'NIS':s.nis,'Nama':s.nama,'JK':s.jk,'Kelas':s.kelas,'Hadir':h,'Tidak Hadir':Math.max(0,hS-h),'% Hadir':hS?Math.round(h/hS*100)+'%':'—'};
+    const recSiswa = absData.filter(d=>(d.nis||d.nama)===(s.nis||s.nama));
+    const h = recSiswa.filter(isHadir).length;
+    const iz = recSiswa.filter(isIzin).length;
+    const sk = recSiswa.filter(isSakit).length;
+    const alfa = Math.max(0,hS-h-iz-sk);
+    return {'NIS':s.nis,'Nama':s.nama,'JK':s.jk,'Kelas':s.kelas,'Hadir':h,'Izin':iz,'Sakit':sk,'Alfa':alfa,'% Hadir':hS?Math.round(h/hS*100)+'%':'—'};
   });
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Absensi');
   XLSX.writeFile(wb,`Absensi_${rombelData?.nama_kelas||'Kelas'}.xlsx`);
