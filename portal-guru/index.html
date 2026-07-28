@@ -12050,6 +12050,10 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       console.log('Auto-isi presensi:', e.message);
     }
 
+    // Tampilkan panel Kehadiran Siswa (termasuk tombol tandai izin/sakit) begitu jadwal dibuka —
+    // tidak perlu menunggu agenda disimpan dulu
+    muatKehadiranSiswaGuru();
+
     document.getElementById('form-agenda').style.display = 'block';
     document.getElementById('form-agenda').scrollIntoView({ behavior:'smooth', block:'start' });
 
