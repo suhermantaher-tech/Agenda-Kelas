@@ -11683,18 +11683,22 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
       });
       const statusSiswa = s => statusMap[s.nis] || statusMap[(s.nama||'').toLowerCase()] || null;
 
-      // 3. Jadwal guru hari ini → ambil kelas
-      const snapJ = await getDocs(query(
-        collection(db, 'Jadwal_Pelajaran'),
-        where('id_guru', '==', guruAktif.id),
-        where('hari', '==', hariIni)
-      ));
-      const kelasList = snapJ.empty ? [] :
-        [...new Set(snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean))].sort();
-
-      // 4. Kalau tidak ada jadwal, tampilkan semua kelas yang ada presensinya
-      const kelasTarget = kelasList.length > 0 ? kelasList :
-        [...new Set(semuaSiswa.map(s => s.kelas||'').filter(Boolean))].sort();
+      // 3. Kelas yang ditampilkan = kelas jadwal yang sedang dipilih saja (bukan semua kelas guru hari ini)
+      let kelasTarget;
+      if (jadwalDipilih) {
+        kelasTarget = [jadwalDipilih.nama_kelas || jadwalDipilih.kelas || ''].filter(Boolean);
+      } else {
+        // Fallback (belum ada jadwal dipilih): tampilkan semua kelas guru hari ini
+        const snapJ = await getDocs(query(
+          collection(db, 'Jadwal_Pelajaran'),
+          where('id_guru', '==', guruAktif.id),
+          where('hari', '==', hariIni)
+        ));
+        const kelasList = snapJ.empty ? [] :
+          [...new Set(snapJ.docs.map(d => d.data().nama_kelas || d.data().kelas || '').filter(Boolean))].sort();
+        kelasTarget = kelasList.length > 0 ? kelasList :
+          [...new Set(semuaSiswa.map(s => s.kelas||'').filter(Boolean))].sort();
+      }
 
       if (!kelasTarget.length) {
         wrap.innerHTML = '<div style="font-size:11px;color:var(--teks-muted);text-align:center;padding:12px">Belum ada data siswa</div>';
@@ -11704,6 +11708,7 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 
       // 5. Render per kelas — pisah: hadir / izin-sakit (sudah ditandai) / belum tercatat (bisa ditandai)
       let totalHadirAll = 0, totalSiswaAll = 0;
+      let sinkron = null; // simpan angka kelas yang sedang dipilih untuk isi form agenda
 
       wrap.innerHTML = kelasTarget.map(kelas => {
         const siswaKelas = semuaSiswa.filter(s =>
@@ -11711,8 +11716,14 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
         ).sort((a,b) => (a.nama||'').localeCompare(b.nama||''));
 
         const hadir = siswaKelas.filter(s => statusSiswa(s) === 'hadir');
-        const izinSakit = siswaKelas.filter(s => statusSiswa(s) === 'izin' || statusSiswa(s) === 'sakit');
+        const izinList = siswaKelas.filter(s => statusSiswa(s) === 'izin');
+        const sakitList = siswaKelas.filter(s => statusSiswa(s) === 'sakit');
+        const izinSakit = [...izinList, ...sakitList];
         const belumTercatat = siswaKelas.filter(s => !statusSiswa(s));
+
+        if (jadwalDipilih && (jadwalDipilih.nama_kelas || jadwalDipilih.kelas) === kelas) {
+          sinkron = { hadir: hadir.length, alfa: belumTercatat.length, izin: izinList.length, sakit: sakitList.length };
+        }
 
         totalHadirAll += hadir.length;
         totalSiswaAll += siswaKelas.length;
@@ -11768,6 +11779,26 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
           ${semuaBeres}
         </div>`;
       }).join('');
+
+      // 6. Sinkronkan ke kotak Hadir/Alfa/Izin/Sakit di form agenda (kalau formnya sedang terbuka)
+      if (sinkron) {
+        const fHadir = document.getElementById('inp-hadir');
+        const fAlfa  = document.getElementById('inp-alfa');
+        const fIzin  = document.getElementById('inp-izin');
+        const fSakit = document.getElementById('inp-sakit');
+        if (fHadir) fHadir.value = sinkron.hadir;
+        if (fAlfa)  fAlfa.value  = sinkron.alfa;
+        if (fIzin)  fIzin.value  = sinkron.izin;
+        if (fSakit) fSakit.value = sinkron.sakit;
+
+        const infoEl = document.getElementById('info-presensi-pagi');
+        if (infoEl) {
+          infoEl.style.display = 'flex';
+          infoEl.innerHTML = `<span style="font-size:11px;color:#2E7D32;font-weight:600">
+            📋 Sinkron dari presensi: <strong>${sinkron.hadir} hadir · ${sinkron.izin} izin · ${sinkron.sakit} sakit · ${sinkron.alfa} belum tercatat</strong> — bisa disesuaikan manual bila perlu
+          </span>`;
+        }
+      }
 
       sumEl.textContent = totalSiswaAll > 0
         ? `${totalHadirAll} dari ${totalSiswaAll} siswa hadir`
@@ -12023,35 +12054,8 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
     ['metode','media'].forEach(f => document.getElementById('inp-'+f).value = '');
     ['hadir','alfa','izin','sakit'].forEach(f => document.getElementById('inp-'+f).value = '0');
 
-    // Auto-isi jumlah hadir dari scan presensi pagi kelas ini
-    try {
-      const pSnap = await getDocs(query(
-        collection(db, 'Presensi_Harian'),
-        where('tanggal', '==', tanggalStr(sekarang))
-      ));
-      // Hitung siswa hadir di kelas ini
-      const hadirKelas = pSnap.docs.filter(d => {
-        const k = d.data().kelas || '';
-        return k === namaKelas || k.replace(/\s/g,'') === namaKelas.replace(/\s/g,'');
-      }).length;
-
-      if (hadirKelas > 0) {
-        document.getElementById('inp-hadir').value = hadirKelas;
-        // Tampilkan info presensi di form
-        const infoEl = document.getElementById('info-presensi-pagi');
-        if (infoEl) {
-          infoEl.style.display = 'flex';
-          infoEl.innerHTML = `<span style="font-size:11px;color:#2E7D32;font-weight:600">
-            📋 Dari scan pagi: <strong>${hadirKelas} siswa hadir</strong> · Bisa disesuaikan jika ada siswa masuk/keluar
-          </span>`;
-        }
-      }
-    } catch(e) {
-      console.log('Auto-isi presensi:', e.message);
-    }
-
-    // Tampilkan panel Kehadiran Siswa (termasuk tombol tandai izin/sakit) begitu jadwal dibuka —
-    // tidak perlu menunggu agenda disimpan dulu
+    // Isi kotak Hadir/Alfa/Izin/Sakit + panel Kehadiran Siswa (termasuk tombol tandai izin/sakit)
+    // sekaligus dari satu sumber yang sama — tidak perlu menunggu agenda disimpan dulu
     muatKehadiranSiswaGuru();
 
     document.getElementById('form-agenda').style.display = 'block';
