@@ -985,8 +985,13 @@
       <div class="tabel-card" style="padding:20px;">
         <div class="section-judul" id="form-guru-judul" style="margin-bottom:12px;">➕ Tambah Guru Baru</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px" oninput="fgAutoKode()"></div>
-          <div><label class="form-lbl">Kode Guru * <span style="font-weight:400;color:var(--abu)">(unik, maks 4 huruf)</span></label><input type="text" class="filter-input" id="fg-kode" placeholder="SS" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase"></div>
+          <div><label class="form-lbl">Nama Lengkap *</label><input type="text" class="filter-input" id="fg-nama" placeholder="Suherman Taher, S.Pd" style="width:100%;margin-top:4px"></div>
+          <div><label class="form-lbl">Kode Guru * <span style="font-weight:400;color:var(--abu)">(nomor urut, otomatis)</span></label>
+            <div style="display:flex;gap:6px;margin-top:4px;">
+              <input type="text" class="filter-input" id="fg-kode" placeholder="01" maxlength="4" readonly style="flex:1;font-family:DM Mono,monospace;font-size:16px;letter-spacing:3px;text-align:center;background:#f0f0f0;cursor:not-allowed">
+              <button type="button" class="btn-ekspor" title="Buat ulang nomor urut" style="background:#f0f0f0;color:var(--teks);padding:0 12px;" onclick="fgAutoKode(true)">🔄</button>
+            </div>
+          </div>
           <div><label class="form-lbl">NIP</label><input type="text" class="filter-input" id="fg-nip" placeholder="197001012000011001" style="width:100%;margin-top:4px"></div>
           <div><label class="form-lbl">No. HP</label><input type="text" class="filter-input" id="fg-hp" placeholder="08123456789" style="width:100%;margin-top:4px"></div>
           <div><label class="form-lbl">PIN Login (4 digit) *</label><input type="text" class="filter-input" id="fg-pin" placeholder="1234" maxlength="4" style="width:100%;margin-top:4px;font-family:DM Mono,monospace;font-size:18px;letter-spacing:6px"></div>
@@ -3716,26 +3721,24 @@
   // ══════════════════════════════════════
   let fgMapelList = []; // array bidang studi sementara
 
-  // Auto generate kode guru dari nama
-  window.fgAutoKode = function() {
-    const nama = document.getElementById('fg-nama').value.trim();
+  // Hitung nomor urut kode guru berikutnya (01, 02, 03, dst)
+  // excludeId: id guru yang sedang diedit, supaya kode dia sendiri tidak ikut dihitung
+  function nextKodeGuruUrut(excludeId) {
+    let maxNum = 0;
+    Object.entries(cacheGuru).forEach(([id, g]) => {
+      if (id === excludeId) return;
+      const n = parseInt(g.kode_guru, 10);
+      if (!isNaN(n) && n > maxNum) maxNum = n;
+    });
+    return String(maxNum + 1).padStart(2, '0');
+  }
+
+  // Generate / regenerate kode guru berupa nomor urut
+  // paksa=true → selalu buat ulang (dipakai tombol 🔄), default hanya isi jika kosong
+  window.fgAutoKode = function(paksa) {
     const kodeEl = document.getElementById('fg-kode');
-    if (!kodeEl.value && nama) {
-      // Ambil inisial kata-kata sebelum koma/gelar
-      const namaBersih = nama.split(',')[0].trim();
-      const kata = namaBersih.split(' ').filter(k => k.length > 0);
-      let kode = '';
-      if (kata.length >= 2) kode = (kata[0][0] + kata[1][0]).toUpperCase();
-      else if (kata.length === 1) kode = kata[0].slice(0,2).toUpperCase();
-      // Cek duplikat
-      const kodeSudahAda = Object.values(cacheGuru).map(g => g.kode_guru||'');
-      let finalKode = kode;
-      let suffix = 1;
-      while (kodeSudahAda.includes(finalKode) && suffix < 10) {
-        finalKode = kode + suffix;
-        suffix++;
-      }
-      kodeEl.value = finalKode;
+    if (paksa || !kodeEl.value) {
+      kodeEl.value = nextKodeGuruUrut(editGuruId);
     }
   };
 
@@ -4310,7 +4313,7 @@
           <thead><tr><th>Field / Kolom</th><th>Jenis</th><th>Contoh Isi</th><th>Keterangan</th></tr></thead>
           <tbody>
             <tr><td><code>nama_lengkap</code></td><td>string</td><td>Suherman Taher, S.Pd</td><td>Nama lengkap dengan gelar — wajib</td></tr>
-            <tr><td><code>kode_guru</code></td><td>string</td><td>SS</td><td>Inisial unik maks 4 huruf — dipakai di grid roster</td></tr>
+            <tr><td><code>kode_guru</code></td><td>string</td><td>01</td><td>Nomor urut unik (01, 02, dst) — dibuat otomatis, dipakai di grid roster</td></tr>
             <tr><td><code>nip</code></td><td>string</td><td>197001012000011001</td><td>NIP 18 digit (opsional)</td></tr>
             <tr><td><code>pin_login</code></td><td>string</td><td>1234</td><td>PIN 4 digit, harus unik tiap guru</td></tr>
             <tr><td><code>no_hp</code></td><td>string</td><td>08123456789</td><td>Nomor WhatsApp aktif (opsional)</td></tr>
@@ -4389,6 +4392,8 @@
       document.getElementById('fg-pin').value    = g.pin_login || '';
       document.getElementById('fg-hp').value     = g.no_hp || '';
       document.getElementById('fg-status').value = String(g.status_aktif !== false);
+      // Kode guru: pakai yang sudah ada, kalau kosong/rusak buatkan nomor urut baru
+      document.getElementById('fg-kode').value = g.kode_guru || nextKodeGuruUrut(id);
     } else {
       document.getElementById('form-guru-judul').textContent = '➕ Tambah Guru Baru';
       document.getElementById('fg-nama').value = '';
@@ -4396,6 +4401,8 @@
       document.getElementById('fg-pin').value  = '';
       document.getElementById('fg-hp').value   = '';
       document.getElementById('fg-status').value = 'true';
+      // Kode guru otomatis: nomor urut berikutnya
+      document.getElementById('fg-kode').value = nextKodeGuruUrut(null);
     }
     document.getElementById('form-guru-wrap').scrollIntoView({ behavior:'smooth' });
   };
@@ -4408,17 +4415,24 @@
   window.simpanGuru = async function() {
     const nama = document.getElementById('fg-nama').value.trim();
     const pin  = document.getElementById('fg-pin').value.trim();
+    let   kode = document.getElementById('fg-kode').value.trim();
     const errEl = document.getElementById('guru-form-error');
     errEl.textContent = '';
     if (!nama) { errEl.textContent = 'Nama lengkap wajib diisi!'; return; }
     if (!pin || pin.length !== 4 || isNaN(pin)) { errEl.textContent = 'PIN harus 4 digit angka!'; return; }
+    if (!kode) kode = nextKodeGuruUrut(editGuruId); // jaga-jaga kalau field kosong
 
     // Cek PIN duplikat
     const pinExist = Object.entries(cacheGuru).find(([id, g]) => g.pin_login === pin && id !== editGuruId);
     if (pinExist) { errEl.textContent = 'PIN sudah digunakan guru lain!'; return; }
 
+    // Cek kode guru duplikat
+    const kodeExist = Object.entries(cacheGuru).find(([id, g]) => (g.kode_guru||'') === kode && id !== editGuruId);
+    if (kodeExist) { errEl.textContent = 'Kode guru "' + kode + '" sudah digunakan guru lain! Klik 🔄 untuk buat ulang.'; return; }
+
     const data = {
       nama_lengkap: nama,
+      kode_guru:    kode,
       nip:          document.getElementById('fg-nip').value.trim(),
       pin_login:    pin,
       no_hp:        document.getElementById('fg-hp').value.trim(),
