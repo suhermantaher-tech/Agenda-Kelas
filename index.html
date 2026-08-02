@@ -574,8 +574,8 @@
         </div>
       </div>
       <div>
-        <div class="nav-brand"><span>CMA</span> · SMAN 5</div>
-        <div class="nav-sekolah">Sarolangun · Jambi</div>
+        <div class="nav-brand"><span>CMA</span> · <span id="txt-nav-nama">SMAN 5</span></div>
+        <div class="nav-sekolah" id="txt-nav-lokasi">Sarolangun · Jambi</div>
       </div>
     </div>
     <div class="nav-badge">v2.0 · 2025/2026</div>
@@ -587,7 +587,7 @@
     <h1 class="hero-title">
       <span class="aksen">CMA</span>
     </h1>
-    <div class="hero-subtitle">SMAN 5 Sarolangun · Sistem Informasi KBM</div>
+    <div class="hero-subtitle" id="txt-hero-subtitle">SMAN 5 Sarolangun · Sistem Informasi KBM</div>
     <p class="hero-desc">
       Platform monitoring kegiatan belajar mengajar berbasis web — real-time, terintegrasi, dan mudah digunakan oleh semua pemangku kepentingan sekolah.
     </p>
@@ -791,10 +791,63 @@
 <footer class="footer">
   <div>
     <div class="footer-brand"><span>CMA</span> · Class Monitoring Application</div>
-    <div class="footer-sekolah">SMAN 5 Sarolangun · Kabupaten Sarolangun · Provinsi Jambi</div>
+    <div class="footer-sekolah" id="txt-footer-sekolah">SMAN 5 Sarolangun · Kabupaten Sarolangun · Provinsi Jambi</div>
   </div>
   <div class="footer-copy">v3.0 · T.A. 2025/2026 · Firebase + GitHub Pages</div>
 </footer>
+
+<script type="module">
+  // Ambil nama sekolah otomatis dari Firestore (koleksi Profil_Sekolah)
+  // Kalau gagal/kosong, teks default di HTML tetap tampil (fallback aman).
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1p_ZWco5ERzi7u-dzQOJbA_nVewS3ahE",
+    authDomain: "agedasmanli.firebaseapp.com",
+    projectId: "agedasmanli",
+    storageBucket: "agedasmanli.firebasestorage.app",
+    messagingSenderId: "969562298791",
+    appId: "1:969562298791:web:320a29a007c74739217e82"
+  };
+
+  (async function terapkanNamaSekolah() {
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db  = getFirestore(app);
+      const snap = await getDocs(collection(db, 'Profil_Sekolah'));
+      if (snap.empty) return;
+
+      const p = snap.docs[0].data();
+      const nama = (p.nama_sekolah || '').trim();
+      if (!nama) return;
+
+      // Kabupaten/Provinsi disimpan sebagai "Sarolangun / Jambi" → pisah jadi kabupaten & provinsi
+      const [kab, prov] = (p.kabupaten || '').split('/').map(s => (s || '').trim());
+
+      const elNavNama = document.getElementById('txt-nav-nama');
+      if (elNavNama) elNavNama.textContent = nama;
+
+      const elNavLokasi = document.getElementById('txt-nav-lokasi');
+      if (elNavLokasi && (kab || prov)) elNavLokasi.textContent = [kab, prov].filter(Boolean).join(' · ');
+
+      const elHero = document.getElementById('txt-hero-subtitle');
+      if (elHero) elHero.textContent = nama + ' · Sistem Informasi KBM';
+
+      const elFooter = document.getElementById('txt-footer-sekolah');
+      if (elFooter) {
+        let teks = nama;
+        if (kab)  teks += ' · Kabupaten ' + kab;
+        if (prov) teks += ' · Provinsi ' + prov;
+        elFooter.textContent = teks;
+      }
+
+      document.title = 'CMA — ' + nama;
+    } catch (e) {
+      console.log('Profil sekolah:', e.message);
+    }
+  })();
+</script>
 
 <script>
   // Animasi kartu saat scroll
